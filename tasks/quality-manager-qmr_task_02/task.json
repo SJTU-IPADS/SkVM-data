@@ -1,0 +1,90 @@
+{
+  "id": "quality-manager-qmr_task_02",
+  "name": "Score Quality Investment Proposals Using Prioritization Matrix",
+  "category": "quality_management",
+  "gradingType": "hybrid",
+  "prompt": "You are a QMR evaluating proposed quality investments for next fiscal year. Score each proposal using the standard quality investment prioritization matrix and produce a ranked output.\n\nPrioritization criteria and weights:\n- Regulatory requirement (30%): Required=10, Recommended=5, Optional=2\n- Customer impact (25%): Direct=10, Indirect=5, None=0\n- Cost savings potential (20%): >$100K=10, $50-100K=7, <$50K=3\n- Implementation complexity (15%): Simple=10, Moderate=5, Complex=2\n- Strategic alignment (10%): Core=10, Supporting=5, Peripheral=2\n\nProposals to evaluate:\n1. ID: INV-001, Name: \"Electronic QMS upgrade\"\n   - Regulatory: Required (FDA 21 CFR Part 11 compliance mandate)\n   - Customer impact: Indirect\n   - Cost savings: $75K annually\n   - Complexity: Moderate\n   - Strategic: Core\n\n2. ID: INV-002, Name: \"Employee quality training refresh\"\n   - Regulatory: Recommended (ISO 13485 clause 6.2)\n   - Customer impact: Indirect\n   - Cost savings: $20K annually\n   - Complexity: Simple\n   - Strategic: Supporting\n\n3. ID: INV-003, Name: \"Automated visual inspection system\"\n   - Regulatory: Optional\n   - Customer impact: Direct (reduces customer escapes)\n   - Cost savings: $150K annually\n   - Complexity: Complex\n   - Strategic: Core\n\n4. ID: INV-004, Name: \"Supplier audit program expansion\"\n   - Regulatory: Required (ISO 13485 clause 7.4)\n   - Customer impact: Indirect\n   - Cost savings: $45K annually\n   - Complexity: Simple\n   - Strategic: Supporting\n\nStep 1: Calculate the weighted score for each proposal and save to investment_scores.json.\n\nFor each proposal compute: raw scores per criterion, weighted contribution per criterion (raw score * weight), and total_score (sum of weighted contributions, rounded to 2 decimal places). Save as: { \"proposals\": [ { \"id\": \"...\", \"name\": \"...\", \"scores\": { \"regulatory_requirement\": {\"raw\": N, \"weighted\": X}, ... }, \"total_score\": Y }, ... ] }\n\nStep 2: Rank proposals by total_score descending and save the ranked list to investment_ranking.json.\n\nSave as: { \"ranked_proposals\": [ { \"rank\": 1, \"id\": \"...\", \"name\": \"...\", \"total_score\": Y, \"recommendation\": \"Approve\" or \"Review\" or \"Defer\" } ] }\n\nRecommendation rules: total_score >= 7.0 = Approve, 5.0-6.99 = Review, < 5.0 = Defer.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "quality-manager-qmr_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "scores-exists",
+            "weight": 0.08,
+            "description": "investment_scores.json exists in the working directory.",
+            "testPattern": "investment_scores.json.*exists|file exists.*investment_scores"
+          },
+          {
+            "id": "proposals-count",
+            "weight": 0.1,
+            "description": "investment_scores.json proposals array contains exactly 4 entries.",
+            "testPattern": "has proposals array with 4 entries"
+          },
+          {
+            "id": "inv001-score",
+            "weight": 0.15,
+            "description": "INV-001 total_score is approximately 7.75 (±0.1), computed from Required regulatory × 0.30 + Indirect × 0.25 + $50-100K × 0.20 + Moderate × 0.15 + Core × 0.10.",
+            "testPattern": "INV-001.*7.75|7.75.*INV-001"
+          },
+          {
+            "id": "inv002-score",
+            "weight": 0.12,
+            "description": "INV-002 total_score is approximately 5.25 (±0.1), the lowest of the four proposals.",
+            "testPattern": "INV-002.*5.25|5.25.*INV-002"
+          },
+          {
+            "id": "inv003-score",
+            "weight": 0.12,
+            "description": "INV-003 total_score is approximately 6.40 (±0.1).",
+            "testPattern": "INV-003.*6.4|6.4.*INV-003"
+          },
+          {
+            "id": "inv004-score",
+            "weight": 0.13,
+            "description": "INV-004 total_score is approximately 6.75 (±0.1).",
+            "testPattern": "INV-004.*6.75|6.75.*INV-004"
+          },
+          {
+            "id": "ranking-exists",
+            "weight": 0.08,
+            "description": "investment_ranking.json exists in the working directory.",
+            "testPattern": "investment_ranking.json.*exists|file exists.*investment_ranking"
+          },
+          {
+            "id": "ranking-order",
+            "weight": 0.12,
+            "description": "investment_ranking.json ranked_proposals[0] has id 'INV-001' and rank 1 (highest score 7.75), with INV-002 ranked last at rank 4.",
+            "testPattern": "INV-001.*rank.*1|rank 1.*INV-001"
+          },
+          {
+            "id": "recommendations",
+            "weight": 0.1,
+            "description": "INV-001 recommendation is 'Approve' (total_score >= 7.0); entries have rank, id, name, total_score, and recommendation fields.",
+            "testPattern": "Approve.*INV-001|recommendation.*Approve"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent scored and ranked quality investment proposals using a weighted prioritization matrix.\n\nCriterion 1: Score Calculation Accuracy (Weight: 60%)\n1.0: Total scores are correct: INV-001=7.75, INV-002=5.25, INV-003=6.40, INV-004=6.75 (or within ±0.05 of these values). Weighted contributions use the specified criteria weights correctly.\n0.5: At least 3 of 4 scores are correct or minor rounding differences.\n0: Scores are systematically wrong or criteria weights are misapplied.\n\nCriterion 2: Ranking and Recommendations (Weight: 40%)\n1.0: Proposals ranked correctly (INV-001 first with 7.75, then INV-004, INV-003, INV-002). Recommendations correctly applied: INV-001=Approve, INV-004=Review, INV-003=Review, INV-002=Review.\n0.5: Ranking order is correct but 1-2 recommendation assignments differ slightly.\n0: Ranking is wrong or recommendation rules are not applied.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/quality-manager-qmr",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

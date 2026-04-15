@@ -1,0 +1,90 @@
+{
+  "id": "document-skills_task_02",
+  "name": "Create a SKILL.md with Supporting Reference File",
+  "category": "documentation",
+  "gradingType": "hybrid",
+  "prompt": "Create a skill for sending Slack notifications. You must produce the following files:\n\n1. skills/slack-notify/SKILL.md — the main skill file with:\n   - YAML frontmatter with: name (exactly 'slack-notify'), description (at least 80 characters), argument-hint (exactly '[channel] [message]'), and disable-model-invocation set to true.\n   - An H1 heading.\n   - Sections: ## Inputs, ## Output, ## Process, ## Reference.\n   - The Process section must mention a reference file: 'See references/api-patterns.md for request examples.'\n   - The ## Reference section must contain a relative link to references/api-patterns.md.\n\n2. skills/slack-notify/references/api-patterns.md — a reference file containing at least 2 code blocks (fenced with triple backticks) showing example HTTP request patterns for sending Slack messages.\n\nCreate all necessary directories. Both files must exist at the exact paths shown.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "document-skills_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "skill-exists",
+            "weight": 0.1,
+            "description": "The file skills/slack-notify/SKILL.md exists at the required path.",
+            "testPattern": "SKILL.md.*exists"
+          },
+          {
+            "id": "ref-exists",
+            "weight": 0.1,
+            "description": "The reference file skills/slack-notify/references/api-patterns.md exists.",
+            "testPattern": "api-patterns.md.*exists"
+          },
+          {
+            "id": "name-slack-notify",
+            "weight": 0.12,
+            "description": "The frontmatter name field is exactly 'slack-notify'.",
+            "testPattern": "name.*slack-notify"
+          },
+          {
+            "id": "argument-hint",
+            "weight": 0.1,
+            "description": "The frontmatter argument-hint field contains both '[channel]' and '[message]'.",
+            "testPattern": "argument-hint.*channel.*message"
+          },
+          {
+            "id": "description-length",
+            "weight": 0.08,
+            "description": "The frontmatter description field is at least 80 characters long.",
+            "testPattern": "description is at least 80 characters"
+          },
+          {
+            "id": "process-ref-mention",
+            "weight": 0.15,
+            "description": "The ## Process section body contains a reference to 'api-patterns.md'.",
+            "testPattern": "Process.*api-patterns|mentions reference file"
+          },
+          {
+            "id": "reference-section",
+            "weight": 0.12,
+            "description": "The ## Reference section contains a link (relative path) to api-patterns.md.",
+            "testPattern": "Reference section.*link|relative link"
+          },
+          {
+            "id": "ref-code-blocks",
+            "weight": 0.15,
+            "description": "api-patterns.md contains at least 2 fenced code blocks (4 or more ``` occurrences).",
+            "testPattern": "contains at least 2 fenced code blocks"
+          },
+          {
+            "id": "disable-invocation",
+            "weight": 0.08,
+            "description": "The frontmatter contains disable-model-invocation: true in SKILL.md.",
+            "testPattern": "disable-model-invocation"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a SKILL.md and a supporting reference file for a Slack notification skill.\n\nCriterion 1: Reference File Quality (Weight: 50%)\n1.0: api-patterns.md contains realistic, useful HTTP request examples for Slack with correct code blocks showing JSON payloads or curl commands.\n0.5: Code blocks are present but examples are minimal or not realistic.\n0: Reference file is empty, missing code blocks, or shows unrelated content.\n\nCriterion 2: Cross-File Linking (Weight: 50%)\n1.0: SKILL.md Process section explicitly directs users to the reference file, and the Reference section contains a proper relative link. Both files work together as a cohesive skill package.\n0.5: Cross-references exist but are inconsistent or the link format is wrong.\n0: Files are not connected — no mention of the reference file in SKILL.md.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/document-skills",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

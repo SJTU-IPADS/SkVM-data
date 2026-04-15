@@ -1,0 +1,84 @@
+{
+  "id": "image-utils_task_02",
+  "name": "Image Adjustments and Format Conversion Pipeline",
+  "category": "image_processing",
+  "gradingType": "hybrid",
+  "prompt": "Use Python and the Pillow library to build an image adjustment pipeline. Create all source images programmatically — no internet access needed.\n\nStep 1: Create a source image.\nCreate a new RGB image of 300x300 pixels. Fill the top half (rows 0-149) with red (255, 0, 0) and the bottom half (rows 150-299) with green (0, 128, 0). Save as original.png.\n\nStep 2: Brightness adjustment.\nLoad original.png. Apply a brightness factor of 1.5 (using Pillow's ImageEnhance.Brightness). Save as bright.png.\n\nStep 3: Contrast adjustment.\nLoad original.png. Apply a contrast factor of 0.5 (using Pillow's ImageEnhance.Contrast). Save as low_contrast.png.\n\nStep 4: Grayscale conversion.\nLoad original.png. Convert to grayscale (mode 'L'). Save as gray.png.\n\nStep 5: Flip operations.\nLoad original.png. Flip it horizontally (mirror). Save as flipped_h.png. Then flip original.png vertically. Save as flipped_v.png.\n\nStep 6: Verify pixel values and write results to pixel_check.json with this exact structure:\n{\n  \"original_top_left_pixel\": [R, G, B],\n  \"original_bottom_left_pixel\": [R, G, B],\n  \"flipped_v_top_left_pixel\": [R, G, B],\n  \"gray_mode\": \"<mode string>\",\n  \"gray_size\": [width, height]\n}\nRead pixel values from the saved files. flipped_v_top_left_pixel should be the color that was originally at the bottom-left after vertical flip.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "image-utils_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "json_exists",
+            "weight": 0.08,
+            "description": "pixel_check.json file is present in the workspace.",
+            "testPattern": "pixel_check.json exists"
+          },
+          {
+            "id": "json_keys",
+            "weight": 0.07,
+            "description": "pixel_check.json contains all five required keys: original_top_left_pixel, original_bottom_left_pixel, flipped_v_top_left_pixel, gray_mode, and gray_size.",
+            "testPattern": "required keys"
+          },
+          {
+            "id": "top_left_red",
+            "weight": 0.2,
+            "description": "original_top_left_pixel is exactly [255, 0, 0] (pure red, as the top half of the source image is filled red).",
+            "testPattern": "top-left pixel is red"
+          },
+          {
+            "id": "bottom_left_green",
+            "weight": 0.2,
+            "description": "original_bottom_left_pixel is exactly [0, 128, 0] (the green used to fill the bottom half of the source image).",
+            "testPattern": "bottom-left pixel is green"
+          },
+          {
+            "id": "flipped_v_correct",
+            "weight": 0.15,
+            "description": "flipped_v_top_left_pixel has a green channel greater than both red and blue channels, confirming the vertical flip moved the green bottom row to the top.",
+            "testPattern": "flipped_v top-left"
+          },
+          {
+            "id": "gray_mode",
+            "weight": 0.1,
+            "description": "gray_mode in pixel_check.json is the string \"L\", confirming grayscale conversion.",
+            "testPattern": "grayscale mode"
+          },
+          {
+            "id": "gray_size",
+            "weight": 0.1,
+            "description": "gray_size in pixel_check.json is [300, 300], matching the source image dimensions.",
+            "testPattern": "grayscale size"
+          },
+          {
+            "id": "output_files",
+            "weight": 0.1,
+            "description": "All six output image files exist: original.png, bright.png, low_contrast.png, gray.png, flipped_h.png, and flipped_v.png.",
+            "testPattern": "original.png|bright.png|low_contrast.png|gray.png|flipped_h.png|flipped_v.png"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent created images with programmatic pixel content, applied adjustments, and reported pixel values.\n\nCriterion 1: Pixel Value Correctness (Weight: 60%)\n1.0: Pixel values in pixel_check.json match expected colors exactly (red top, green bottom, vertical flip reversal).\n0.5: Pixel values are close but have minor color channel discrepancies due to compression.\n0: Pixel values are wrong or file is missing.\n\nCriterion 2: File Completeness (Weight: 40%)\n1.0: All 6 output files exist with correct names and correct image sizes.\n0.5: Most files exist but one or two are missing.\n0: Fewer than 4 output files exist.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/image-utils",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

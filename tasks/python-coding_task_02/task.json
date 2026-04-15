@@ -1,0 +1,108 @@
+{
+  "id": "python-coding_task_02",
+  "name": "Write a Python CLI Argument Parser and Text Statistics Tool",
+  "category": "python_coding",
+  "gradingType": "hybrid",
+  "prompt": "Write a Python script called text_stats.py that analyzes a text file and produces statistics via argparse CLI.\n\nThe script must accept these command-line arguments:\n- `--input` (required): path to the input text file\n- `--output` (required): path to write the JSON results file\n- `--top-words` (optional, default=10): number of most frequent words to include\n\nThe script must compute:\n1. char_count: total number of characters (including spaces and newlines)\n2. word_count: total number of words (split by whitespace)\n3. line_count: total number of lines\n4. unique_words: number of distinct words (case-insensitive, strip punctuation using str.isalpha() filter on characters)\n5. avg_word_length: average length of all words, rounded to 2 decimal places\n6. top_words: list of the N most frequent words as objects [{\"word\": \"the\", \"count\": 42}, ...], sorted descending by count (case-insensitive, strip non-alpha characters from each word, skip empty strings)\n\nWrite results to the --output path as JSON with these exact field names.\n\nAlso create a sample input file called sample.txt with this exact content (copy exactly):\n```\nThe quick brown fox jumps over the lazy dog\nThe dog barked at the fox\nA quick brown fox is a clever fox\nThe lazy dog slept all day\n```\n\nAfter writing text_stats.py and sample.txt, run:\n`python3 text_stats.py --input sample.txt --output stats.json --top-words 5`\n\nThis must produce stats.json.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "python-coding_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "stats-exists",
+            "weight": 0.06,
+            "description": "stats.json exists in the working directory.",
+            "testPattern": "stats.json > file exists"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.08,
+            "description": "stats.json contains all six required fields: char_count, word_count, line_count, unique_words, avg_word_length, and top_words.",
+            "testPattern": "all required fields"
+          },
+          {
+            "id": "word-count",
+            "weight": 0.12,
+            "description": "stats.json word_count equals the integer 29.",
+            "testPattern": "word_count is 29"
+          },
+          {
+            "id": "line-count",
+            "weight": 0.1,
+            "description": "stats.json line_count equals the integer 4.",
+            "testPattern": "line_count is 4"
+          },
+          {
+            "id": "char-count",
+            "weight": 0.08,
+            "description": "stats.json char_count is an integer greater than 100 (total character count including spaces and newlines).",
+            "testPattern": "char_count is a positive integer"
+          },
+          {
+            "id": "unique-words",
+            "weight": 0.08,
+            "description": "stats.json unique_words is an integer between 15 and 25 (case-insensitive distinct alpha words).",
+            "testPattern": "unique_words is between"
+          },
+          {
+            "id": "avg-word-length",
+            "weight": 0.08,
+            "description": "stats.json avg_word_length is a float between 2 and 10, rounded to 2 decimal places.",
+            "testPattern": "avg_word_length"
+          },
+          {
+            "id": "top-words-count",
+            "weight": 0.08,
+            "description": "stats.json top_words is an array of exactly 5 objects (matching the --top-words 5 argument).",
+            "testPattern": "exactly 5 objects"
+          },
+          {
+            "id": "top-words-fields",
+            "weight": 0.06,
+            "description": "Each entry in top_words has a 'word' string field and a numeric 'count' field.",
+            "testPattern": "word and count fields"
+          },
+          {
+            "id": "top-words-sorted",
+            "weight": 0.08,
+            "description": "top_words entries are sorted in descending order by count (each entry's count >= the next entry's count).",
+            "testPattern": "sorted descending"
+          },
+          {
+            "id": "most-frequent",
+            "weight": 0.1,
+            "description": "top_words[0].word is 'the' (case-insensitive) with count 5, as 'the' appears 5 times in sample.txt.",
+            "testPattern": "the.*count 5|most frequent word is"
+          },
+          {
+            "id": "script-argparse",
+            "weight": 0.08,
+            "description": "text_stats.py imports argparse and defines --input, --output, and --top-words arguments.",
+            "testPattern": "argparse|--input.*--output.*--top-words"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent wrote a Python text statistics CLI tool using argparse.\n\nCriterion 1: Code Structure and Style (Weight: 50%)\n1.0: Script uses argparse correctly with all three arguments (--input, --output, --top-words with default), has a main() function, uses proper file context managers, and handles the word frequency computation cleanly (e.g., Counter from collections). Code is clean and readable.\n0.5: Script works but argparse usage is incomplete (missing default for --top-words, missing --output), or word processing has minor bugs.\n0: Script doesn't use argparse, can't be run as CLI, or crashes on the sample input.\n\nCriterion 2: Correctness (Weight: 50%)\n1.0: stats.json contains all required fields with correct values for the sample.txt content. top_words has exactly 5 entries sorted by count descending, and the most frequent words (the, fox, dog, quick, brown) are represented correctly.\n0.5: Most fields are correct but top_words ordering is off or avg_word_length has a calculation error.\n0: stats.json is not produced or has fundamentally wrong values.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/python-coding",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

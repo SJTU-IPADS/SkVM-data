@@ -1,0 +1,96 @@
+{
+  "id": "coding-lead_task_02",
+  "name": "Refactor Multi-File Data Processing Pipeline",
+  "category": "software_engineering",
+  "gradingType": "hybrid",
+  "prompt": "You have a data processing pipeline spread across multiple files. Refactor it following clean architecture principles. This is a medium-complexity task — plan your approach first, then execute directly.\n\nStep 1: Create the following files with the given content.\n\nCreate `raw_processor.py` with this code:\n```python\ndef process(data):\n    result = []\n    for item in data:\n        if item['status'] == 'active':\n            val = item['value'] * 2\n            if val > 100:\n                val = 100\n            result.append({'id': item['id'], 'processed_value': val, 'status': 'done'})\n        else:\n            result.append({'id': item['id'], 'processed_value': 0, 'status': 'skipped'})\n    return result\n\ndef save(result, path):\n    import json\n    with open(path, 'w') as f:\n        json.dump(result, f)\n\ndef load(path):\n    import json\n    with open(path) as f:\n        return json.load(f)\n\ndef run_pipeline(input_path, output_path):\n    data = load(input_path)\n    result = process(data)\n    save(result, output_path)\n    return result\n```\n\nStep 2: Refactor this code into a clean architecture. Create these three files:\n- `models.py` — defines a `DataItem` dataclass with fields: `id` (int), `value` (float), `status` (str) and a `ProcessedItem` dataclass with fields: `id` (int), `processed_value` (float), `status` (str)\n- `pipeline.py` — contains a `DataPipeline` class with methods: `load(path: str) -> list`, `process(items: list) -> list`, `save(results: list, path: str) -> None`, `run(input_path: str, output_path: str) -> list`\n- `main.py` — creates a `DataPipeline()` instance and calls `run(\"input.json\", \"output.json\")`\n\nStep 3: Create `input.json` with this exact content:\n```json\n[\n  {\"id\": 1, \"value\": 40, \"status\": \"active\"},\n  {\"id\": 2, \"value\": 60, \"status\": \"active\"},\n  {\"id\": 3, \"value\": 10, \"status\": \"inactive\"},\n  {\"id\": 4, \"value\": 80, \"status\": \"active\"}\n]\n```\n\nStep 4: Run `python3 main.py` to produce `output.json`.\n\nExpected output.json: item 1 processed_value=80, item 2 processed_value=100 (capped), item 3 processed_value=0 (skipped), item 4 processed_value=100 (capped at 80*2=160 → 100).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "coding-lead_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "files-exist",
+            "weight": 0.1,
+            "description": "models.py, pipeline.py, and main.py all exist in the working directory.",
+            "testPattern": "models.py exists|pipeline.py exists|main.py exists"
+          },
+          {
+            "id": "dataitem",
+            "weight": 0.1,
+            "description": "models.py defines a DataItem dataclass (contains both 'DataItem' and 'dataclass').",
+            "testPattern": "DataItem dataclass"
+          },
+          {
+            "id": "processeditem",
+            "weight": 0.05,
+            "description": "models.py defines a ProcessedItem class.",
+            "testPattern": "ProcessedItem dataclass"
+          },
+          {
+            "id": "pipeline-class",
+            "weight": 0.1,
+            "description": "pipeline.py defines DataPipeline class with load, process, save, and run methods.",
+            "testPattern": "DataPipeline class with required"
+          },
+          {
+            "id": "output-exists",
+            "weight": 0.05,
+            "description": "output.json file is present in the working directory.",
+            "testPattern": "output.json.*file exists"
+          },
+          {
+            "id": "output-structure",
+            "weight": 0.1,
+            "description": "output.json is an array of exactly 4 items, each with id, processed_value, and status fields.",
+            "testPattern": "is array with 4 items|each item has id"
+          },
+          {
+            "id": "item1-correct",
+            "weight": 0.15,
+            "description": "output.json item with id=1 has processed_value=80 and status='done' (40×2=80, below cap).",
+            "testPattern": "item id=1 has processed_value=80"
+          },
+          {
+            "id": "item2-capped",
+            "weight": 0.15,
+            "description": "output.json item with id=2 has processed_value=100 and status='done' (60×2=120, capped at 100).",
+            "testPattern": "item id=2 has processed_value=100"
+          },
+          {
+            "id": "item3-skipped",
+            "weight": 0.15,
+            "description": "output.json item with id=3 has processed_value=0 and status='skipped' (inactive status bypasses processing).",
+            "testPattern": "item id=3 is skipped"
+          },
+          {
+            "id": "item4-capped",
+            "weight": 0.05,
+            "description": "output.json item with id=4 has processed_value=100 and status='done' (80×2=160, capped at 100).",
+            "testPattern": "item id=4 has processed_value=100"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent refactored a single-file pipeline into a clean multi-file architecture.\n\nCriterion 1: Architecture Quality (Weight: 50%)\n1.0: models.py uses dataclasses correctly, pipeline.py has clean separation of concerns, main.py is a thin entry point, the refactoring genuinely improves the original code's structure.\n0.5: Files exist and mostly work but the separation is not clean (e.g., I/O mixed with logic, no use of dataclasses).\n0: Files exist but the refactoring does not improve the architecture.\n\nCriterion 2: Correctness (Weight: 50%)\n1.0: output.json has exactly the right values for all 4 items with correct capping logic applied.\n0.5: output.json exists but one or two values are wrong.\n0: output.json is missing or all values are wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/coding-lead",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

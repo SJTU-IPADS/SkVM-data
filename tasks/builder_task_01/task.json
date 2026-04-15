@@ -1,0 +1,108 @@
+{
+  "id": "builder_task_01",
+  "name": "Write a Makefile for a C Project with Multiple Targets",
+  "category": "devtools",
+  "gradingType": "hybrid",
+  "prompt": "Create a Makefile for a small C project with the following requirements and save it as Makefile in the current directory.\n\nThe project has these source files (do NOT create the C files, only the Makefile):\n- src/main.c\n- src/utils.c\n- src/parser.c\n\nThe Makefile must define these variables:\n- CC = gcc\n- CFLAGS = -Wall -Wextra -O2\n- SRC_DIR = src\n- BUILD_DIR = build\n- TARGET = myapp\n\nThe Makefile must have exactly these targets:\n1. all — default target that builds the TARGET binary in BUILD_DIR\n2. $(BUILD_DIR)/%.o — pattern rule that compiles each .c file in SRC_DIR to a .o file in BUILD_DIR, creating BUILD_DIR if needed\n3. clean — removes BUILD_DIR and its contents using rm -rf\n4. install — copies BUILD_DIR/$(TARGET) to /usr/local/bin/$(TARGET)\n5. .PHONY — declares all, clean, install as phony targets\n\nAdditionally, write a brief build_reference.md file (in the same directory) explaining in plain English: (a) what each target does, (b) the difference between CFLAGS -O0 and -O2, and (c) what .PHONY means in a Makefile. The file should be at least 150 words.",
+  "timeoutMs": 180000,
+  "maxSteps": 30,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "builder_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "makefile-exists",
+            "weight": 0.06,
+            "description": "Makefile is present in the working directory.",
+            "testPattern": "Makefile > file exists"
+          },
+          {
+            "id": "cc-variable",
+            "weight": 0.08,
+            "description": "Makefile defines CC variable assigned to 'gcc'.",
+            "testPattern": "defines CC variable"
+          },
+          {
+            "id": "cflags-variable",
+            "weight": 0.08,
+            "description": "Makefile defines CFLAGS with both -Wall and -O2 flags.",
+            "testPattern": "defines CFLAGS"
+          },
+          {
+            "id": "target-variable",
+            "weight": 0.07,
+            "description": "Makefile defines TARGET variable assigned to 'myapp'.",
+            "testPattern": "defines TARGET"
+          },
+          {
+            "id": "dirs-variables",
+            "weight": 0.07,
+            "description": "Makefile defines BUILD_DIR='build' and SRC_DIR='src' variables.",
+            "testPattern": "BUILD_DIR.*SRC_DIR|defines BUILD_DIR"
+          },
+          {
+            "id": "all-target",
+            "weight": 0.1,
+            "description": "Makefile contains an 'all:' target declared at the start of a line.",
+            "testPattern": "all.*target.*default|has.*all.*target"
+          },
+          {
+            "id": "pattern-rule",
+            "weight": 0.1,
+            "description": "Makefile contains a pattern rule matching '%.o:' for compiling C source files to object files.",
+            "testPattern": "pattern rule"
+          },
+          {
+            "id": "clean-target",
+            "weight": 0.1,
+            "description": "Makefile contains a 'clean:' target whose recipe uses 'rm -rf' to remove build artifacts.",
+            "testPattern": "clean.*target"
+          },
+          {
+            "id": "install-target",
+            "weight": 0.08,
+            "description": "Makefile contains an 'install:' target declared at the start of a line.",
+            "testPattern": "install.*target"
+          },
+          {
+            "id": "phony",
+            "weight": 0.12,
+            "description": "Makefile has a .PHONY declaration that lists all, clean, and install.",
+            "testPattern": "\\.PHONY|phony"
+          },
+          {
+            "id": "ref-exists",
+            "weight": 0.05,
+            "description": "build_reference.md file is present in the working directory.",
+            "testPattern": "build_reference.md > file exists"
+          },
+          {
+            "id": "ref-word-count",
+            "weight": 0.09,
+            "description": "build_reference.md contains at least 150 words.",
+            "testPattern": "150 words|at least 150"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a Makefile for a C project and a reference document explaining build concepts.\n\nCriterion 1: Makefile Correctness (Weight: 60%)\n1.0: Makefile contains all 5 required targets with correct syntax, proper variable usage, pattern rule creates BUILD_DIR as needed, .PHONY correctly declared.\n0.5: Makefile present but missing one or two targets, or has minor syntax issues.\n0: Makefile missing or fundamentally broken.\n\nCriterion 2: Reference Document Quality (Weight: 40%)\n1.0: build_reference.md explains all three points clearly and accurately (target purposes, -O0 vs -O2 optimization difference, .PHONY meaning), at least 150 words.\n0.5: Document exists but explanation of one or more points is superficial or inaccurate.\n0: Document missing or fewer than 100 words.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/builder",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

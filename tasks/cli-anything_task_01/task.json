@@ -1,0 +1,96 @@
+{
+  "id": "cli-anything_task_01",
+  "name": "Create a CLI Harness for a Simple Python Calculator Library",
+  "category": "cli_tooling",
+  "gradingType": "hybrid",
+  "prompt": "You need to design and implement a minimal agent-usable CLI harness for a simple Python calculator library. The goal is to wrap a small computation module so it can be driven by an agent through structured CLI commands.\n\nStep 1: Create a file called calculator.py containing a Python module with four functions: add(a, b), subtract(a, b), multiply(a, b), divide(a, b). The divide function must raise a ValueError with the message \"division by zero\" if b is 0.\n\nStep 2: Create a CLI wrapper called calc_cli.py that accepts commands in the format:\n  python3 calc_cli.py <operation> <num1> <num2>\nWhere operation is one of: add, subtract, multiply, divide.\nThe script must print only the numeric result to stdout (no extra text).\nIf the operation is unknown, print \"ERROR: unknown operation\" and exit with code 1.\nIf divide by zero is attempted, print \"ERROR: division by zero\" and exit with code 1.\n\nStep 3: Create a file called harness_spec.json describing the CLI harness with exactly these fields:\n- \"name\": \"calculator-harness\"\n- \"version\": \"1.0.0\"\n- \"entry_point\": \"python3 calc_cli.py\"\n- \"commands\": an array of 4 objects, each with \"name\" (string) and \"description\" (string)\n- \"error_handling\": an object with keys \"unknown_op\" (string describing the error output) and \"divide_by_zero\" (string describing the error output)\n\nStep 4: Run the CLI and write the results to a file called test_results.txt. The file must contain the output of these four commands, one per line:\n  python3 calc_cli.py add 15 27\n  python3 calc_cli.py multiply 6 7\n  python3 calc_cli.py subtract 100 38\n  python3 calc_cli.py divide 144 12",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "cli-anything_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "calc-exists",
+            "weight": 0.06,
+            "description": "calculator.py file is present in the working directory.",
+            "testPattern": "calculator.py > file exists"
+          },
+          {
+            "id": "calc-functions",
+            "weight": 0.08,
+            "description": "calculator.py defines all four functions: add, subtract, multiply, and divide.",
+            "testPattern": "four required functions"
+          },
+          {
+            "id": "cli-exists",
+            "weight": 0.06,
+            "description": "calc_cli.py file is present in the working directory.",
+            "testPattern": "calc_cli.py > file exists"
+          },
+          {
+            "id": "add-correct",
+            "weight": 0.12,
+            "description": "Running 'python3 calc_cli.py add 15 27' exits with code 0 and outputs 42.",
+            "testPattern": "add 15 27 returns 42"
+          },
+          {
+            "id": "multiply-correct",
+            "weight": 0.12,
+            "description": "Running 'python3 calc_cli.py multiply 6 7' exits with code 0 and outputs 42.",
+            "testPattern": "multiply 6 7 returns 42"
+          },
+          {
+            "id": "subtract-correct",
+            "weight": 0.12,
+            "description": "Running 'python3 calc_cli.py subtract 100 38' exits with code 0 and outputs 62.",
+            "testPattern": "subtract 100 38 returns 62"
+          },
+          {
+            "id": "divide-correct",
+            "weight": 0.12,
+            "description": "Running 'python3 calc_cli.py divide 144 12' exits with code 0 and outputs 12.",
+            "testPattern": "divide 144 12 returns 12"
+          },
+          {
+            "id": "error-handling",
+            "weight": 0.1,
+            "description": "Unknown operations and divide-by-zero both exit with code 1 and print an error message.",
+            "testPattern": "unknown operation exits|divide by zero exits"
+          },
+          {
+            "id": "spec-fields",
+            "weight": 0.1,
+            "description": "harness_spec.json has name='calculator-harness', version='1.0.0', and entry_point containing 'calc_cli.py'.",
+            "testPattern": "name, version, and entry_point are correct"
+          },
+          {
+            "id": "spec-commands",
+            "weight": 0.12,
+            "description": "harness_spec.json commands array has exactly 4 entries, each with non-empty name and description strings.",
+            "testPattern": "commands array has 4 entries"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a calculator library, a CLI wrapper, a harness specification JSON, and then test the CLI.\n\nCriterion 1: CLI Correctness (Weight: 60%)\n1.0: calc_cli.py correctly handles all four operations, outputs only numbers, and handles error cases as specified.\n0.5: CLI works for some operations but has issues with error handling or output formatting.\n0: CLI is missing or non-functional.\n\nCriterion 2: Harness Design Quality (Weight: 40%)\n1.0: harness_spec.json is complete and well-structured. The command descriptions are clear and useful for an agent.\n0.5: JSON is present but descriptions are vague or a field is missing.\n0: JSON is missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/cli-anything",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

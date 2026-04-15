@@ -1,0 +1,84 @@
+{
+  "id": "data-analyst_task_02",
+  "name": "Data Cleaning and Outlier Removal Report",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "Create a file `input/measurements.csv` with the following content:\n```\nid,value,label\n1,12.5,a\n2,13.1,a\n3,11.8,a\n4,250.0,a\n5,12.9,b\n6,14.2,b\n7,13.5,b\n8,0.1,b\n9,11.5,a\n10,12.0,b\n```\n\nThen perform data cleaning:\n1. Detect outliers in the `value` column using the IQR method: compute Q1 (25th percentile) and Q3 (75th percentile), then remove rows where `value < Q1 - 1.5*IQR` or `value > Q3 + 1.5*IQR`.\n2. After removing outliers, compute the mean, median, and standard deviation of the remaining `value` column.\n3. Write a cleaning report to `output/cleaning_report.json` with exactly these keys:\n   - `original_row_count`: integer, total rows in the input (excluding header)\n   - `removed_row_ids`: array of integers, the `id` values of removed outlier rows\n   - `clean_row_count`: integer, rows remaining after removal\n   - `clean_mean`: number, mean of clean `value` column rounded to 4 decimal places\n   - `clean_median`: number, median of clean `value` column rounded to 4 decimal places\n   - `clean_std`: number, sample standard deviation of clean `value` column rounded to 4 decimal places",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "data-analyst_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "output/cleaning_report.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "output/cleaning_report.json can be parsed as valid JSON without throwing.",
+            "testPattern": "valid JSON format"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "output/cleaning_report.json has all required keys: original_row_count, removed_row_ids, clean_row_count, clean_mean, clean_median, and clean_std.",
+            "testPattern": "has all required keys"
+          },
+          {
+            "id": "original-count",
+            "weight": 0.1,
+            "description": "original_row_count equals exactly 10 (the total rows in the input CSV excluding the header).",
+            "testPattern": "original_row_count is 10"
+          },
+          {
+            "id": "outlier-ids",
+            "weight": 0.25,
+            "description": "removed_row_ids is an array of exactly 2 integers containing both 4 (value 250.0) and 8 (value 0.1), the IQR outliers.",
+            "testPattern": "removed_row_ids contains outlier"
+          },
+          {
+            "id": "clean-count",
+            "weight": 0.1,
+            "description": "clean_row_count equals exactly 8 (the 10 rows minus the 2 outliers).",
+            "testPattern": "clean_row_count is 8"
+          },
+          {
+            "id": "clean-mean",
+            "weight": 0.2,
+            "description": "clean_mean equals approximately 12.6875 (within 0.001 tolerance).",
+            "testPattern": "clean_mean is approximately"
+          },
+          {
+            "id": "clean-median",
+            "weight": 0.15,
+            "description": "clean_median equals approximately 12.7 (within 0.001 tolerance).",
+            "testPattern": "clean_median is approximately"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent cleaned a dataset by removing IQR outliers and reported statistics.\n\nCriterion 1: Methodological correctness (Weight: 60%)\n1.0: IQR method applied correctly, correct rows identified as outliers, statistics computed properly.\n0.5: Partially correct — either wrong outliers or minor stat errors.\n0: Incorrect method or completely wrong values.\n\nCriterion 2: Report completeness and format (Weight: 40%)\n1.0: All required keys present, correct types, properly rounded values.\n0.5: Some keys missing or format issues.\n0: Report is missing or malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/data-analyst",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

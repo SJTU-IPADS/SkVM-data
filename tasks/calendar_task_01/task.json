@@ -1,0 +1,31 @@
+{
+  "id": "calendar_task_01",
+  "name": "Generate a Multi-Event Team Schedule ICS File",
+  "category": "calendar",
+  "gradingType": "hybrid",
+  "prompt": "Your team's project coordinator sent you the following scheduling notes on Wednesday, April 15, 2026 and asked you to generate a single `.ics` calendar file named `team_schedule.ics` in the current directory. The file must be a valid iCalendar (RFC 5545) document containing all three meetings.\n\n**Meeting 1 — Sprint Planning**\nSchedule a recurring weekly Sprint Planning meeting starting on \"next Wednesday\". Because today is Wednesday, \"next Wednesday\" means the *following* Wednesday — seven days from today — not today itself. The meeting is at 10:00 AM UTC, lasts 1 hour, and repeats weekly for exactly 10 occurrences total. Attendees: alice@example.com and bob@example.com.\n\n**Meeting 2 — Design Review**\nSchedule a one-time Design Review for the upcoming Monday (April 20, 2026) at 2:00 PM UTC. The meeting lasts 90 minutes (DTEND must reflect this exactly, not a DURATION field). Location: Conference Room B. Attendee: carol@example.com.\n\n**Meeting 3 — Quarterly Kickoff**\nSchedule a one-time Quarterly Kickoff for April 30, 2026 at 9:00 AM UTC, lasting 2 hours. Attendees: alice@example.com, dave@example.com, and eve@example.com.\n\n**Format requirements:**\n- The file must begin with `BEGIN:VCALENDAR` and `VERSION:2.0`.\n- Every VEVENT must have a unique `UID` field.\n- All `DTSTART` and `DTEND` values must be in UTC format (`YYYYMMDDTHHMMSSZ` with the trailing `Z`) — floating local time is not acceptable for multi-attendee scheduling.\n- Attendees must be encoded as `ATTENDEE;CN=Name:mailto:email` lines (not in the DESCRIPTION).\n- The `LOCATION` field for the Design Review must be a proper iCalendar `LOCATION` property, not embedded in the event description.\n- The recurrence for Sprint Planning must be expressed as an `RRULE` property.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was given scheduling notes for three meetings to encode as a single team_schedule.ics iCalendar file. The reference date was Wednesday April 15, 2026.\n\nCriterion 1: Artifact correctness (Weight: 40%)\n1.0: team_schedule.ics exists, has BEGIN:VCALENDAR / VERSION:2.0 / END:VCALENDAR wrapper, and contains 3 or more VEVENT blocks with DTSTART, DTEND, SUMMARY, and UID in each. All datetime values use the UTC 'Z' suffix. The file is parseable as a valid iCalendar document.\n0.5: File exists but is missing one or more required properties (e.g. no UID on some events, missing VERSION, or DTSTART without Z suffix).\n0: File missing or structurally invalid (no VCALENDAR wrapper, cannot be parsed).\n\nCriterion 2: Spec adherence — dates, recurrence, and attendees (Weight: 40%)\n1.0: Sprint Planning starts April 22 (following Wednesday, per 'if today is Wednesday next Wednesday means the following Wednesday' rule). Design Review is April 20 (upcoming Monday) at 2:00 PM UTC with 90-minute DTEND. Quarterly Kickoff is April 30 at 9:00 AM UTC, 2 hours. RRULE on Sprint Planning has FREQ=WEEKLY;COUNT=10. All three events have their stated attendees in ATTENDEE properties. Design Review has LOCATION field.\n0.5: Most events are correct but one date is wrong (e.g. Sprint Planning on April 15 instead of April 22) or RRULE is missing the COUNT, or an attendee is absent.\n0: Multiple events have wrong dates or the RRULE is absent entirely.\n\nCriterion 3: Protocol discipline — field placement (Weight: 20%)\n1.0: ATTENDEE entries use proper mailto: syntax, LOCATION for Design Review is a LOCATION property (not in DESCRIPTION), and each VEVENT has a distinct UID.\n0.5: Minor field placement issues — attendees or location appear only in DESCRIPTION rather than as dedicated properties.\n0: No ATTENDEE or LOCATION properties used at all; information only in DESCRIPTION or missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/calendar",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

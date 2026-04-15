@@ -1,0 +1,90 @@
+{
+  "id": "story-writer_task_01",
+  "name": "Generate Three-Act Story Outline",
+  "category": "creative_writing",
+  "gradingType": "hybrid",
+  "prompt": "Create a three-act story outline and save it as story_outline.json in the current directory.\n\nThe story is about a marine biologist named Dr. Elena Voss who discovers a previously unknown bioluminescent creature in the deep ocean, only to realize it may hold the key to curing a rare neurological disease.\n\nThe JSON file must have exactly these fields:\n- \"title\": string — a title for the story (5–80 characters)\n- \"protagonist\": object with fields:\n  - \"name\": string — must be \"Dr. Elena Voss\"\n  - \"occupation\": string — must be \"marine biologist\"\n  - \"goal\": string — one sentence describing her primary goal\n- \"acts\": an array of exactly 3 objects. Each act object must have:\n  - \"act\": integer (1, 2, or 3)\n  - \"name\": string — one of \"Setup\", \"Confrontation\", or \"Resolution\"\n  - \"summary\": string — 2–5 sentences describing what happens in this act\n  - \"conflict\": string — one sentence describing the central conflict in this act\n- \"themes\": an array of at least 2 strings, each a theme of the story\n\nThe acts must be in order (act 1, 2, 3). Act 1 name must be \"Setup\", act 2 must be \"Confrontation\", act 3 must be \"Resolution\".",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "story-writer_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "story_outline.json exists as a readable file in the working directory.",
+            "testPattern": "story_outline.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "story_outline.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "story_outline.json has all four required top-level keys: title, protagonist, acts, and themes.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "protagonist",
+            "weight": 0.12,
+            "description": "protagonist.name is exactly 'Dr. Elena Voss' and protagonist.occupation is exactly 'marine biologist'.",
+            "testPattern": "protagonist name and occupation"
+          },
+          {
+            "id": "acts-count",
+            "weight": 0.12,
+            "description": "The acts array has exactly 3 entries.",
+            "testPattern": "acts array has exactly 3 entries"
+          },
+          {
+            "id": "act-names",
+            "weight": 0.15,
+            "description": "The three acts are named exactly 'Setup', 'Confrontation', and 'Resolution'.",
+            "testPattern": "act names are Setup, Confrontation, Resolution"
+          },
+          {
+            "id": "act-fields",
+            "weight": 0.12,
+            "description": "Every act object has all four required fields: act (number), name, summary (>20 chars), and conflict (>5 chars).",
+            "testPattern": "each act has act, name, summary, conflict"
+          },
+          {
+            "id": "act-order",
+            "weight": 0.1,
+            "description": "The acts array is ordered with act numbers 1, 2, 3 at indices 0, 1, 2 respectively.",
+            "testPattern": "acts are ordered 1, 2, 3"
+          },
+          {
+            "id": "themes",
+            "weight": 0.13,
+            "description": "The themes array contains at least 2 non-empty string entries.",
+            "testPattern": "themes array has at least 2 string entries"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to generate a structured three-act story outline about a marine biologist.\n\nCriterion 1: Narrative Coherence (Weight: 50%)\n1.0: The three acts tell a coherent story arc — setup introduces Elena and the discovery, confrontation presents meaningful obstacles, resolution provides a satisfying conclusion. Summaries connect logically.\n0.5: Story arc present but transitions feel abrupt or one act's summary is generic/disconnected from the premise.\n0: Summaries do not form a coherent narrative or are copy-pasted boilerplate.\n\nCriterion 2: Creativity and Specificity (Weight: 50%)\n1.0: Title is evocative, themes are specific to the story (not just 'love' or 'science'), conflicts are concrete and tied to the marine biology/disease premise.\n0.5: Some creativity shown but themes or conflicts are overly generic.\n0: Title is placeholder, themes are trivial, or conflicts ignore the given premise.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/story-writer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

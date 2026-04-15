@@ -1,0 +1,31 @@
+{
+  "id": "document-pdf_task_01",
+  "name": "Multi-Section Business Report PDF with TOC, Footers, and Bookmarks",
+  "category": "document_processing",
+  "gradingType": "hybrid",
+  "prompt": "The engineering team needs a professionally structured PDF report generated from the specification file `report_spec.json` in the current directory. The JSON spec has four top-level keys: `company` (string), `title` (string), `date` (string), and `sections` (array of objects each with `title` and `content` keys, where `content` is an array of paragraph strings).\n\nProduce two output files at the workspace root:\n\n**1. `report.pdf`** — a structured report with this exact page layout:\n- **Page 1 — Title page**: Display the report title (large, centered), company name (medium, centered), and date (medium, centered). No footer on this page.\n- **Page 2 — Table of Contents**: Display a \"Table of Contents\" heading, then one line per body section listing the section title and its page number (right-aligned), connected by dot leaders. Include a \"Page N of M\" footer centered at the bottom.\n- **Pages 3 to N+2 — Body sections**: Each section occupies its own page, starting with the section title as a bold header, followed by its paragraph content. Each body page carries a \"Page K of M\" footer centered at the bottom, where K is the 1-indexed page number and M is the total page count.\n\n**Page size must be A4** (595.28 × 841.89 points). Do not use Letter or any other page size.\n\nThe PDF must contain a **PDF bookmark (outline entry)** for each body section, enabling navigation. Use `canvas.addOutlineEntry(title, key, level=0)` in the reportlab canvas API.\n\n**2. `report_manifest.json`** — a JSON file with these top-level keys:\n- `page_count` (integer): total number of pages in report.pdf\n- `page_size` (string): `\"A4\"`\n- `toc_entry_count` (integer): number of entries in the Table of Contents\n- `section_count` (integer): number of body sections from the spec\n- `sections` (array): one object per section, in spec order, each with `title` (string) and `page_number` (integer, 1-indexed)\n\n**Invariants that must hold:**\n- `toc_entry_count` == `section_count` (the TOC has exactly one entry per body section)\n- `page_count` == 2 + `section_count` (title page + TOC page + one page per section)\n- `sections[i].page_number` == 3 + i (sections start at page 3)\n\nGenerate the PDF using the reportlab library (canvas API). Read `report_spec.json` with Python's `json` module. Verify the output with `pypdf` before writing the manifest.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was given report_spec.json (5-section business report) and asked to produce report.pdf (A4, title page + TOC + 5 body pages with footers and bookmarks) and report_manifest.json. The prompt specified: A4 page size, 'Page N of M' footers on all non-title pages, PDF outline entries per section, TOC with dot leaders and page numbers, and invariants toc_entry_count==section_count and page_count==2+section_count.\n\nCriterion 1: Artifact correctness (Weight: 40%)\n1.0: report.pdf exists, is valid, has 7 pages at A4 size. report_manifest.json exists with all required keys and correct values. Page count in PDF and manifest agree.\n0.5: One artifact is missing, has wrong page count, or manifest has incorrect values.\n0: Both artifacts missing or PDF is unreadable.\n\nCriterion 2: Spec adherence — layout and format (Weight: 40%)\n1.0: PDF has a distinct title page (no footer), a TOC page with section titles and page numbers, and body pages with bold section headers and paragraph content. Footers read 'Page K of M' on pages 2-7. PDF bookmarks are present for each section.\n0.5: Most elements are present but footer is missing on some pages, bookmarks are absent, or TOC lacks page numbers.\n0: Layout is fundamentally wrong (single page, no TOC, no footers).\n\nCriterion 3: Discipline — A4, invariants, and data quality (Weight: 20%)\n1.0: Page size is exactly A4 (not Letter). All manifest invariants hold (toc_entry_count==section_count, page_count==7). Section titles and page numbers in manifest are accurate.\n0.5: Page size is Letter instead of A4, or one invariant is violated.\n0: No attempt to use A4 size or no manifest.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/document-pdf",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

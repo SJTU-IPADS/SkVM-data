@@ -1,0 +1,64 @@
+{
+  "title": "Nexus Platform",
+  "subtitle": "Infrastructure for the next billion connections",
+  "style": "swiss-modern",
+  "viewport": "1280x720",
+  "slides": [
+    {
+      "id": "slide-title",
+      "type": "title",
+      "heading": "Nexus Platform",
+      "subheading": "Infrastructure for the next billion connections",
+      "tagline": "Secure. Scalable. Instant."
+    },
+    {
+      "id": "slide-problem",
+      "type": "content",
+      "heading": "The Connectivity Gap",
+      "bullets": [
+        "Legacy message brokers fail under 10k concurrent connections",
+        "Multi-cloud deployments triple operational overhead",
+        "P99 latency spikes kill user trust in real-time apps"
+      ]
+    },
+    {
+      "id": "slide-solution",
+      "type": "content",
+      "heading": "One Platform, Zero Compromises",
+      "bullets": [
+        "Edge-native routing: sub-5ms P99 globally",
+        "Auto-scaling to 1M connections with zero config",
+        "Single control plane across AWS, GCP, and Azure"
+      ]
+    },
+    {
+      "id": "slide-features",
+      "type": "feature-grid",
+      "heading": "Core Capabilities",
+      "cards": [
+        { "title": "Smart Routing", "description": "AI-driven load balancing adapts in real time" },
+        { "title": "Zero-Trust Security", "description": "mTLS everywhere, audit log on every event" },
+        { "title": "Live Observability", "description": "Per-connection telemetry at microsecond resolution" },
+        { "title": "SDK-First", "description": "Native clients for Go, Rust, TypeScript, and Python" }
+      ]
+    },
+    {
+      "id": "slide-metrics",
+      "type": "content",
+      "heading": "Proven at Scale",
+      "bullets": [
+        "99.999% uptime SLA across all regions",
+        "3.2 billion messages routed last quarter",
+        "42% reduction in infrastructure cost vs. legacy brokers"
+      ]
+    },
+    {
+      "id": "slide-cta",
+      "type": "cta",
+      "heading": "Start Building Today",
+      "body": "Join 500+ teams already running on Nexus",
+      "cta_label": "Request Early Access",
+      "cta_id": "cta-button"
+    }
+  ]
+}

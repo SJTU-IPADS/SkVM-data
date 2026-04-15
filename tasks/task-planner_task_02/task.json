@@ -1,0 +1,96 @@
+{
+  "id": "task-planner_task_02",
+  "name": "Build a Weekly Schedule Prioritization Report",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "Given the task list below, analyze it and produce a prioritized weekly schedule. Save the output as weekly_schedule.json in the current directory.\n\nInput tasks (to include in your analysis):\n1. \"Prepare quarterly presentation\" — deadline: 2026-04-14, estimated_hours: 4, priority: \"critical\"\n2. \"Team standup meeting\" — deadline: 2026-04-11 (daily recurrence), estimated_hours: 0.5, priority: \"high\"\n3. \"Code review for PR #142\" — deadline: 2026-04-12, estimated_hours: 2, priority: \"high\"\n4. \"Update project documentation\" — deadline: 2026-04-17, estimated_hours: 3, priority: \"medium\"\n5. \"Research new testing framework\" — deadline: 2026-04-18, estimated_hours: 2, priority: \"low\"\n6. \"Fix critical bug in production\" — deadline: 2026-04-11, estimated_hours: 3, priority: \"critical\"\n\nOutput file weekly_schedule.json must have exactly these fields:\n- \"week_start\": \"2026-04-11\"\n- \"total_tasks\": 6\n- \"total_estimated_hours\": 14.5\n- \"tasks\": array of all 6 task objects, each with fields: \"name\" (string), \"deadline\" (string), \"estimated_hours\" (number), \"priority\" (string), \"day_assigned\" (string — a day of the week: Monday through Friday)\n- \"critical_tasks\": array of task names that have priority \"critical\" (exactly 2 entries)\n- \"schedule_by_day\": object with keys \"Monday\" through \"Friday\", each key mapping to an array of task names assigned to that day\n\nAssign each task to exactly one weekday. Critical tasks must be assigned to Monday (2026-04-14) or earlier — assign the \"Fix critical bug\" to Monday and \"Prepare quarterly presentation\" to Tuesday at the latest.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "task-planner_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "weekly_schedule.json exists as a readable file in the working directory.",
+            "testPattern": "weekly_schedule.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "weekly_schedule.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "weekly_schedule.json has all six required top-level keys: week_start, total_tasks, total_estimated_hours, tasks, critical_tasks, and schedule_by_day.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "week-start",
+            "weight": 0.08,
+            "description": "week_start is exactly the string '2026-04-11'.",
+            "testPattern": "week_start is 2026-04-11"
+          },
+          {
+            "id": "task-count",
+            "weight": 0.1,
+            "description": "total_tasks is exactly 6.",
+            "testPattern": "total_tasks is 6"
+          },
+          {
+            "id": "total-hours",
+            "weight": 0.12,
+            "description": "total_estimated_hours is exactly 14.5.",
+            "testPattern": "total_estimated_hours is 14.5"
+          },
+          {
+            "id": "critical-tasks",
+            "weight": 0.14,
+            "description": "critical_tasks is an array containing exactly 2 task name strings.",
+            "testPattern": "critical_tasks array has 2 entries"
+          },
+          {
+            "id": "schedule-by-day",
+            "weight": 0.12,
+            "description": "schedule_by_day has all 5 weekday keys: Monday, Tuesday, Wednesday, Thursday, and Friday.",
+            "testPattern": "schedule_by_day has all 5 weekday keys"
+          },
+          {
+            "id": "all-tasks-assigned",
+            "weight": 0.1,
+            "description": "All 6 task names appear across the schedule_by_day arrays (total assigned count equals 6).",
+            "testPattern": "all 6 tasks appear in schedule_by_day"
+          },
+          {
+            "id": "day-assigned-field",
+            "weight": 0.08,
+            "description": "Every task in the tasks array has a day_assigned field that is a valid weekday name.",
+            "testPattern": "each task has day_assigned field"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to analyze a task list and produce a prioritized weekly schedule as JSON.\n\nCriterion 1: Scheduling Logic (Weight: 60%)\n1.0: Critical tasks are assigned early in the week as specified, all 6 tasks are assigned to distinct days (or multiple per day is fine), total_estimated_hours is 14.5, schedule_by_day covers all 5 weekdays as keys.\n0.5: Most tasks assigned correctly but one critical task is placed too late or estimated hours are wrong.\n0: Tasks missing or scheduling ignores priority/deadline constraints.\n\nCriterion 2: Output Clarity (Weight: 40%)\n1.0: JSON is clean, all required fields present, critical_tasks array correctly identifies both critical tasks, day_assigned values are valid weekday names.\n0.5: Structure mostly correct but one field is missing or day names are inconsistent (e.g., mixing full names and abbreviations).\n0: Output is malformed or missing critical_tasks / schedule_by_day.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/task-planner",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

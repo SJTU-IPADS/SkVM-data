@@ -1,0 +1,96 @@
+{
+  "id": "seo-content-writer_task_02",
+  "name": "Create Comparison Article with Title Options and Link Recommendations",
+  "category": "seo_content",
+  "gradingType": "hybrid",
+  "prompt": "Write SEO content comparing two project management tools. Save results to the specified files.\n\nTopic: 'Trello vs Asana for small teams'\nPrimary keyword: 'Trello vs Asana'\nContent type: Comparison article\nTarget audience: Small team managers\nTarget word count: 600-900 words\n\n1. Save the article to `comparison_article.md`. Requirements:\n   - H1 that includes 'Trello vs Asana'\n   - At least one comparison table using Markdown table syntax (| col | col | format)\n   - At least 3 H2 headings\n   - A clear recommendation section (H2 titled 'Our Recommendation' or similar)\n   - Word count between 600 and 900\n\n2. Save `content_brief.json` with the SEO planning data:\n   {\n     \"title_options\": [\n       { \"title\": \"<string>\", \"char_count\": <integer>, \"primary_keyword_position\": \"front\" | \"middle\" | \"end\" },\n       { \"title\": \"<string>\", \"char_count\": <integer>, \"primary_keyword_position\": \"front\" | \"middle\" | \"end\" }\n     ],\n     \"recommended_title\": \"<one of the title_options strings>\",\n     \"internal_links\": [\n       { \"anchor_text\": \"<string>\", \"url\": \"<string starting with />\", \"reason\": \"<string>\" },\n       { \"anchor_text\": \"<string>\", \"url\": \"<string starting with />\", \"reason\": \"<string>\" }\n     ],\n     \"external_links\": [\n       { \"anchor_text\": \"<string>\", \"url\": \"<string starting with https://>\", \"supports_claim\": \"<string>\" }\n     ],\n     \"primary_keyword\": \"Trello vs Asana\",\n     \"search_intent\": \"commercial\"\n   }\n   char_count must equal the actual character count of each title string.\n\nSave both files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "seo-content-writer_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "article-exists",
+            "weight": 0.08,
+            "description": "comparison_article.md exists as a readable file in the working directory.",
+            "testPattern": "comparison_article.md > file exists"
+          },
+          {
+            "id": "h1-keyword",
+            "weight": 0.1,
+            "description": "The article's H1 heading text (lowercased) contains the phrase 'trello vs asana'.",
+            "testPattern": "H1 contains.*Trello vs Asana|h1 includes primary keyword"
+          },
+          {
+            "id": "comparison-table",
+            "weight": 0.15,
+            "description": "comparison_article.md contains a Markdown table with at least a header row, a separator row with dashes, and one data row.",
+            "testPattern": "contains a Markdown comparison table"
+          },
+          {
+            "id": "h2-count",
+            "weight": 0.08,
+            "description": "comparison_article.md contains at least 3 H2 headings (lines starting with '## ').",
+            "testPattern": "at least 3 H2 headings"
+          },
+          {
+            "id": "recommendation-section",
+            "weight": 0.12,
+            "description": "comparison_article.md has a heading (H1-H3) that contains 'recommend', 'verdict', or 'which should'.",
+            "testPattern": "contains a recommendation section heading"
+          },
+          {
+            "id": "word-count-range",
+            "weight": 0.1,
+            "description": "comparison_article.md has a word count between 600 and 900 words inclusive.",
+            "testPattern": "word count.*600.*900|between 600 and 900"
+          },
+          {
+            "id": "brief-exists",
+            "weight": 0.06,
+            "description": "content_brief.json exists as a readable file in the working directory.",
+            "testPattern": "content_brief.json > file exists"
+          },
+          {
+            "id": "brief-title-options",
+            "weight": 0.1,
+            "description": "The title_options array in content_brief.json has exactly 2 entries.",
+            "testPattern": "2 title options|title_options.*2 entries"
+          },
+          {
+            "id": "brief-char-count",
+            "weight": 0.12,
+            "description": "Each title option's char_count field equals the actual character length of its title string.",
+            "testPattern": "char_count matches actual|character count is correct"
+          },
+          {
+            "id": "brief-links",
+            "weight": 0.09,
+            "description": "internal_links have URLs starting with '/' and external_links have URLs starting with 'https://'.",
+            "testPattern": "internal_links URLs start with '/'|external_links URLs start with 'https://'"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a Trello vs Asana comparison article and a content brief.\n\nCriterion 1: Comparison Article Quality (Weight: 60%)\n1.0: The comparison table covers meaningful dimensions (e.g., pricing, features, ease of use, integrations). The recommendation section gives a clear verdict with reasoning. The article is well-structured with distinct H2 sections that each cover a specific comparison angle.\n0.5: A table is present and a recommendation exists, but the comparison lacks depth or the recommendation is vague.\n0: No comparison table or no recommendation section.\n\nCriterion 2: Content Brief Quality (Weight: 40%)\n1.0: Title options are genuinely different (e.g., one uses a number or power word, one is a question). Internal link URLs are realistic slugs (e.g., /project-management-tools). External link URLs point to plausible authoritative domains. The recommended_title is the stronger of the two options.\n0.5: Brief is complete but title options are too similar, or link reasons are generic.\n0: Brief is incomplete or links are missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/seo-content-writer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

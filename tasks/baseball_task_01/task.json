@@ -1,0 +1,96 @@
+{
+  "id": "baseball_task_01",
+  "name": "Search MLB Player and Save Stats to JSON",
+  "category": "sports_data",
+  "gradingType": "hybrid",
+  "prompt": "Use the MLB Stats API to look up Aaron Judge and save his player profile and most recent available season statistics to a file called player_stats.json.\n\nThe file must contain exactly these fields:\n- player_id: the numeric MLB player ID (integer)\n- full_name: the player's full name (string)\n- position: position abbreviation such as 'RF' (string)\n- team: full team name (string)\n- jersey_number: jersey number as a string\n- bats: batting side, e.g. 'R' (string)\n- throws: throwing hand, e.g. 'R' (string)\n- season: the season year as an integer\n- stats_type: either 'batting' or 'pitching' (string)\n- games: number of games played (integer)\n- home_runs: home runs hit (integer, only for batting)\n- avg: batting average as a string like '.331' or as a number (any format)\n- ops: on-base plus slugging as a string or number\n\nUse the MLB Stats API endpoints directly (no API key required). The base URL is https://statsapi.mlb.com/api/v1. Search for the player by name first to get the ID, then fetch their season stats. Save the result to player_stats.json.",
+  "timeoutMs": 300000,
+  "maxSteps": 40,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "baseball_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.07,
+            "description": "player_stats.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "player_stats.json parses as valid JSON without throwing an error.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "all-fields",
+            "weight": 0.12,
+            "description": "player_stats.json contains all 13 required fields: player_id, full_name, position, team, jersey_number, bats, throws, season, stats_type, games, home_runs, avg, ops.",
+            "testPattern": "all required fields"
+          },
+          {
+            "id": "player-id",
+            "weight": 0.2,
+            "description": "player_id is exactly 592450, Aaron Judge's official MLB player ID.",
+            "testPattern": "player_id.*592450|592450"
+          },
+          {
+            "id": "player-name",
+            "weight": 0.12,
+            "description": "full_name contains 'Judge' (case-insensitive), confirming the correct player was retrieved.",
+            "testPattern": "full_name.*judge|judge"
+          },
+          {
+            "id": "team-yankees",
+            "weight": 0.12,
+            "description": "team field contains 'yankee' (case-insensitive), confirming the New York Yankees affiliation.",
+            "testPattern": "team.*yankee|yankee"
+          },
+          {
+            "id": "position-string",
+            "weight": 0.06,
+            "description": "position is a non-empty string representing a valid fielding position abbreviation.",
+            "testPattern": "position is a non-empty"
+          },
+          {
+            "id": "season-year",
+            "weight": 0.08,
+            "description": "season is a number between 2020 and 2026 inclusive, representing a valid recent MLB season year.",
+            "testPattern": "season.*valid.*year|valid recent year"
+          },
+          {
+            "id": "games-positive",
+            "weight": 0.1,
+            "description": "games is a positive integer greater than zero.",
+            "testPattern": "games is a positive"
+          },
+          {
+            "id": "home-runs",
+            "weight": 0.08,
+            "description": "home_runs is a non-negative integer.",
+            "testPattern": "home_runs"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to look up Aaron Judge via the MLB Stats API and save structured stats to a JSON file.\n\nCriterion 1: Data Accuracy (Weight: 60%)\n1.0: player_id is Aaron Judge's correct MLB ID (592450), full_name matches, team is Yankees, stats reflect a real season with plausible values (HR > 30 for a typical Judge season).\n0.5: Player identified correctly but some stat values are missing or from a placeholder.\n0: Wrong player, or file is missing.\n\nCriterion 2: JSON Completeness (Weight: 40%)\n1.0: All 13 required fields are present with appropriate types.\n0.5: Most fields present but one or two are missing.\n0: File missing or fewer than half the fields present.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/baseball",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,73 @@
+{
+  "id": "clawdhub_task_02",
+  "name": "Install a skill and document its capabilities",
+  "category": "agent_behavior",
+  "gradingType": "hybrid",
+  "prompt": "I need a skill for working with PDF files. Search for PDF-related skills, install one that looks suitable, and then examine what was installed.\n\nProduce a file called skill_analysis.json with:\n1. \"search_results\": array of skills found when searching for PDF skills, each with \"name\" and \"description\"\n2. \"installed_skill\": object with \"name\" (the skill you chose to install) and \"reason\" (why you picked this one, at least 30 characters)\n3. \"skill_contents\": object with \"files\" (array of file paths found in the installed skill directory) and \"has_readme\" (boolean, whether a SKILL.md or README was found)\n4. \"capabilities\": array of at least 2 strings describing what this skill can do, based on examining its actual contents\n5. \"install_verified\": boolean (true if the skill appears in the installed skills list after installation)",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "clawdhub_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "skill_analysis.json file is present in the working directory.",
+            "testPattern": "skill_analysis.json exists"
+          },
+          {
+            "id": "search-results",
+            "weight": 0.15,
+            "description": "search_results is a non-empty array where every entry has string name and description fields.",
+            "testPattern": "search_results is a non-empty array"
+          },
+          {
+            "id": "installed-skill",
+            "weight": 0.2,
+            "description": "installed_skill object has a non-empty name string and a reason string of at least 30 characters.",
+            "testPattern": "installed_skill has name and reason"
+          },
+          {
+            "id": "skill-contents",
+            "weight": 0.2,
+            "description": "skill_contents has a non-empty files array and a boolean has_readme field.",
+            "testPattern": "skill_contents has files array"
+          },
+          {
+            "id": "capabilities",
+            "weight": 0.2,
+            "description": "capabilities is an array with at least 2 entries, each a string longer than 10 characters.",
+            "testPattern": "capabilities array with at least 2 entries"
+          },
+          {
+            "id": "install-verified",
+            "weight": 0.2,
+            "description": "install_verified is boolean true, confirming the skill appears in the installed list after installation.",
+            "testPattern": "install_verified is true"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent searched for PDF-related skills in a skill registry, installed one, examined its contents, and produced a structured analysis.\n\nCriterion 1: Tool Invocation (Weight: 40%)\n1.0: The agent successfully searched, installed, and listed skills using the registry CLI. The installed skill name matches a real registry entry.\n0.5: Partial tool usage — searched but install failed, or installed without searching.\n0: No registry tools were used.\n\nCriterion 2: Analysis Depth (Weight: 30%)\n1.0: The agent examined actual installed files and derived capabilities from the skill contents, not from guessing. File listing is accurate.\n0.5: Files listed but capabilities are generic guesses not tied to actual contents.\n0: No examination of installed skill contents.\n\nCriterion 3: Report Completeness (Weight: 30%)\n1.0: All fields present, install_verified is true, reason is thoughtful, capabilities are specific.\n0.5: Most fields present but some are shallow or missing.\n0: Report is largely incomplete.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/clawdhub",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "medium"
+}

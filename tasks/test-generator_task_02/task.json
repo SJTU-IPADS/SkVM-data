@@ -1,0 +1,90 @@
+{
+  "id": "test-generator_task_02",
+  "name": "CLI Tool Status Check and Info Report",
+  "category": "cli_tools",
+  "gradingType": "hybrid",
+  "prompt": "Create a bash script named `toolcli.sh` that implements a minimal CLI utility. The script must use `$TOOLCLI_DIR` if set, otherwise default the data directory to `./toolcli_data/`. The script must support these commands:\n\n- `bash toolcli.sh init` — create the data directory and an empty `config.json` file inside it containing `{}`. Print: `Initialized in <data_dir>`\n- `bash toolcli.sh status` — print: `Status: ready`\n- `bash toolcli.sh config` — print: `Config: <data_dir>/config.json`\n- `bash toolcli.sh version` — print: `toolcli v1.0.0`\n- `bash toolcli.sh info` — print: `Version: 1.0.0 | Data: <data_dir>`\n\nAfter creating `toolcli.sh`, run the following sequence and save the combined stdout to `cli_report.txt`:\n1. `bash toolcli.sh init`\n2. `bash toolcli.sh status`\n3. `bash toolcli.sh config`\n4. `bash toolcli.sh version`\n5. `bash toolcli.sh info`\n\nRequired output files: `toolcli.sh`, `toolcli_data/config.json`, `cli_report.txt`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "test-generator_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.08,
+            "description": "toolcli.sh exists as a readable file in the working directory.",
+            "testPattern": "toolcli.sh > file exists|toolcli\\.sh exists"
+          },
+          {
+            "id": "config-json",
+            "weight": 0.1,
+            "description": "toolcli_data/config.json exists as a readable file.",
+            "testPattern": "config.json exists|toolcli_data/config"
+          },
+          {
+            "id": "config-valid-json",
+            "weight": 0.1,
+            "description": "toolcli_data/config.json parses as valid JSON and is a non-null object.",
+            "testPattern": "config.json is valid JSON|valid json"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.08,
+            "description": "cli_report.txt exists as a readable file in the working directory.",
+            "testPattern": "cli_report.txt > file exists|cli_report exists"
+          },
+          {
+            "id": "init-line",
+            "weight": 0.12,
+            "description": "cli_report.txt contains 'Initialized in' (output of the init command).",
+            "testPattern": "Initialized in|init output"
+          },
+          {
+            "id": "status-line",
+            "weight": 0.12,
+            "description": "cli_report.txt contains the exact string 'Status: ready'.",
+            "testPattern": "Status: ready"
+          },
+          {
+            "id": "config-line",
+            "weight": 0.12,
+            "description": "cli_report.txt contains 'Config:' followed by a path ending in 'config.json'.",
+            "testPattern": "Config:.*config\\.json|config line"
+          },
+          {
+            "id": "version-line",
+            "weight": 0.14,
+            "description": "cli_report.txt contains the exact string 'toolcli v1.0.0'.",
+            "testPattern": "toolcli v1\\.0\\.0|version line"
+          },
+          {
+            "id": "info-line",
+            "weight": 0.14,
+            "description": "cli_report.txt contains 'Version: 1.0.0 | Data:' (output of the info command).",
+            "testPattern": "Version: 1\\.0\\.0 \\| Data:|info line"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a minimal bash CLI utility and run it to produce output.\n\nCriterion 1: Command Output Accuracy (Weight: 65%)\n1.0: Every command produces exactly the specified output string with correct placeholders substituted (data_dir = ./toolcli_data/). All 5 output lines appear in cli_report.txt.\n0.5: Most outputs are correct but one or two have minor formatting differences.\n0: Multiple outputs are wrong or missing.\n\nCriterion 2: Script Robustness (Weight: 35%)\n1.0: Script properly uses the $TOOLCLI_DIR variable with a sensible fallback, creates files idempotently, and handles all 5 subcommands.\n0.5: Script mostly works but does not handle the environment variable or has hardcoded paths.\n0: Script is missing or fails to run.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/test-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

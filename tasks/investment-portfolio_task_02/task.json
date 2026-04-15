@@ -1,0 +1,96 @@
+{
+  "id": "investment-portfolio_task_02",
+  "name": "DCA Calculation and Dividend Yield Analysis",
+  "category": "finance",
+  "gradingType": "hybrid",
+  "prompt": "Perform two financial calculations for a portfolio and write results to files. Use only python3 and file system tools — no internet or API keys.\n\nTask A — Dollar-Cost Averaging (DCA):\nCalculate a 12-month DCA plan for investing $400 per month in a stock currently priced at $200.00. Write dca_result.json with:\n- \"ticker\": \"NVDA\"\n- \"monthly_investment\": 400\n- \"initial_price\": 200.0\n- \"months\": 12\n- \"total_invested\": 4800\n- \"schedule\": array of 12 objects each with \"month\" (1-12), \"price\" (number — may assume flat price of 200.0 for all months), \"shares_bought\" (number, 2 decimal places), \"cumulative_shares\" (number, 2 decimal places)\n  - shares_bought each month = monthly_investment / price = 400 / 200.0 = 2.00\n  - cumulative_shares at month N = N * 2.00\n\nTask B — Dividend Yield:\nCalculate the dividend yield for a stock with annual dividend $5.20 and current price $260.00. Write dividend_result.json with:\n- \"ticker\": \"JNJ\"\n- \"annual_dividend\": 5.20\n- \"current_price\": 260.0\n- \"yield_percent\": 2.0\n  (yield_percent = (annual_dividend / current_price) * 100, rounded to 2 decimal places)\n\nWrite both files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "investment-portfolio_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "dca-exists",
+            "weight": 0.05,
+            "description": "dca_result.json file is present in the workspace.",
+            "testPattern": "dca_result.json > file exists"
+          },
+          {
+            "id": "dca-fields",
+            "weight": 0.08,
+            "description": "dca_result.json contains the keys ticker, monthly_investment, initial_price, months, total_invested, and schedule.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "dca-scalars",
+            "weight": 0.15,
+            "description": "dca_result.json has ticker=\"NVDA\", monthly_investment=400, initial_price=200, months=12, and total_invested=4800.",
+            "testPattern": "top-level scalar values are correct"
+          },
+          {
+            "id": "dca-schedule-len",
+            "weight": 0.1,
+            "description": "The schedule array in dca_result.json contains exactly 12 entries.",
+            "testPattern": "schedule has 12 entries"
+          },
+          {
+            "id": "dca-entry-fields",
+            "weight": 0.07,
+            "description": "Every schedule entry has the fields month, price, shares_bought, and cumulative_shares.",
+            "testPattern": "each schedule entry has month"
+          },
+          {
+            "id": "dca-month1",
+            "weight": 0.15,
+            "description": "Schedule month 1 has shares_bought≈2.00 and cumulative_shares≈2.00 (within 0.01).",
+            "testPattern": "schedule month 1 has correct"
+          },
+          {
+            "id": "dca-month12",
+            "weight": 0.15,
+            "description": "Schedule month 12 has cumulative_shares≈24.00 (2 shares × 12 months, within 0.01).",
+            "testPattern": "schedule month 12 has correct"
+          },
+          {
+            "id": "div-exists",
+            "weight": 0.05,
+            "description": "dividend_result.json file is present in the workspace.",
+            "testPattern": "dividend_result.json > file exists"
+          },
+          {
+            "id": "div-fields",
+            "weight": 0.05,
+            "description": "dividend_result.json contains the keys ticker, annual_dividend, current_price, and yield_percent.",
+            "testPattern": "dividend_result.json > has required fields"
+          },
+          {
+            "id": "div-yield",
+            "weight": 0.15,
+            "description": "dividend_result.json yield_percent is exactly 2.0 (5.20/260.00*100, within 0.01).",
+            "testPattern": "yield_percent is exactly"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a DCA schedule JSON and a dividend yield JSON with exact computed values.\n\nCriterion 1: Calculation Correctness (Weight: 70%)\n1.0: Both JSON files have correct numeric values — DCA schedule shows 2.00 shares/month with cumulative totals, dividend yield is exactly 2.0%.\n0.5: Files exist but numeric values have minor errors or rounding differences.\n0: Files are missing or values are substantially wrong.\n\nCriterion 2: Schema Completeness (Weight: 30%)\n1.0: Both files contain all required fields with correct types.\n0.5: Fields partially present or types mismatched.\n0: Fields missing or files malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/investment-portfolio",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

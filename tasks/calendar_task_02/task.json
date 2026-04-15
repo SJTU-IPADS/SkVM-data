@@ -1,0 +1,31 @@
+{
+  "id": "calendar_task_02",
+  "name": "Compose an Executive Calendar ICS with Mixed Event Types",
+  "category": "calendar",
+  "gradingType": "hybrid",
+  "prompt": "You are an executive assistant. Today is Tuesday, April 14, 2026. Your manager forwarded you an email thread with three scheduling requests and asked you to produce a single calendar file named `executive_calendar.ics` in the current directory.\n\n**Request 1 — Team Sync (recurring)**\nSchedule a recurring monthly \"Team Sync\" meeting, with the first occurrence on \"next Tuesday\". Because today is Tuesday, \"next Tuesday\" means the *following* Tuesday — seven days from now, not today. The meeting starts at 3:00 PM UTC, lasts 45 minutes, and repeats monthly for exactly 6 occurrences total. Attendees: frank@example.com and grace@example.com.\n\n**Request 2 — Budget Review (time-constrained)**\nSchedule a one-time \"Budget Review\" on April 28, 2026. The meeting starts at 11:00 AM UTC. An afternoon conference begins at 1:00 PM UTC on the same day, so the Budget Review must end by 1:00 PM UTC — encode this as a concrete DTEND (not a DURATION field). Include a DESCRIPTION field that notes the 1 PM end constraint and the reason (afternoon conference). Attendee: frank@example.com.\n\n**Request 3 — Work Anniversary (all-day)**\nAdd an all-day event called \"Heidi's Work Anniversary\" on May 1, 2026. All-day events must use the iCalendar DATE value type (`DTSTART;VALUE=DATE:20260501`) — do not include a time component or a UTC `Z` suffix. If you include a DTEND, it must also use DATE format (the following day: `DTEND;VALUE=DATE:20260502`).\n\n**Format requirements:**\n- The file must begin with `BEGIN:VCALENDAR` and `VERSION:2.0`.\n- Every VEVENT must have a unique `UID` field.\n- All datetime DTSTART and DTEND values (for events that are not all-day) must use UTC format with the trailing `Z` suffix (`YYYYMMDDTHHMMSSZ`). Omitting `Z` creates floating-time events that calendar apps show at wrong local times.\n- Attendees must be encoded as `ATTENDEE;CN=Name:mailto:email` properties.\n- The recurrence for Team Sync must be expressed as an `RRULE` property with `FREQ=MONTHLY` and `COUNT=6`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was given three scheduling requests to encode as a single executive_calendar.ics file. Reference date was Tuesday, April 14, 2026.\n\nCriterion 1: Artifact correctness and structure (Weight: 40%)\n1.0: executive_calendar.ics exists, has BEGIN:VCALENDAR / VERSION:2.0 / END:VCALENDAR wrapper, and contains 3 or more VEVENT blocks. Each event has DTSTART, DTEND (or DATE equivalent), SUMMARY, and UID. All timed events use the Z suffix. The all-day anniversary uses VALUE=DATE format without a time component.\n0.5: File exists but one event is missing a required property (no UID, missing Z suffix on a timed event, or anniversary has a datetime instead of DATE).\n0: File missing, structurally invalid, or all-day event encoded as a datetime event.\n\nCriterion 2: Spec adherence — dates, recurrence, and constraints (Weight: 40%)\n1.0: Team Sync starts April 21 (following Tuesday from Tuesday, per SKILL.md rule). Budget Review is April 28 at 11:00 AM UTC with DTEND not later than 1:00 PM UTC. Anniversary is May 1. RRULE on Team Sync is FREQ=MONTHLY;COUNT=6. Both frank and grace are attendees of Team Sync. Budget Review has frank as attendee and a DESCRIPTION mentioning the constraint.\n0.5: Most events correct but one date wrong (e.g. Team Sync on April 14 instead of April 21) or RRULE has wrong FREQ/COUNT, or Budget Review DTEND violates the 1 PM constraint.\n0: Multiple date errors or no RRULE on Team Sync.\n\nCriterion 3: Event-type discipline (Weight: 20%)\n1.0: The all-day anniversary event is correctly encoded with DTSTART;VALUE=DATE (no T and no Z). All timed events use the Z suffix consistently. Each VEVENT has a unique UID. The Budget Review DESCRIPTION communicates the scheduling constraint.\n0.5: Anniversary is a timed event (missing VALUE=DATE), or one timed event is missing Z, or DESCRIPTION is absent.\n0: No distinction between all-day and timed events — all events use the same format.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/calendar",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

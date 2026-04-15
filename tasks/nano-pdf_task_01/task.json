@@ -1,0 +1,67 @@
+{
+  "id": "nano-pdf_task_01",
+  "name": "Fix typo and update title in a meeting agenda PDF",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "I have a meeting agenda PDF at meeting-agenda.pdf. It has two problems: (1) 'Enginering' in the subtitle is misspelled — it should be 'Engineering', and (2) the title says 'Weekly Team Meeting' but this is actually our monthly all-hands, so change it to 'Monthly All-Hands Meeting'. Please edit the PDF directly and save the result as edited-agenda.pdf.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "nano-pdf_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "edited-agenda.pdf file is present in the working directory.",
+            "testPattern": "edited-agenda.pdf exists"
+          },
+          {
+            "id": "title-updated",
+            "weight": 0.25,
+            "description": "PDF text contains \"monthly\" and \"all-hands\" and no longer contains \"weekly team meeting\".",
+            "testPattern": "title changed to Monthly All-Hands"
+          },
+          {
+            "id": "typo-fixed",
+            "weight": 0.25,
+            "description": "PDF text contains \"engineering\" (correct spelling) and does not contain the misspelling \"enginering\".",
+            "testPattern": "typo fixed.*Engineering"
+          },
+          {
+            "id": "content-preserved",
+            "weight": 0.2,
+            "description": "Original agenda items (sprint, code review, roadmap) are still present in the edited PDF.",
+            "testPattern": "original agenda items preserved"
+          },
+          {
+            "id": "is-valid-pdf",
+            "weight": 0.2,
+            "description": "edited-agenda.pdf is a readable PDF containing at least 1 page.",
+            "testPattern": "valid PDF with 1 page"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to edit a PDF meeting agenda to fix a typo ('Enginering' -> 'Engineering') and change the title from 'Weekly Team Meeting' to 'Monthly All-Hands Meeting'.\n\nCriterion 1: Correct Edits (Weight: 60%)\n1.0: Both edits are correctly applied — the typo is fixed and the title is updated. The rest of the document content (agenda items, date, footer) is preserved.\n0.5: One edit is correct but the other is missing or wrong, or some original content was lost.\n0: Neither edit was applied, or the output PDF is fundamentally broken/unreadable.\n\nCriterion 2: Tool Usage (Weight: 40%)\n1.0: The agent used nano-pdf (or equivalent PDF-editing CLI tool) to edit the PDF directly rather than recreating it from scratch.\n0.5: The agent recreated the PDF from scratch using a PDF library, losing the original formatting/layout.\n0: No output PDF was produced.\n\nFinal score: weighted average of all criteria.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/nano-pdf",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "easy"
+}

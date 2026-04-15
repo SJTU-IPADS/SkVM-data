@@ -1,0 +1,102 @@
+{
+  "id": "interview-system-designer_task_02",
+  "name": "Interviewer Calibration Analysis",
+  "category": "interview_system_design",
+  "gradingType": "hybrid",
+  "prompt": "You are analyzing interview calibration data for a hiring team. Process the data below and produce a calibration report.\n\nInterview data (5 candidates evaluated by 3 interviewers on a 1-4 scale):\n\nCandidate 1: Interviewer A=4, B=4, C=3\nCandidate 2: Interviewer A=2, B=3, C=2\nCandidate 3: Interviewer A=3, B=2, C=3\nCandidate 4: Interviewer A=1, B=1, C=2\nCandidate 5: Interviewer A=4, B=3, C=4\n\nScoring scale: 4=Exceeds, 3=Meets, 2=Partially Meets, 1=Does Not Meet.\nHire threshold: average score >= 3.0 means Hire recommendation, else No Hire.\n\nTask: Compute the calibration analysis and save to calibration_report.json with this exact structure:\n{\n  \"candidates\": [\n    {\n      \"id\": \"C1\",\n      \"scores\": {\"A\": 4, \"B\": 4, \"C\": 3},\n      \"average_score\": <float, 1 decimal>,\n      \"recommendation\": \"Hire|No Hire\",\n      \"interviewer_agreement\": <boolean, true if all scores within 1 point of each other>\n    }\n  ],\n  \"interviewers\": [\n    {\n      \"id\": \"A\",\n      \"average_score_given\": <float, 2 decimal places>,\n      \"score_std_dev\": <float, 2 decimal places>,\n      \"bias_flag\": <boolean, true if average_score_given deviates by more than 0.5 from overall team average>\n    }\n  ],\n  \"summary\": {\n    \"total_candidates\": 5,\n    \"hire_count\": <int>,\n    \"no_hire_count\": <int>,\n    \"overall_team_average\": <float, 2 decimal places>,\n    \"full_agreement_rate_percent\": <float, 1 decimal place, percent of candidates where interviewer_agreement is true>\n  }\n}\nCompute all values precisely from the data above.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "interview-system-designer_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file_exists",
+            "weight": 0.07,
+            "description": "calibration_report.json file is present in the workspace.",
+            "testPattern": "calibration_report.json exists"
+          },
+          {
+            "id": "top_level_keys",
+            "weight": 0.07,
+            "description": "calibration_report.json contains the keys candidates, interviewers, and summary.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "candidates_count",
+            "weight": 0.08,
+            "description": "The candidates array contains exactly 5 entries.",
+            "testPattern": "exactly 5 entries"
+          },
+          {
+            "id": "candidate_ids",
+            "weight": 0.08,
+            "description": "Candidate id values are C1, C2, C3, C4, and C5 (sorted).",
+            "testPattern": "C1 through C5"
+          },
+          {
+            "id": "c1_hire",
+            "weight": 0.15,
+            "description": "Candidate C1 has average_score ≈3.7 (within 0.1) and recommendation \"Hire\".",
+            "testPattern": "C1 average is 3.7"
+          },
+          {
+            "id": "c4_no_hire",
+            "weight": 0.15,
+            "description": "Candidate C4 has average_score ≈1.3 (within 0.1) and recommendation \"No Hire\".",
+            "testPattern": "C4 average is 1.3"
+          },
+          {
+            "id": "interviewers",
+            "weight": 0.08,
+            "description": "The interviewers array contains exactly 3 entries with ids A, B, and C.",
+            "testPattern": "exactly 3 entries"
+          },
+          {
+            "id": "total_candidates",
+            "weight": 0.05,
+            "description": "summary.total_candidates is exactly 5.",
+            "testPattern": "total_candidates is 5"
+          },
+          {
+            "id": "hire_counts",
+            "weight": 0.12,
+            "description": "summary.hire_count is 2 and no_hire_count is 3 (candidates averaging ≥3.0 are C1 and C5).",
+            "testPattern": "hire_count is 2"
+          },
+          {
+            "id": "overall_avg",
+            "weight": 0.1,
+            "description": "summary.overall_team_average is approximately 2.73 (sum of all 15 scores=41, within ±0.05).",
+            "testPattern": "overall_team_average"
+          },
+          {
+            "id": "agreement_rate",
+            "weight": 0.05,
+            "description": "summary.full_agreement_rate_percent is 100.0 because all 5 candidates have all interviewer scores within 1 point of each other.",
+            "testPattern": "full_agreement_rate_percent"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent performed a calibration analysis on interview scoring data and computed statistics.\n\nCriterion 1: Numerical Accuracy (Weight: 70%)\n1.0: All computed averages, recommendations, agreement flags, and summary statistics are mathematically correct. Expected: C1 avg=3.7 Hire, C2 avg=2.3 No Hire, C3 avg=2.7 No Hire, C4 avg=1.3 No Hire, C5 avg=3.7 Hire. hire_count=2, no_hire_count=3. overall_team_average=(4+4+3+2+3+2+3+2+3+1+1+2+4+3+4)/15=3.67...≈ wait, sum=41 over 15 = 2.73. Interviewer A avg=(4+2+3+1+4)/5=2.8. B avg=(4+3+2+1+3)/5=2.6. C avg=(3+2+3+2+4)/5=2.8. full_agreement_rate: C4 (1,1,2) within 1 point yes; C1 (3,4,4) within 1 yes; C5 (3,4,4) within 1 yes; C2 (2,3,2) within 1 yes; C3 (2,3,3) within 1 yes — all 5 within range, 100%.\n0.5: Most computations correct but 1-2 minor arithmetic errors.\n0: Multiple wrong averages or recommendations inverted.\n\nCriterion 2: Report Structure (Weight: 30%)\n1.0: All fields present with correct types, IDs match C1-C5 and A/B/C, scores object matches input data.\n0.5: Structure is mostly correct but one section is malformed.\n0: Major structural issues.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/interview-system-designer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,90 @@
+{
+  "id": "novel-generator_task_02",
+  "name": "Log a Story Error and Generate a Relationship Diagram",
+  "category": "creative-writing",
+  "gradingType": "hybrid",
+  "prompt": "You are managing a cultivation novel's continuity. A plot error has been discovered and you need to log it and update the character relationship file. Complete all steps below.\n\nBackground context (do NOT write chapter content — only create the files listed):\n- Novel title: 'Shattered Meridian'\n- Characters: protagonist Shen Yue (Qi Condensation stage), mentor Elder Cao (Core Formation), rival Xu Peng (Foundation Establishment), love interest Lin Rui (Qi Condensation)\n- In Chapter 7, Elder Cao was killed by Xu Peng. In Chapter 12, Elder Cao appeared alive with no explanation. This is a continuity error.\n\nStep 1: Create .learnings/ERRORS.md. It must contain an entry following this exact format:\n- A heading line starting with '## [NOVEL-ERR-' followed by a date-like code and error type\n- A field '**Record Time**:' with a value\n- A field '**Chapter**:' with value 'Chapter 12'\n- A field '**Severity**:' with one of: low | medium | high | critical\n- A section '### Problem Description' with at least one sentence\n- A section '### Correction Plan' with at least one sentence\n\nStep 2: Create output/character_relationships.md. This file must contain a Mermaid diagram block (opening with '```mermaid' on its own line) that shows relationships between all 4 characters: Shen Yue, Elder Cao, Xu Peng, Lin Rui. The diagram must include at least 4 edges/connections.\n\nStep 3: Update .learnings/CHARACTERS.md (create it if absent). It must contain a markdown table with at least these 4 rows: Shen Yue, Elder Cao, Xu Peng, Lin Rui. The Status column for Elder Cao must contain the word 'deceased' (case-insensitive).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "novel-generator_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "errors-exists",
+            "weight": 0.12,
+            "description": ".learnings/ERRORS.md file is present.",
+            "testPattern": "ERRORS.md > file exists"
+          },
+          {
+            "id": "errors-heading",
+            "weight": 0.12,
+            "description": "ERRORS.md contains an H2 heading that starts with \"[NOVEL-ERR-\".",
+            "testPattern": "entry heading with NOVEL-ERR"
+          },
+          {
+            "id": "errors-fields",
+            "weight": 0.14,
+            "description": "Error entry contains a \"**Chapter**:\" field with value \"Chapter 12\" and a \"**Severity**:\" field with a valid level.",
+            "testPattern": "contains Chapter 12 field|contains Severity field with a valid value"
+          },
+          {
+            "id": "errors-sections",
+            "weight": 0.12,
+            "description": "ERRORS.md contains both a \"### Problem Description\" section and a \"### Correction Plan\" section.",
+            "testPattern": "Problem Description.*Correction Plan|Correction Plan section"
+          },
+          {
+            "id": "relations-exists",
+            "weight": 0.1,
+            "description": "output/character_relationships.md file is present.",
+            "testPattern": "character_relationships.md > file exists"
+          },
+          {
+            "id": "mermaid-block",
+            "weight": 0.12,
+            "description": "character_relationships.md contains a fenced ```mermaid code block.",
+            "testPattern": "contains mermaid block"
+          },
+          {
+            "id": "mermaid-edges",
+            "weight": 0.1,
+            "description": "Mermaid diagram has at least 4 arrows (-->) or connection lines (---) between characters.",
+            "testPattern": "at least 4 edges"
+          },
+          {
+            "id": "characters-exists",
+            "weight": 0.08,
+            "description": ".learnings/CHARACTERS.md file is present.",
+            "testPattern": "CHARACTERS.md > file exists"
+          },
+          {
+            "id": "characters-deceased",
+            "weight": 0.1,
+            "description": "CHARACTERS.md contains all 4 characters and the word \"deceased\" (case-insensitive) for Elder Cao's status.",
+            "testPattern": "Elder Cao.*deceased|deceased.*Elder Cao"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to log a story continuity error and produce supporting reference files.\n\nCriterion 1: Error Log Quality (Weight: 50%)\n1.0: ERRORS.md entry clearly identifies the continuity violation (Elder Cao appearing alive after dying), has a plausible correction plan, and the severity is at least 'high' given a character resurrection.\n0.5: Entry exists but problem description is vague or correction plan is too generic.\n0: ERRORS.md is missing or the entry does not describe the correct problem.\n\nCriterion 2: Relationship Diagram Clarity (Weight: 50%)\n1.0: Mermaid diagram is syntactically valid, includes all 4 characters with labelled edges that reflect the described relationships (mentor, rival, love interest), and Elder Cao's status as deceased is reflected.\n0.5: Diagram exists with all 4 characters but edges are unlabelled or relationships are unclear.\n0: Diagram is missing or contains fewer than 4 characters.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/novel-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "content-id-guide_task_01",
+  "name": "Organize Content ID Claim Evidence Checklist",
+  "category": "creator_tools",
+  "gradingType": "hybrid",
+  "prompt": "You are helping a content creator organize information about an automated content claim they received. The creator has provided the following claim details:\n\n- Platform: YouTube\n- Claim type: Audio Content ID match\n- Match segments: 0:00-0:45 and 1:30-2:15\n- Enforcement action: Ad revenue sharing\n- The creator says they have a license invoice dated 2024-03-15, the usage was for a review video, and the license covers worldwide digital distribution.\n\nProduce a file called claim_evidence_checklist.json with exactly this structure:\n- \"claim_summary\": object with keys \"platform\" (string), \"claim_type\" (string), \"enforcement_action\" (string), \"match_segment_count\" (number)\n- \"match_segments\": array of objects, each with keys \"start\" (string) and \"end\" (string)\n- \"evidence_inventory\": object with keys \"has_license_documentation\" (boolean), \"has_usage_description\" (boolean), \"has_scope_documentation\" (boolean), \"documentation_notes\" (string)\n- \"process_notes\": string (50-200 words) describing the typical procedural flow for an audio Content ID match on YouTube, using neutral, descriptive language without predicting outcomes\n- \"disclaimer_acknowledged\": boolean set to true\n\nAlso produce a file called evidence_summary.md that lists the evidence items the creator has and includes a brief note (at least 100 words) on what an organized documentation package for this type of claim typically contains.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "content-id-guide_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "checklist-exists",
+            "weight": 0.07,
+            "description": "claim_evidence_checklist.json file is present in the working directory.",
+            "testPattern": "claim_evidence_checklist.json > file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.07,
+            "description": "claim_evidence_checklist.json is valid JSON with all required top-level keys: claim_summary, match_segments, evidence_inventory, process_notes, and disclaimer_acknowledged.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "claim-summary",
+            "weight": 0.12,
+            "description": "claim_summary.platform contains \"youtube\" and claim_summary.claim_type contains \"audio\" or \"content id\".",
+            "testPattern": "correct platform and claim type"
+          },
+          {
+            "id": "segment-count-match",
+            "weight": 0.1,
+            "description": "claim_summary.match_segment_count equals the actual length of the match_segments array.",
+            "testPattern": "match_segment_count matches"
+          },
+          {
+            "id": "match-segments",
+            "weight": 0.12,
+            "description": "match_segments is an array of exactly 2 objects, each with string fields \"start\" and \"end\".",
+            "testPattern": "exactly 2 entries"
+          },
+          {
+            "id": "evidence-inventory",
+            "weight": 0.18,
+            "description": "evidence_inventory has all three boolean flags set to true (has_license_documentation, has_usage_description, has_scope_documentation) and a non-empty documentation_notes string.",
+            "testPattern": "correct boolean fields"
+          },
+          {
+            "id": "process-notes",
+            "weight": 0.12,
+            "description": "process_notes is a string whose word count is between 50 and 200.",
+            "testPattern": "50 and 200 words"
+          },
+          {
+            "id": "disclaimer",
+            "weight": 0.07,
+            "description": "disclaimer_acknowledged is set to the boolean true.",
+            "testPattern": "disclaimer_acknowledged"
+          },
+          {
+            "id": "summary-exists",
+            "weight": 0.07,
+            "description": "evidence_summary.md file is present in the working directory.",
+            "testPattern": "evidence_summary.md > file exists"
+          },
+          {
+            "id": "summary-categories",
+            "weight": 0.08,
+            "description": "evidence_summary.md contains at least 100 words and mentions license/invoice, usage/purpose, and scope/territory documentation categories.",
+            "testPattern": "key documentation categories"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to organize content claim evidence into a structured checklist and summary document.\n\nCriterion 1: Neutral and Procedural Language (Weight: 60%)\n1.0: The process_notes and evidence_summary use strictly neutral, descriptive language. No legal advice, outcome predictions, or adversarial framing. The tone describes system behavior, not actors' motives.\n0.5: Mostly neutral but contains at least one phrase that edges toward outcome prediction or legal recommendation.\n0: Contains legal advice, outcome predictions, or characterizes parties as acting in bad faith.\n\nCriterion 2: Practical Usefulness (Weight: 40%)\n1.0: The evidence_summary.md is clearly structured, actionable for a creator organizing their documentation, and mentions the key documentation categories (license, usage description, scope).\n0.5: The summary exists but is vague or misses key documentation categories.\n0: The summary is absent or unhelpful.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/content-id-guide",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

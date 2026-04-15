@@ -1,0 +1,96 @@
+{
+  "id": "seo-content-writer_task_01",
+  "name": "Write SEO-Optimized Blog Post with Metadata",
+  "category": "seo_content",
+  "gradingType": "hybrid",
+  "prompt": "Write an SEO-optimized blog post about 'remote work productivity tips' targeting small business owners. Save the results to the following files:\n\n1. Save the full article to `article.md`. Requirements:\n   - H1 heading that includes the phrase 'remote work productivity'\n   - At least 4 H2 headings\n   - At least one H3 heading\n   - A FAQ section with at least 3 questions and answers (use H2 or H3 for each question)\n   - Minimum 700 words\n   - The primary keyword 'remote work productivity' must appear in the first 150 words\n   - At least 3 bullet-point or numbered lists\n\n2. Save SEO metadata to `seo_meta.json`:\n   {\n     \"title\": \"<string, max 60 characters>\",\n     \"meta_description\": \"<string, 150-160 characters>\",\n     \"primary_keyword\": \"remote work productivity\",\n     \"secondary_keywords\": [\"<at least 3 strings>\"],\n     \"target_audience\": \"small business owners\",\n     \"word_count\": <integer matching the actual article word count>,\n     \"reading_time_minutes\": <integer, estimated at 200 words per minute>,\n     \"seo_score\": <integer 1-10>,\n     \"h1\": \"<string matching the H1 in the article>\",\n     \"faq_count\": <integer matching the number of FAQ questions in the article>\n   }\n\nSave both files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "seo-content-writer_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "article-exists",
+            "weight": 0.08,
+            "description": "article.md exists as a readable file in the working directory.",
+            "testPattern": "article.md > file exists"
+          },
+          {
+            "id": "h1-keyword",
+            "weight": 0.12,
+            "description": "The article's H1 heading text (lowercased) contains the phrase 'remote work productivity'.",
+            "testPattern": "H1 contains.*remote work productivity|h1 includes primary keyword"
+          },
+          {
+            "id": "h2-count",
+            "weight": 0.1,
+            "description": "article.md contains at least 4 H2 headings (lines starting with '## ').",
+            "testPattern": "at least 4 H2 headings"
+          },
+          {
+            "id": "faq-section",
+            "weight": 0.12,
+            "description": "article.md contains a section with 'faq' in the text and at least 3 question headings (H2/H3 ending with '?') or question lines.",
+            "testPattern": "FAQ.*at least 3|at least 3.*FAQ questions"
+          },
+          {
+            "id": "word-count",
+            "weight": 0.1,
+            "description": "article.md has a total word count of at least 700 words.",
+            "testPattern": "at least 700 words"
+          },
+          {
+            "id": "lists-present",
+            "weight": 0.08,
+            "description": "article.md contains at least 6 bullet-point or numbered list items in total (representing at least 3 lists).",
+            "testPattern": "at least 3.*lists|bullet.*numbered lists"
+          },
+          {
+            "id": "meta-exists",
+            "weight": 0.06,
+            "description": "seo_meta.json exists as a readable file in the working directory.",
+            "testPattern": "seo_meta.json > file exists"
+          },
+          {
+            "id": "meta-title-length",
+            "weight": 0.1,
+            "description": "The title field in seo_meta.json is a string of at most 60 characters.",
+            "testPattern": "title.*max 60 chars|title is at most 60"
+          },
+          {
+            "id": "meta-description-len",
+            "weight": 0.12,
+            "description": "The meta_description field in seo_meta.json is between 150 and 160 characters inclusive.",
+            "testPattern": "meta_description.*150.*160|description length"
+          },
+          {
+            "id": "reading-time",
+            "weight": 0.12,
+            "description": "reading_time_minutes equals ceil(word_count / 200), allowing ±1 minute tolerance.",
+            "testPattern": "reading_time_minutes.*200 words per minute|reading time is correct"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write an SEO-optimized blog post about remote work productivity for small business owners.\n\nCriterion 1: Content Quality and Relevance (Weight: 50%)\n1.0: The article provides genuinely useful, specific advice (e.g., concrete tools, actionable tips, specific time-management techniques). The FAQ answers are substantive (at least 2-3 sentences each). The writing is clear and directed at small business owners.\n0.5: Article covers the topic but advice is generic or the FAQ answers are one-liners.\n0: Content is off-topic, very thin, or reads like filler text.\n\nCriterion 2: SEO Structure Adherence (Weight: 50%)\n1.0: The H1/H2/H3 hierarchy is semantically meaningful (H2s cover distinct subtopics, H3s are sub-points). Secondary keywords are relevant long-tail variants of the primary keyword. Meta description is compelling and accurately describes the content.\n0.5: Structure is present but H2s overlap in topic or secondary keywords are too generic.\n0: Structure or metadata is absent or the H1 does not include the primary keyword phrase.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/seo-content-writer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

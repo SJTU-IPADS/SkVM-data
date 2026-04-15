@@ -1,0 +1,96 @@
+{
+  "id": "test-generator_task_01",
+  "name": "Build a CLI Data Logger with Add, List, and Search Commands",
+  "category": "cli_tools",
+  "gradingType": "hybrid",
+  "prompt": "Create a bash script named `logger.sh` that implements a simple timestamped data logging tool. The script must support the following commands:\n\n- `bash logger.sh init` — create a directory called `logdata/` and an empty file `logdata/entries.log`. Print: `Initialized in logdata`\n- `bash logger.sh add <text>` — append a line to `logdata/entries.log` in the format `YYYY-MM-DD <text>` (use today's date). Print: `Added: <text>`\n- `bash logger.sh list` — print all lines in `logdata/entries.log`, or print `(empty)` if none\n- `bash logger.sh search <term>` — print lines from `logdata/entries.log` containing `<term>` (case-insensitive), or print `Not found: <term>` if none match\n- `bash logger.sh export` — print all lines in `logdata/entries.log` to stdout\n\nAfter creating `logger.sh`, run the following commands in order and save their combined stdout output to `run_output.txt`:\n1. `bash logger.sh init`\n2. `bash logger.sh add \"test suite passed: 12 checks\"`\n3. `bash logger.sh add \"deployment verified on staging\"`\n4. `bash logger.sh list`\n5. `bash logger.sh search \"staging\"`\n6. `bash logger.sh search \"missing\"`\n\nRequired output files: `logger.sh`, `logdata/entries.log`, `run_output.txt`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "test-generator_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.08,
+            "description": "logger.sh exists as a readable file in the working directory.",
+            "testPattern": "logger.sh > file exists|logger\\.sh exists"
+          },
+          {
+            "id": "logdata-dir",
+            "weight": 0.08,
+            "description": "The logdata/ directory exists in the working directory.",
+            "testPattern": "logdata directory exists"
+          },
+          {
+            "id": "entries-log",
+            "weight": 0.1,
+            "description": "logdata/entries.log exists as a readable file.",
+            "testPattern": "entries.log exists|logdata/entries\\.log"
+          },
+          {
+            "id": "entries-count",
+            "weight": 0.12,
+            "description": "logdata/entries.log has exactly 2 non-empty lines (one per add command).",
+            "testPattern": "entries.log has exactly 2 entries|two entries"
+          },
+          {
+            "id": "entries-dated",
+            "weight": 0.12,
+            "description": "Every line in logdata/entries.log is prefixed with a date in YYYY-MM-DD format.",
+            "testPattern": "entries are date-prefixed|YYYY-MM-DD|date prefix"
+          },
+          {
+            "id": "run-output-exists",
+            "weight": 0.08,
+            "description": "run_output.txt exists as a readable file in the working directory.",
+            "testPattern": "run_output.txt > file exists|run_output exists"
+          },
+          {
+            "id": "init-output",
+            "weight": 0.1,
+            "description": "run_output.txt contains the string 'Initialized in logdata'.",
+            "testPattern": "Initialized in logdata|init output"
+          },
+          {
+            "id": "add-output",
+            "weight": 0.1,
+            "description": "run_output.txt contains 'Added: test suite passed: 12 checks' and 'Added: deployment verified on staging'.",
+            "testPattern": "Added: test suite|Added: deployment|add output"
+          },
+          {
+            "id": "search-hit",
+            "weight": 0.12,
+            "description": "run_output.txt contains the staging entry line (search for 'staging' returned a match).",
+            "testPattern": "search staging found|search hit"
+          },
+          {
+            "id": "search-miss",
+            "weight": 0.1,
+            "description": "run_output.txt contains 'Not found: missing' (search for 'missing' found no entries).",
+            "testPattern": "Not found: missing|search miss"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a bash CLI data logging script and run it to produce output files.\n\nCriterion 1: Script Correctness (Weight: 70%)\n1.0: All commands work correctly — init creates the directory and file, add appends dated entries, list prints entries or '(empty)', search filters case-insensitively, export prints everything. Output matches expected format precisely.\n0.5: Most commands work but minor formatting issues exist (e.g., date missing, wrong empty message).\n0: Script is missing or fundamentally broken.\n\nCriterion 2: Code Quality (Weight: 30%)\n1.0: Script uses clean bash idioms, proper quoting, handles all command-line arguments safely.\n0.5: Script works but has minor code quality issues such as missing quotes or redundant logic.\n0: Script is absent or has severe structural issues.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/test-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

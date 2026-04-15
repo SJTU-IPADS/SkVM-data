@@ -1,0 +1,96 @@
+{
+  "id": "ceo-advisor_task_02",
+  "name": "Build CEO Scorecard with Traffic-Light Metrics",
+  "category": "executive_strategy",
+  "gradingType": "hybrid",
+  "prompt": "A CEO needs a quick health check on their company. Given the following data for Q1 2026, produce a CEO scorecard.\n\nCompany data:\n- ARR: $3,600,000 (prior quarter: $3,000,000)\n- Monthly burn: $280,000\n- Cash in bank: $2,800,000\n- NPS score: 38\n- Regrettable attrition rate: 12%\n- Employee engagement score: 6.2 out of 10\n- CEO time on strategic work: 35% of hours\n- Annual goals hit rate this quarter: 60%\n\nProduce a file called ceo_scorecard.json with exactly this structure:\n- \"period\": \"Q1-2026\"\n- \"metrics\": an array of exactly 8 objects, one per metric above. Each object must have: \"category\" (string), \"metric\" (string), \"value\" (the measured value as a number), \"target\" (the benchmark target as a number), \"status\" (\"green\", \"yellow\", or \"red\"), \"unit\" (string describing the unit, e.g. \"USD\", \"months\", \"%\", \"score\")\n- \"runway_months\": computed as cash divided by monthly burn, rounded to 1 decimal place\n- \"overall_health\": \"healthy\", \"caution\", or \"critical\" — derived from the proportion of red/yellow/green metrics\n- \"top_priority\": a string naming the single most urgent metric to fix and why (30-100 words)\n\nThe status for each metric must use these thresholds from the CEO Metrics Dashboard: ARR growth (green >= 60%, yellow >= 30%, red < 30%), runway (green >= 12 months, yellow >= 6, red < 6), NPS (green >= 40, yellow >= 20, red < 20), regrettable attrition (green <= 10%, yellow <= 15%, red > 15%), employee engagement (green >= 7, yellow >= 5, red < 5), CEO strategic time (green >= 40%, yellow >= 25%, red < 25%), annual goals hit rate (green >= 70%, yellow >= 50%, red < 50%).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "ceo-advisor_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.07,
+            "description": "ceo_scorecard.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "top-level-keys",
+            "weight": 0.08,
+            "description": "ceo_scorecard.json contains all 5 required top-level keys: period, metrics, runway_months, overall_health, top_priority.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "period-correct",
+            "weight": 0.08,
+            "description": "The period field is exactly 'Q1-2026'.",
+            "testPattern": "period is Q1-2026"
+          },
+          {
+            "id": "metrics-count",
+            "weight": 0.08,
+            "description": "The metrics array contains exactly 8 entries, one per metric.",
+            "testPattern": "exactly 8 entries"
+          },
+          {
+            "id": "metrics-fields",
+            "weight": 0.12,
+            "description": "Each metric object has string category, string metric, numeric value and target, status in {green/yellow/red}, and string unit.",
+            "testPattern": "required fields with valid types"
+          },
+          {
+            "id": "runway-computed",
+            "weight": 0.18,
+            "description": "runway_months is exactly 10.0 (computed as 2,800,000 / 280,000).",
+            "testPattern": "runway_months is correctly computed"
+          },
+          {
+            "id": "health-valid",
+            "weight": 0.08,
+            "description": "overall_health is one of the three valid values: 'healthy', 'caution', or 'critical'.",
+            "testPattern": "overall_health is a valid status"
+          },
+          {
+            "id": "nps-yellow",
+            "weight": 0.15,
+            "description": "The NPS metric has status 'yellow' because NPS=38 is below the green threshold of 40.",
+            "testPattern": "NPS metric has status yellow"
+          },
+          {
+            "id": "priority-length",
+            "weight": 0.08,
+            "description": "top_priority is a string between 30 and 100 words naming the most urgent metric and explaining why.",
+            "testPattern": "top_priority is a non-empty string"
+          },
+          {
+            "id": "yellow-red-count",
+            "weight": 0.08,
+            "description": "At least 3 metrics have status 'red' or 'yellow', reflecting the multiple below-threshold values in the data.",
+            "testPattern": "at least one metric has red status"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a CEO scorecard JSON with computed metrics, traffic-light statuses, runway calculation, and a priority recommendation.\n\nCriterion 1: Metric Accuracy (Weight: 60%)\n1.0: Status assignments are correct per the given thresholds, runway_months is correctly calculated (2800000/280000 = 10.0), and overall_health reflects the balance of statuses.\n0.5: Most metrics are correct but 1-2 status assignments are wrong.\n0: Multiple errors or missing fields.\n\nCriterion 2: Priority Recommendation (Weight: 40%)\n1.0: top_priority identifies a genuinely red or critical metric with a clear business rationale.\n0.5: A metric is identified but the reasoning is weak or the wrong metric is chosen.\n0: Missing or placeholder.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ceo-advisor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

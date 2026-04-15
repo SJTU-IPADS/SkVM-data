@@ -1,0 +1,90 @@
+{
+  "id": "market-research_task_02",
+  "name": "Competitor Landscape and Whitespace Map for a Meal-Kit Service",
+  "category": "business_research",
+  "gradingType": "hybrid",
+  "prompt": "Produce a competitor landscape analysis and whitespace map for a new meal-kit delivery service targeting budget-conscious families in the US (household income $40K-$80K). No internet access — use your knowledge.\n\nWrite competitor_landscape.json with this structure:\n\n- \"market\": \"meal-kit delivery for budget-conscious US families\"\n- \"competitors\": array of exactly 5 competitor objects each with:\n  - \"name\": string (real or plausible competitor name)\n  - \"type\": one of \"direct\", \"indirect\", \"substitute\"\n  - \"price_per_serving_usd\": number (approximate)\n  - \"target_segment\": string\n  - \"strengths\": array of at least 2 strings\n  - \"weaknesses\": array of at least 2 strings\n- \"positioning_gaps\": array of at least 3 objects each with:\n  - \"gap\": string (description of the unmet need or underserved angle)\n  - \"evidence\": string (why this gap exists)\n  - \"opportunity_size\": one of \"small\", \"medium\", \"large\"\n- \"pricing_summary\": object with:\n  - \"market_low_usd\": number (cheapest competitor price per serving)\n  - \"market_high_usd\": number (most expensive competitor price per serving)\n  - \"recommended_entry_price_usd\": number (suggested price for the new entrant)\n  - \"pricing_rationale\": string\n- \"go_no_go\": object with:\n  - \"decision\": one of \"go\", \"no-go\", \"conditional\"\n  - \"conditions\": array of strings (empty array if decision is 'go' or 'no-go')\n  - \"key_risk\": string",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "market-research_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "competitor_landscape.json file is present in the workspace.",
+            "testPattern": "competitor_landscape.json > file exists"
+          },
+          {
+            "id": "top-fields",
+            "weight": 0.05,
+            "description": "competitor_landscape.json contains the top-level keys market, competitors, positioning_gaps, pricing_summary, and go_no_go.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "competitors-count",
+            "weight": 0.1,
+            "description": "The competitors array contains exactly 5 entries.",
+            "testPattern": "array of exactly 5 entries"
+          },
+          {
+            "id": "competitor-fields",
+            "weight": 0.15,
+            "description": "Every competitor has name, type (direct/indirect/substitute), price_per_serving_usd (positive number), target_segment, strengths, and weaknesses.",
+            "testPattern": "each competitor has required fields"
+          },
+          {
+            "id": "strengths-weak",
+            "weight": 0.1,
+            "description": "Every competitor has at least 2 strengths and at least 2 weaknesses.",
+            "testPattern": "at least 2 strengths and 2 weaknesses"
+          },
+          {
+            "id": "gaps",
+            "weight": 0.15,
+            "description": "positioning_gaps contains at least 3 entries each with gap, evidence, and opportunity_size (small/medium/large).",
+            "testPattern": "positioning_gaps has at least 3"
+          },
+          {
+            "id": "pricing-fields",
+            "weight": 0.1,
+            "description": "pricing_summary has market_low_usd, market_high_usd (greater than low), recommended_entry_price_usd, and pricing_rationale.",
+            "testPattern": "pricing_summary has all required"
+          },
+          {
+            "id": "pricing-range",
+            "weight": 0.15,
+            "description": "recommended_entry_price_usd is between market_low_usd and market_high_usd inclusive.",
+            "testPattern": "recommended_entry_price is within"
+          },
+          {
+            "id": "go-no-go",
+            "weight": 0.15,
+            "description": "go_no_go has decision (go/no-go/conditional), conditions (array), and key_risk (non-empty string).",
+            "testPattern": "go_no_go has decision"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a competitor landscape for a budget meal-kit service, including 5 competitors, whitespace gaps, pricing summary, and a go/no-go decision.\n\nCriterion 1: Competitor Analysis Depth (Weight: 50%)\n1.0: 5 competitors include a mix of direct rivals and substitutes (e.g., grocery delivery, fast food); price_per_serving values are plausible and varied; strengths/weaknesses are specific and differentiated per competitor, not generic.\n0.5: Competitors present but strengths/weaknesses are generic (e.g., 'good quality' for all) or prices are identical.\n0: Fewer than 5 competitors, or the type field is wrong for most, or names are clearly invented with no basis.\n\nCriterion 2: Whitespace and Recommendation Quality (Weight: 50%)\n1.0: Positioning gaps address the specific budget-family target (e.g., low per-serving cost, easy prep for picky kids, flexible quantity); recommended entry price falls between market_low and market_high; go_no_go decision is justified with a concrete key_risk.\n0.5: Gaps are generic; pricing recommendation has no clear rationale; key_risk is vague.\n0: Gaps are off-topic; pricing is outside market range; go_no_go missing or empty.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/market-research",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

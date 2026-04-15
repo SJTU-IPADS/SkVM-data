@@ -1,0 +1,90 @@
+{
+  "id": "file-manager_task_01",
+  "name": "Deduplicate Files by Content Hash",
+  "category": "file_management",
+  "gradingType": "hybrid",
+  "prompt": "You have a directory called `inbox/` containing files with duplicate content. Your task is to scan for duplicates using file content hashing and produce a report.\n\nFirst, create the following directory and files:\n- `inbox/alpha.txt` containing exactly: `hello world`\n- `inbox/beta.txt` containing exactly: `hello world`\n- `inbox/gamma.txt` containing exactly: `unique content here`\n- `inbox/delta.txt` containing exactly: `hello world`\n- `inbox/epsilon.txt` containing exactly: `another unique line`\n\nThen scan `inbox/` for duplicate files (files with identical content) and write a report to `dedup_report.json` with this exact structure:\n```json\n{\n  \"total_files\": 5,\n  \"unique_hashes\": 3,\n  \"duplicate_groups\": [\n    {\n      \"hash\": \"<md5 or sha256 hex string>\",\n      \"count\": 3,\n      \"files\": [\"<filename>\", \"<filename>\", \"<filename>\"]\n    }\n  ],\n  \"duplicates_found\": 2\n}\n```\nThe `files` array in each group must list only the filenames (not full paths), sorted alphabetically. `duplicates_found` is the total number of files that are duplicates (i.e. not the first occurrence in each group). Only include groups where `count >= 2`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "file-manager_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "report-exists",
+            "weight": 0.1,
+            "description": "The file dedup_report.json exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "report-parse",
+            "weight": 0.1,
+            "description": "dedup_report.json parses as valid JSON with fields: total_files, unique_hashes, duplicate_groups, duplicates_found.",
+            "testPattern": "valid JSON|parses as JSON"
+          },
+          {
+            "id": "total-files",
+            "weight": 0.12,
+            "description": "total_files is exactly 5, reflecting all files scanned in the inbox/ directory.",
+            "testPattern": "total_files is 5"
+          },
+          {
+            "id": "unique-hashes",
+            "weight": 0.12,
+            "description": "unique_hashes is exactly 3, one for 'hello world', one for 'unique content here', one for 'another unique line'.",
+            "testPattern": "unique_hashes is 3"
+          },
+          {
+            "id": "duplicate-groups",
+            "weight": 0.15,
+            "description": "duplicate_groups is an array containing only groups where count >= 2.",
+            "testPattern": "duplicate_groups is an array"
+          },
+          {
+            "id": "group-count",
+            "weight": 0.12,
+            "description": "There is exactly one duplicate group (for the three 'hello world' files).",
+            "testPattern": "one duplicate group"
+          },
+          {
+            "id": "group-file-count",
+            "weight": 0.15,
+            "description": "The duplicate group lists alpha.txt, beta.txt, and delta.txt (count=3, files.length=3).",
+            "testPattern": "group has 3 files"
+          },
+          {
+            "id": "files-sorted",
+            "weight": 0.07,
+            "description": "The files array within each duplicate group is sorted alphabetically.",
+            "testPattern": "files sorted alphabetically"
+          },
+          {
+            "id": "duplicates-found",
+            "weight": 0.07,
+            "description": "duplicates_found is exactly 2 (the two non-first occurrences of the 'hello world' hash).",
+            "testPattern": "duplicates_found is 2"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent scanned a directory for duplicate files and wrote a JSON report.\n\nCriterion 1: Report Accuracy (Weight: 60%)\n1.0: The report correctly identifies all 3 duplicate files sharing the same content, hash is a valid hex string, filenames are sorted and correct.\n0.5: Report identifies duplicates but filenames are not sorted or hash format is wrong.\n0: Report is missing or identifies wrong files.\n\nCriterion 2: Code and Approach Quality (Weight: 40%)\n1.0: The agent used content-based hashing (MD5/SHA256) systematically. The approach is clean and would generalize to larger directories.\n0.5: Approach works but is ad-hoc (e.g. hard-coded comparisons).\n0: No systematic hashing used.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/file-manager",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

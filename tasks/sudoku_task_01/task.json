@@ -1,0 +1,96 @@
+{
+  "id": "sudoku_task_01",
+  "name": "Solve a 9x9 Sudoku Puzzle and Save as JSON",
+  "category": "puzzle",
+  "gradingType": "hybrid",
+  "prompt": "Solve the following 9x9 Sudoku puzzle and save the result as sudoku_result.json in the current directory.\n\nThe puzzle (0 = empty cell):\n```\n5 3 0 | 0 7 0 | 0 0 0\n6 0 0 | 1 9 5 | 0 0 0\n0 9 8 | 0 0 0 | 0 6 0\n------+-------+------\n8 0 0 | 0 6 0 | 0 0 3\n4 0 0 | 8 0 3 | 0 0 1\n7 0 0 | 0 2 0 | 0 0 6\n------+-------+------\n0 6 0 | 0 0 0 | 2 8 0\n0 0 0 | 4 1 9 | 0 0 5\n0 0 0 | 0 8 0 | 0 7 9\n```\n\nWrite a Python or JavaScript program to solve this puzzle using a backtracking algorithm, then save the output.\n\nThe output file sudoku_result.json must have exactly these fields:\n- \"puzzle\": a 9-element array of 9-element arrays (the original puzzle, using 0 for empty cells)\n- \"solution\": a 9-element array of 9-element arrays (the solved puzzle, no zeros)\n- \"solved\": boolean — must be true\n- \"validation\": object with fields:\n  - \"rows_valid\": boolean — true if every row in solution contains digits 1-9 exactly once\n  - \"cols_valid\": boolean — true if every column contains digits 1-9 exactly once\n  - \"boxes_valid\": boolean — true if every 3x3 box contains digits 1-9 exactly once\n\nThe solution cell at row 0, column 2 must be 4. The solution cell at row 0, column 5 must be 6.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "sudoku_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "sudoku_result.json exists as a readable file in the working directory.",
+            "testPattern": "sudoku_result.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "sudoku_result.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.08,
+            "description": "sudoku_result.json has all four required top-level keys: puzzle, solution, solved, and validation.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "puzzle-shape",
+            "weight": 0.1,
+            "description": "The puzzle field is a 9-element array where each element is itself a 9-element array.",
+            "testPattern": "puzzle is a 9x9 array"
+          },
+          {
+            "id": "solution-shape",
+            "weight": 0.1,
+            "description": "The solution field is a 9-element array where each element is itself a 9-element array.",
+            "testPattern": "solution is a 9x9 array"
+          },
+          {
+            "id": "solved-true",
+            "weight": 0.1,
+            "description": "The solved field is the boolean value true.",
+            "testPattern": "solved is true"
+          },
+          {
+            "id": "no-zeros",
+            "weight": 0.12,
+            "description": "No cell in the solution array contains the value 0 (all 81 cells are filled).",
+            "testPattern": "solution has no zeros"
+          },
+          {
+            "id": "known-cells",
+            "weight": 0.15,
+            "description": "Key solution cells match expected values: row 0 col 2 is 4, row 0 col 5 is 6, and original given cells (row 0 col 0=5, row 0 col 1=3, etc.) are preserved.",
+            "testPattern": "known cells match expected values"
+          },
+          {
+            "id": "validation-flags",
+            "weight": 0.1,
+            "description": "validation.rows_valid, validation.cols_valid, and validation.boxes_valid are all true.",
+            "testPattern": "validation flags are all true"
+          },
+          {
+            "id": "digits-range",
+            "weight": 0.09,
+            "description": "Every cell in the solution array contains an integer between 1 and 9 inclusive.",
+            "testPattern": "all solution digits are between 1 and 9"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to solve a specific 9x9 Sudoku puzzle and save the result as structured JSON.\n\nCriterion 1: Solution Correctness (Weight: 70%)\n1.0: The solution is a fully valid Sudoku solution — each row, column, and 3x3 box contains 1-9 exactly once, and all given cells match the original puzzle.\n0.5: Most cells are correct but the solution has 1-2 constraint violations.\n0: Solution is incorrect or the solver failed.\n\nCriterion 2: Code and Approach Quality (Weight: 30%)\n1.0: Agent wrote a clear, working solver (backtracking or constraint propagation) and the JSON structure is clean and complete.\n0.5: Solver works but approach is hardcoded or the JSON is partly malformed.\n0: No solver was written; the solution was guessed or is wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/sudoku",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

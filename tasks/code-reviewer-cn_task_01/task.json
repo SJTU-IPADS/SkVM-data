@@ -1,0 +1,102 @@
+{
+  "id": "code-reviewer-cn_task_01",
+  "name": "Code Review Report with Complexity and Security Analysis",
+  "category": "code_review",
+  "gradingType": "hybrid",
+  "prompt": "You are performing a thorough code review on a Python function. Complete the following steps and save all results to JSON files.\n\nStep 1: Write the following Python code to a file named `target.py`:\n\n```python\nimport os\nimport pickle\n\ndef get_user_data(user_id):\n    query = \"SELECT * FROM users WHERE id = \" + user_id\n    data = db.execute(query)\n    return data\n\ndef process_file(path):\n    f = open(path)\n    content = f.read()\n    obj = pickle.loads(content)\n    return obj\n\ndef calculate(a, b, c, d, e):\n    if a > 0:\n        if b > 0:\n            if c > 0:\n                if d > 0:\n                    if e > 0:\n                        return a + b + c + d + e\n                    else:\n                        return a + b + c + d\n                else:\n                    return a + b + c\n            else:\n                return a + b\n        else:\n            return a\n    else:\n        return 0\n```\n\nStep 2: Analyze the code and produce a review report. Save it to `review_report.json` with exactly this structure:\n\n```json\n{\n  \"summary\": \"string describing overall code quality\",\n  \"cyclomatic_complexity\": {\n    \"get_user_data\": <integer>,\n    \"process_file\": <integer>,\n    \"calculate\": <integer>\n  },\n  \"max_nesting_depth\": {\n    \"calculate\": <integer>\n  },\n  \"security_issues\": [\n    {\n      \"function\": \"string\",\n      \"issue\": \"string\",\n      \"severity\": \"high\" | \"medium\" | \"low\",\n      \"recommendation\": \"string\"\n    }\n  ],\n  \"code_smells\": [\n    {\n      \"function\": \"string\",\n      \"description\": \"string\"\n    }\n  ],\n  \"overall_score\": <integer 1-10>\n}\n```\n\nThe `calculate` function has 5 nested if-else blocks. Count cyclomatic complexity accurately (each branch adds 1). The `max_nesting_depth` for `calculate` should reflect the deepest nesting level. Identify at least 2 security issues (SQL injection and unsafe deserialization are present). Set `overall_score` to an integer between 1 and 10.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "code-reviewer-cn_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "Both target.py and review_report.json are present in the working directory.",
+            "testPattern": "file exists|target.py file was created"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.1,
+            "description": "review_report.json contains all 6 required top-level fields: summary, cyclomatic_complexity, max_nesting_depth, security_issues, code_smells, overall_score.",
+            "testPattern": "valid JSON with required"
+          },
+          {
+            "id": "complexity-fields",
+            "weight": 0.1,
+            "description": "cyclomatic_complexity object has entries for all three functions: get_user_data, process_file, and calculate.",
+            "testPattern": "cyclomatic_complexity has entries"
+          },
+          {
+            "id": "complexity-values",
+            "weight": 0.05,
+            "description": "All cyclomatic_complexity values are positive integers.",
+            "testPattern": "cyclomatic_complexity values are positive"
+          },
+          {
+            "id": "complexity-ranking",
+            "weight": 0.05,
+            "description": "calculate has a higher cyclomatic_complexity than get_user_data, reflecting its 5-level nesting.",
+            "testPattern": "calculate function has higher"
+          },
+          {
+            "id": "nesting-depth",
+            "weight": 0.1,
+            "description": "max_nesting_depth.calculate is at least 5, reflecting the 5 nested if-else blocks.",
+            "testPattern": "max_nesting_depth for calculate"
+          },
+          {
+            "id": "security-count",
+            "weight": 0.1,
+            "description": "security_issues is an array with at least 2 entries.",
+            "testPattern": "security_issues is array"
+          },
+          {
+            "id": "security-fields",
+            "weight": 0.1,
+            "description": "Each security issue has function, issue, severity (high/medium/low), and recommendation fields.",
+            "testPattern": "each security issue has"
+          },
+          {
+            "id": "sql-injection",
+            "weight": 0.15,
+            "description": "At least one security issue references SQL injection or query string concatenation in get_user_data.",
+            "testPattern": "SQL injection is identified"
+          },
+          {
+            "id": "pickle-issue",
+            "weight": 0.15,
+            "description": "At least one security issue references unsafe pickle deserialization or serialization in process_file.",
+            "testPattern": "unsafe deserialization|pickle"
+          },
+          {
+            "id": "overall-score",
+            "weight": 0.05,
+            "description": "overall_score is an integer between 1 and 5, reflecting the poor quality of the reviewed code.",
+            "testPattern": "overall_score is an integer|overall_score reflects poor"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent reviewed Python code for security vulnerabilities, complexity, and code quality.\n\nCriterion 1: Security Issue Identification (Weight: 60%)\n1.0: Both SQL injection (get_user_data) and unsafe pickle deserialization (process_file) are correctly identified with clear severity ratings and actionable recommendations.\n0.5: Only one of the two critical security issues is identified, or recommendations are vague.\n0: Security issues are not identified or are completely wrong.\n\nCriterion 2: Analysis Quality (Weight: 40%)\n1.0: Complexity numbers are reasonable (calculate has high complexity due to nesting), code smells are specific and actionable, overall score reflects the poor quality of the code.\n0.5: Analysis is partially correct but missing key observations.\n0: Analysis is generic, inaccurate, or unhelpful.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/code-reviewer-cn",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

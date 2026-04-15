@@ -1,0 +1,96 @@
+{
+  "id": "turing-pyramid_task_02",
+  "name": "Simulate Need Decay and Satisfaction Update Over Time",
+  "category": "agent_systems",
+  "gradingType": "hybrid",
+  "prompt": "Write a Python 3 script named `need_decay.py` that simulates satisfaction decay and state updates for an agent need system.\n\nImplement the following logic:\n\n**Decay formula:** After `elapsed_hours` have passed, new satisfaction = max(0.5, current_satisfaction - (elapsed_hours / decay_rate_hours))\n\n**Satisfaction update (mark satisfied):** new_satisfaction = min(3.0, current_satisfaction + impact)\n\nStart with the following initial state (needs list):\n```json\n[\n  {\"need\": \"connection\", \"satisfaction\": 2.8, \"decay_rate_hours\": 8},\n  {\"need\": \"coherence\", \"satisfaction\": 2.5, \"decay_rate_hours\": 24},\n  {\"need\": \"autonomy\", \"satisfaction\": 1.2, \"decay_rate_hours\": 36}\n]\n```\n\nApply the following operations in order:\n1. Decay all needs by 12 elapsed hours\n2. Mark `connection` satisfied with impact 1.4\n3. Decay all needs by 6 more elapsed hours\n4. Mark `autonomy` satisfied with impact 2.0\n\nAfter all operations, save the final state to `need_state.json` as a JSON array of objects, each with: `need`, `satisfaction` (rounded to 4 decimal places), `decay_rate_hours`.\n\nAlso save a simulation log to `sim_log.json` as a JSON array of event objects. Each event must have: `step` (1-4), `operation` (string describing the operation), `snapshot` (array of need names and satisfaction values after this step).\n\nRequired output files: `need_decay.py`, `need_state.json`, `sim_log.json`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "turing-pyramid_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.06,
+            "description": "need_decay.py exists in the working directory.",
+            "testPattern": "need_decay.py > file exists|need_decay exists"
+          },
+          {
+            "id": "state-exists",
+            "weight": 0.08,
+            "description": "need_state.json exists in the working directory.",
+            "testPattern": "need_state.json > file exists|need_state exists"
+          },
+          {
+            "id": "state-count",
+            "weight": 0.08,
+            "description": "need_state.json is an array with exactly 3 entries, one per simulated need.",
+            "testPattern": "need_state has 3 needs|three needs"
+          },
+          {
+            "id": "connection-final",
+            "weight": 0.14,
+            "description": "connection final satisfaction is approximately 1.95 after two decay steps and one +1.4 impact update.",
+            "testPattern": "connection final.*1\\.95|connection.*1\\.9500"
+          },
+          {
+            "id": "coherence-final",
+            "weight": 0.14,
+            "description": "coherence final satisfaction is approximately 1.75 after decaying 12h then 6h at rate 24h.",
+            "testPattern": "coherence final.*1\\.75|coherence.*1\\.7500"
+          },
+          {
+            "id": "autonomy-final",
+            "weight": 0.14,
+            "description": "autonomy final satisfaction is approximately 2.7 after two decay steps and one +2.0 impact update.",
+            "testPattern": "autonomy final.*2\\.7|autonomy.*2\\.7000"
+          },
+          {
+            "id": "log-exists",
+            "weight": 0.08,
+            "description": "sim_log.json exists in the working directory.",
+            "testPattern": "sim_log.json > file exists|sim_log exists"
+          },
+          {
+            "id": "log-count",
+            "weight": 0.1,
+            "description": "sim_log.json is an array with exactly 4 events, one per simulation operation.",
+            "testPattern": "sim_log has 4 events|four events"
+          },
+          {
+            "id": "log-steps",
+            "weight": 0.1,
+            "description": "sim_log events contain step numbers 1, 2, 3, and 4 covering all four operations in order.",
+            "testPattern": "steps are numbered 1 through 4"
+          },
+          {
+            "id": "log-snapshots",
+            "weight": 0.08,
+            "description": "each sim_log event has a snapshot field that is an array of need states after that step.",
+            "testPattern": "each event has snapshot|snapshot field"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to simulate need decay and satisfaction updates with exact arithmetic.\n\nCriterion 1: Numerical Correctness (Weight: 65%)\n1.0: Final state values are correct. After step 1 (decay 12h): connection=2.8-12/8=1.3, coherence=2.5-12/24=2.0, autonomy=max(0.5,1.2-12/36)=0.8667. After step 2: connection=min(3.0,1.3+1.4)=2.7. After step 3 (decay 6h): connection=2.7-6/8=1.95, coherence=2.0-6/24=1.75, autonomy=0.8667-6/36=0.7. After step 4: autonomy=min(3.0,0.7+2.0)=2.7. Final: connection≈1.95, coherence≈1.75, autonomy≈2.7.\n0.5: Most values correct but one or two steps have arithmetic errors.\n0: Values are largely wrong.\n\nCriterion 2: Log and Format Quality (Weight: 35%)\n1.0: sim_log.json has 4 events with step numbers 1-4, descriptive operation strings, and snapshot arrays. need_state.json has all 3 needs with correct field names.\n0.5: Logs exist but steps are missing or snapshots are incomplete.\n0: sim_log.json is missing or malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/turing-pyramid",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

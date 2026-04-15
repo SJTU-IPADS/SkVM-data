@@ -1,0 +1,96 @@
+{
+  "id": "personal-productivity_task_02",
+  "name": "Design a Time-Blocked Daily Schedule and Energy Optimization Plan",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "Design an optimized daily schedule for the person described below. Save the schedule to daily_schedule.json.\n\nPerson profile:\n- Name: Alex\n- Work hours: 9:00 AM - 6:00 PM (9 hours)\n- Self-reported peak energy: 9:00 AM - 12:00 PM (high), 12:00 PM - 2:00 PM (low, post-lunch), 2:00 PM - 4:00 PM (medium), 4:00 PM - 6:00 PM (low-medium)\n- Must-do tasks today:\n  * Write technical specification for new API (estimated 2 hours, high cognitive load)\n  * Three 30-minute 1:1 meetings (can be scheduled any time)\n  * Code review for 2 pull requests (estimated 1 hour, medium cognitive load)\n  * Reply to all pending emails and Slack messages (estimated 45 minutes, low cognitive load)\n  * Fix a known bug with a 4 PM deployment deadline (estimated 1.5 hours, high cognitive load)\n\ndaily_schedule.json must have exactly this structure:\n{\n  \"person\": \"Alex\",\n  \"date\": \"2026-04-11\",\n  \"time_blocks\": [\n    { \"start\": \"HH:MM\", \"end\": \"HH:MM\", \"task\": \"<task name>\", \"energy_level\": \"high|medium|low\", \"cognitive_load\": \"high|medium|low\" }\n  ],\n  \"energy_alignment_score\": <integer 0-10>,\n  \"productivity_notes\": [\"<note 1>\", \"<note 2>\"]\n}\n\nRequirements:\n- date must be \"2026-04-11\"\n- time_blocks must cover the full 9:00-18:00 window without gaps or overlaps\n- All 5 task types must appear in time_blocks\n- The bug fix task must end by 16:00 (4 PM)\n- High cognitive load tasks must be scheduled only in high or medium energy blocks (not in the 12:00-14:00 low-energy window)\n- energy_alignment_score must be an integer 0-10\n- productivity_notes must have at least 2 entries",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "personal-productivity_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "daily_schedule.json file is present in the working directory.",
+            "testPattern": "daily_schedule.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "daily_schedule.json parses as valid JSON without errors.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "top-level-fields",
+            "weight": 0.08,
+            "description": "Top-level object contains person, date, time_blocks, energy_alignment_score, and productivity_notes fields.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "date-field",
+            "weight": 0.08,
+            "description": "date field is exactly \"2026-04-11\".",
+            "testPattern": "date is 2026-04-11"
+          },
+          {
+            "id": "time-blocks-array",
+            "weight": 0.1,
+            "description": "time_blocks is a non-empty array.",
+            "testPattern": "time_blocks is a non-empty array"
+          },
+          {
+            "id": "block-fields",
+            "weight": 0.12,
+            "description": "Each time block has start, end, task, energy_level, and cognitive_load fields.",
+            "testPattern": "each block has start.*end.*task.*energy_level.*cognitive_load"
+          },
+          {
+            "id": "valid-energy-levels",
+            "weight": 0.1,
+            "description": "All energy_level and cognitive_load values are one of: high, medium, or low.",
+            "testPattern": "energy_level values are valid"
+          },
+          {
+            "id": "bug-fix-deadline",
+            "weight": 0.14,
+            "description": "All time blocks whose task contains \"bug\" or \"fix\" have an end time at or before 16:00.",
+            "testPattern": "bug fix task ends by 16:00"
+          },
+          {
+            "id": "score-range",
+            "weight": 0.08,
+            "description": "energy_alignment_score is an integer between 0 and 10.",
+            "testPattern": "energy_alignment_score is an integer between 0 and 10"
+          },
+          {
+            "id": "productivity-notes",
+            "weight": 0.12,
+            "description": "productivity_notes array has at least 2 non-empty strings longer than 5 characters.",
+            "testPattern": "at least 2 productivity notes"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent designed a time-blocked schedule matching task cognitive load to energy levels.\n\nCriterion 1: Schedule Optimization Quality (Weight: 60%)\n1.0: Technical spec and bug fix are scheduled during 9-12 or 14-16 energy windows; meetings and email are in low-energy slots (post-lunch or late afternoon); schedule flows logically with no obvious inefficiencies.\n0.5: Most high-load tasks are in good slots but one is placed sub-optimally.\n0: High-load tasks are scheduled during the post-lunch low-energy window.\n\nCriterion 2: Productivity Notes Quality (Weight: 40%)\n1.0: Notes contain specific, actionable insights about Alex's schedule (e.g., why the spec was placed in the morning, how to protect deep work time, what to do during the post-lunch dip), not generic tips.\n0.5: Notes are present but generic rather than tailored to Alex's specific profile.\n0: Notes are missing or are single-word entries.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/personal-productivity",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "workflow-builder_task_01",
+  "name": "Design an Employee Onboarding Workflow",
+  "category": "workflow_design",
+  "gradingType": "hybrid",
+  "prompt": "Design a structured employee onboarding workflow for a software company. Save the result to onboarding_workflow.json.\n\nThe workflow must cover new employee onboarding from offer acceptance to end of first week. Include exactly 6 steps covering: (1) pre-arrival setup, (2) day 1 welcome and orientation, (3) equipment and access provisioning, (4) team introduction and culture, (5) role-specific training, (6) end-of-week check-in.\n\nSave to onboarding_workflow.json with this exact structure:\n{\n  \"name\": \"Employee Onboarding Workflow\",\n  \"description\": \"<string>\",\n  \"trigger\": \"offer_accepted\",\n  \"total_duration_days\": 7,\n  \"steps\": [\n    {\n      \"id\": \"S1\",\n      \"name\": \"<string>\",\n      \"owner\": \"<string — role responsible, e.g. HR, IT, Manager>\",\n      \"duration_hours\": <number>,\n      \"inputs\": [\"<string>\"],\n      \"outputs\": [\"<string>\"],\n      \"automation_potential\": \"<high|medium|low>\"\n    }\n  ],\n  \"total_steps\": 6,\n  \"automation_summary\": {\n    \"high\": <count of steps with automation_potential=high>,\n    \"medium\": <count of steps with automation_potential=medium>,\n    \"low\": <count of steps with automation_potential=low>\n  }\n}\n\nStep IDs must be S1 through S6. Each step must have at least one input and one output. automation_summary counts must sum to 6.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "workflow-builder_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "onboarding_workflow.json exists in the working directory.",
+            "testPattern": "onboarding_workflow.json > file exists"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.1,
+            "description": "onboarding_workflow.json has all 7 required top-level fields: name, description, trigger, total_duration_days, steps, total_steps, automation_summary.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "trigger-value",
+            "weight": 0.08,
+            "description": "trigger field equals \"offer_accepted\" as required.",
+            "testPattern": "trigger is offer_accepted"
+          },
+          {
+            "id": "six-steps",
+            "weight": 0.12,
+            "description": "steps array is an array with exactly 6 entries.",
+            "testPattern": "exactly 6 steps"
+          },
+          {
+            "id": "step-ids",
+            "weight": 0.1,
+            "description": "Step IDs are exactly S1, S2, S3, S4, S5, and S6.",
+            "testPattern": "S1 through S6|step IDs"
+          },
+          {
+            "id": "step-fields",
+            "weight": 0.12,
+            "description": "Each step has name, owner, duration_hours, inputs (non-empty array), and outputs (non-empty array) fields.",
+            "testPattern": "step has owner.*inputs.*outputs|step fields"
+          },
+          {
+            "id": "automation-values",
+            "weight": 0.1,
+            "description": "Each step's automation_potential is one of \"high\", \"medium\", or \"low\".",
+            "testPattern": "automation_potential.*high.*medium.*low|automation values"
+          },
+          {
+            "id": "automation-summary",
+            "weight": 0.15,
+            "description": "automation_summary high+medium+low counts sum to 6 and match the actual distribution of steps.",
+            "testPattern": "automation_summary high\\+medium\\+low counts sum to 6|automation_summary counts match actual step distribution"
+          },
+          {
+            "id": "duration-hours",
+            "weight": 0.08,
+            "description": "duration_hours is a positive number for each step.",
+            "testPattern": "duration_hours is a positive number for each step"
+          },
+          {
+            "id": "total-steps-field",
+            "weight": 0.07,
+            "description": "total_steps field equals 6.",
+            "testPattern": "total_steps is 6"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent designed a structured employee onboarding workflow.\n\nCriterion 1: Workflow Completeness (Weight: 50%)\n1.0: All 6 steps cover the specified onboarding phases in logical order, each has realistic owner roles, inputs, outputs, and duration estimates; automation potential assignments are sensible (e.g. equipment provisioning = high, culture introduction = low).\n0.5: Steps are present but some are vague, in wrong order, or have unrealistic durations.\n0: Fewer than 6 steps or major phases are missing.\n\nCriterion 2: Process Logic Quality (Weight: 50%)\n1.0: The workflow tells a coherent onboarding story — outputs of earlier steps are inputs to later steps where appropriate, the overall flow is practical and actionable for an HR team.\n0.5: Flow is mostly logical but some step dependencies are weak or disconnected.\n0: Steps are generic and not connected to each other.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/workflow-builder",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

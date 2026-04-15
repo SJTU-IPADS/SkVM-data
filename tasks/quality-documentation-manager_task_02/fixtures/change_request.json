@@ -1,0 +1,46 @@
+{
+  "change_request_id": "CR-2025-014",
+  "document_number": "SOP-08-002",
+  "document_title": "Nonconformance Investigation Procedure",
+  "current_revision": "02",
+  "current_effective_date": "2023-04-10",
+  "change_history_existing": [
+    {
+      "revision": "01",
+      "date": "2021-09-01",
+      "description": "Initial release",
+      "author": "P. Okafor",
+      "approver": "D. Simmons"
+    },
+    {
+      "revision": "02",
+      "date": "2023-04-10",
+      "description": "Expanded root cause analysis section; added fishbone diagram requirement",
+      "author": "P. Okafor",
+      "approver": "D. Simmons"
+    }
+  ],
+  "proposed_changes": [
+    {
+      "change_id": "X",
+      "description": "Update the document header logo from the old corporate logo (pre-2024 brand) to the new corporate logo",
+      "section_affected": "Header / Cover Page",
+      "rationale": "Corporate branding update; no procedural content is altered"
+    },
+    {
+      "change_id": "Y",
+      "description": "Add a clarifying note in section 4.3 explaining that the 30-day investigation timeline applies to customer complaints but not to internally discovered nonconformances, which follow a 45-day timeline",
+      "section_affected": "Section 4.3 – Investigation Timelines",
+      "rationale": "Removes ambiguity cited in internal audit finding IA-2024-07; limited content change clarifying existing intent"
+    },
+    {
+      "change_id": "Z",
+      "description": "Correct three typographical errors: 'occured' → 'occurred' (section 2.1), 'analysed' → 'analyzed' (section 5.2), and 'personnell' → 'personnel' (section 6.1)",
+      "section_affected": "Sections 2.1, 5.2, 6.1",
+      "rationale": "Spelling corrections only; no change to meaning or requirements"
+    }
+  ],
+  "requested_by": "P. Okafor",
+  "request_date": "2025-03-01",
+  "target_effective_date": "2025-04-15"
+}

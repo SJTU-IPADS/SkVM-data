@@ -1,0 +1,31 @@
+{
+  "id": "humanize-ai-text_task_02",
+  "name": "Remove Filler Transitions from a Renewable Energy Article and Log All Changes",
+  "category": "writing_content",
+  "gradingType": "hybrid",
+  "prompt": "Your queue contains `article.md`, a multi-section article about renewable energy that was written by an AI assistant. It contains a specific family of filler transition phrases that make it sound robotic. Your job is two-fold: rewrite the article and produce a structured change log.\n\n**Output 1: `clean.md`** — a rewritten version of the article. Apply these rules:\n\nRemove or rewrite every occurrence of the following phrases (case-insensitive), restructuring the surrounding sentence so it still reads naturally:\n- `It's important to note that` / `It is important to note that`\n- `It's worth noting that` / `It is worth noting that`\n- `Additionally,` (when used as a sentence-starting connector)\n- `Furthermore,` (when used as a sentence-starting connector)\n- `Moreover,` (when used as a sentence-starting connector)\n- `In addition to` → rewrite the sentence (e.g. \"Beyond X, ...\", \"Alongside X, ...\")\n- `It is crucial to understand that`\n- `It goes without saying that`\n- `In order to` → replace with `to`\n- `Due to the fact that` → replace with `because`\n\nStructural rules for `clean.md`:\n- Preserve all five section headers exactly as written.\n- Keep all factual claims about solar, wind, storage, and policy intact.\n- Do not introduce new information or change the article's structure.\n- Output word count must stay between 70% and 110% of the input word count.\n\n**Output 2: `changes.json`** — a JSON object at the workspace root with exactly these top-level keys:\n- `total_removed` (integer): the total number of phrase instances removed or rewritten\n- `counts_by_category` (object): integer counts grouped by category; use at least these two category names: `filler-hedge` (for \"it's important to note\", \"worth noting\", \"crucial to understand\", \"goes without saying\") and `chatgpt-transition` (for \"Additionally,\", \"Furthermore,\", \"Moreover,\", \"In addition to\")\n- `changes` (list): one entry per phrase instance removed, each entry being an object with at minimum a `phrase` key (the exact phrase removed) and a `category` key\n\n**Invariant**: `total_removed` must equal the length of the `changes` list exactly.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent rewrote a 5-section renewable energy article (article.md) to remove filler transitions and produced a change-log JSON. The prompt listed 10 specific phrase types to remove, required section headers to be preserved, and specified that changes.json total_removed must equal the changes list length.\n\nCriterion 1: Prose quality of clean.md (Weight: 40%)\n1.0: The rewritten paragraphs read like a competent human author wrote them. Sentences that previously began with 'Additionally,' or 'Furthermore,' have been restructured so the continuation flows naturally from the previous sentence — not just stripped of the connector word. Factual content (solar cost reductions, offshore wind viability, battery storage chemistries, permitting timelines, policy instruments) is preserved accurately.\n0.5: Most transitions removed but at least one or two sentences are awkward after the removal, or one factual detail was dropped.\n0: The text still contains AI-transition cadence, or significant factual content was lost.\n\nCriterion 2: Completeness of phrase removal (Weight: 40%)\n1.0: A close reading finds none of the 10 banned phrase types in clean.md. 'In order to' has been replaced with 'to', 'due to the fact that' with 'because', and the hedge phrases ('it's important to note', 'worth noting', 'crucial to understand', 'goes without saying') are completely absent.\n0.5: 2–3 banned phrases remain.\n0: 4 or more banned phrases remain, or the agent made only superficial changes.\n\nCriterion 3: JSON log quality (Weight: 20%)\n1.0: changes.json exists with total_removed matching len(changes), counts_by_category has at least filler-hedge and chatgpt-transition keys with plausible counts, and each changes entry has phrase and category fields. The data is internally consistent.\n0.5: JSON exists but total_removed does not match list length, or only one category is used.\n0: JSON missing or malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/humanize-ai-text",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

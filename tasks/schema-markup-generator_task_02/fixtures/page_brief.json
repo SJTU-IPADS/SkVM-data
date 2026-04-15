@@ -1,0 +1,23 @@
+{
+  "page_title": "How to Choose Running Shoes: Complete Guide",
+  "page_url": "https://runnerworld.example.com/guides/how-to-choose-running-shoes",
+  "breadcrumbs": [
+    { "name": "Home", "url": "https://runnerworld.example.com/" },
+    { "name": "Guides", "url": "https://runnerworld.example.com/guides/" },
+    { "name": "How to Choose Running Shoes", "url": "https://runnerworld.example.com/guides/how-to-choose-running-shoes" }
+  ],
+  "faqs": [
+    {
+      "question": "How do I know what running shoe size to buy?",
+      "answer": "Your running shoe should be a half to full size larger than your regular shoe size to accommodate foot swelling during runs. Visit a specialty running store for a professional fitting, where staff can measure your foot and analyze your gait. Always try on shoes in the afternoon when your feet are slightly swollen from daily activity."
+    },
+    {
+      "question": "What is the difference between neutral and stability running shoes?",
+      "answer": "Neutral shoes are designed for runners with normal arches or high arches who have efficient foot strike mechanics. Stability shoes include medial post or guide rails that reduce excess inward rolling (overpronation) and are recommended for flat-footed runners. A gait analysis at a running store can determine which type suits your biomechanics."
+    },
+    {
+      "question": "How often should I replace my running shoes?",
+      "answer": "Most running shoes should be replaced every 300 to 500 miles (480 to 800 km). Signs of wear include compressed midsole cushioning (the foam feels firmer), worn outsole tread, and increased leg or joint soreness during or after runs. Rotating between two pairs of shoes can extend the overall lifespan of each pair."
+    }
+  ]
+}

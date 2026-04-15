@@ -1,0 +1,85 @@
+{
+  "id": "find-skills-skill_task_02",
+  "name": "Compare and recommend skills across categories",
+  "category": "agent_behavior",
+  "gradingType": "hybrid",
+  "prompt": "I'm setting up an AI agent that needs to handle both web research and document processing. Search for available skills in both areas (web/search related skills and document/PDF related skills), then compare and recommend the best options for my needs.\n\nSave the output to skill_recommendations.json with:\n\n- searches: array of at least 2 objects, each with:\n  - query: the search term used (string)\n  - results_found: number of results (number)\n- all_skills: array of all unique skills found across searches, each with:\n  - name: skill name (string)\n  - description: what it does (string, at least 20 characters)\n  - category: which search it came from, e.g. \"web_research\" or \"document_processing\" (string)\n- recommendations: array of at least 2 objects, each with:\n  - skill_name: recommended skill name (string)\n  - use_case: what specific task this skill is best for (string, at least 30 characters)\n  - priority: \"high\", \"medium\", or \"low\" (string)\n- compatibility_notes: a paragraph about how the recommended skills could work together (string, at least 100 characters)\n- total_unique_skills: total number of unique skills found (number)",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "find-skills-skill_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "The file skill_recommendations.json exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "multiple-searches",
+            "weight": 0.15,
+            "description": "searches array has at least 2 entries, each with a non-empty query string and numeric results_found.",
+            "testPattern": "at least 2 searches"
+          },
+          {
+            "id": "all-skills-array",
+            "weight": 0.15,
+            "description": "all_skills is a non-empty array where each entry has non-empty name, description (>=20 chars), and category strings.",
+            "testPattern": "all_skills array structure"
+          },
+          {
+            "id": "skill-categories",
+            "weight": 0.15,
+            "description": "all_skills entries span at least 2 distinct categories covering both search domains.",
+            "testPattern": "skills have valid categories"
+          },
+          {
+            "id": "recommendations",
+            "weight": 0.2,
+            "description": "recommendations array has at least 2 entries, each with skill_name, use_case (>=30 chars), and priority fields.",
+            "testPattern": "recommendation entries"
+          },
+          {
+            "id": "priority-levels",
+            "weight": 0.1,
+            "description": "Every recommendation priority is one of 'high', 'medium', or 'low'.",
+            "testPattern": "valid priority levels"
+          },
+          {
+            "id": "compatibility-notes",
+            "weight": 0.15,
+            "description": "compatibility_notes is a string of at least 100 characters describing how the recommended skills work together.",
+            "testPattern": "compatibility notes"
+          },
+          {
+            "id": "total-count",
+            "weight": 0.05,
+            "description": "total_unique_skills equals all_skills.length and all skill names are unique.",
+            "testPattern": "total unique skills count"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent searched for skills in two categories (web research and document processing), compared options, and produced recommendations.\n\nCriterion 1: Search Coverage (Weight: 40%)\n1.0: At least two distinct searches were performed covering both web/search and document/PDF domains. Results include real skills from an actual skill registry. Skills are correctly categorized.\n0.5: Searches were performed but coverage is uneven or categories are confused.\n0: No real searches performed or results are entirely fabricated.\n\nCriterion 2: Recommendation Quality (Weight: 60%)\n1.0: Recommendations are well-reasoned, matching specific skills to specific use cases. Priority levels are justified. Compatibility notes provide genuine insight about combining the skills. The output would help someone make informed decisions.\n0.5: Recommendations exist but are generic or priorities seem arbitrary.\n0: No meaningful recommendations or analysis is missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/find-skills-skill",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "medium"
+}

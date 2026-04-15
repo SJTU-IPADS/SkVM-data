@@ -1,0 +1,73 @@
+{
+  "id": "weather_task_01",
+  "name": "Fetch current weather for a city",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "I need the current weather conditions for Tokyo, Japan. Fetch live weather data and save a structured report to weather_report.json with the following fields:\n\n- city: the city name\n- country: the country name\n- temperature_c: current temperature in Celsius (number)\n- condition: current weather condition description (string, e.g. \"Clear\", \"Cloudy\", \"Rain\")\n- humidity_pct: humidity percentage (number, 0-100)\n- wind_kph: wind speed in km/h (number)\n- fetched_at: ISO 8601 timestamp of when the data was retrieved\n\nMake sure the values reflect real current conditions, not made-up data.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "weather_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "weather_report.json exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.15,
+            "description": "weather_report.json parses as a non-null JSON object (not an array).",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.2,
+            "description": "weather_report.json has all 7 required fields: city, country, temperature_c, condition, humidity_pct, wind_kph, fetched_at.",
+            "testPattern": "required fields"
+          },
+          {
+            "id": "field-types",
+            "weight": 0.2,
+            "description": "city and country are strings, temperature_c, humidity_pct, wind_kph are numbers, and fetched_at is a string.",
+            "testPattern": "correct types"
+          },
+          {
+            "id": "value-ranges",
+            "weight": 0.2,
+            "description": "temperature_c is between -50 and 60, humidity_pct is 0-100, wind_kph is 0-300, and city name contains \"tokyo\".",
+            "testPattern": "reasonable ranges"
+          },
+          {
+            "id": "timestamp",
+            "weight": 0.15,
+            "description": "fetched_at parses as a valid date within the last 24 hours of the run time.",
+            "testPattern": "valid ISO 8601 timestamp"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to fetch live weather data for Tokyo and save it as structured JSON.\n\nCriterion 1: Data Retrieval (Weight: 50%)\n1.0: The agent successfully fetched real weather data from an external source (e.g. wttr.in, Open-Meteo, or another weather API). The temperature and conditions are plausible for Tokyo at the current time of year.\n0.5: Data was fetched but some values seem implausible or partially fabricated.\n0: No real data was fetched; values appear entirely made up.\n\nCriterion 2: Output Quality (Weight: 50%)\n1.0: The JSON file is well-structured with all required fields, correct types, and reasonable values. The report is immediately usable.\n0.5: Most fields present but some missing or with wrong types.\n0: Output is missing, malformed, or largely incomplete.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/weather",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "easy"
+}

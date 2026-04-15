@@ -1,0 +1,85 @@
+{
+  "id": "openai-whisper_task_02",
+  "name": "Generate multi-speaker audio, transcribe, and create meeting notes",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "I need to create a mock meeting transcript. Generate two separate audio files using different text-to-speech voices (use different macOS voices if available, or generate them sequentially), simulating two speakers in a project planning meeting:\n\nSpeaker 1 (Alice): \"Welcome to the project kickoff meeting. Today we need to discuss the timeline for the new dashboard feature. I propose we aim for a three week sprint starting next Monday.\"\n\nSpeaker 2 (Bob): \"That sounds reasonable. I think the backend API work will take about one week, and then we will need two weeks for the frontend integration and testing. We should also plan for a code review checkpoint at the end of week two.\"\n\nTranscribe each audio file separately, then combine the results into meeting documentation. Produce:\n\n1. transcript_alice.txt: Transcription of speaker 1's audio\n2. transcript_bob.txt: Transcription of speaker 2's audio\n3. meeting_notes.json with:\n   - \"speakers\": array of objects with \"name\" (string) and \"word_count\" (number of words in their transcript)\n   - \"combined_transcript\": string containing both speakers' text in order, with speaker labels (e.g., \"Alice: ... Bob: ...\")\n   - \"total_word_count\": total words across all transcripts\n   - \"action_items\": array of at least 2 strings identifying commitments or next steps mentioned in the meeting\n   - \"topics_discussed\": array of at least 2 strings describing the main topics covered",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "openai-whisper_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "alice-transcript",
+            "weight": 0.15,
+            "description": "transcript_alice.txt exists and contains at least 5 words of meaningful content.",
+            "testPattern": "transcript_alice.txt exists|alice transcript has content"
+          },
+          {
+            "id": "bob-transcript",
+            "weight": 0.15,
+            "description": "transcript_bob.txt exists and contains at least 5 words of meaningful content.",
+            "testPattern": "transcript_bob.txt exists|bob transcript has content"
+          },
+          {
+            "id": "meeting-notes",
+            "weight": 0.1,
+            "description": "meeting_notes.json file is present in the working directory.",
+            "testPattern": "meeting_notes.json exists"
+          },
+          {
+            "id": "speakers",
+            "weight": 0.15,
+            "description": "speakers array has exactly 2 entries, each with a non-empty name and a positive word_count.",
+            "testPattern": "speakers array with 2 entries"
+          },
+          {
+            "id": "combined-transcript",
+            "weight": 0.15,
+            "description": "combined_transcript string contains speaker labels such as Alice, Bob, Speaker 1, or Speaker 2.",
+            "testPattern": "combined_transcript has speaker labels"
+          },
+          {
+            "id": "word-counts",
+            "weight": 0.1,
+            "description": "total_word_count is a positive number greater than 10.",
+            "testPattern": "total_word_count is a positive number"
+          },
+          {
+            "id": "action-items",
+            "weight": 0.1,
+            "description": "action_items array has at least 2 non-empty string entries.",
+            "testPattern": "action_items has at least 2 entries"
+          },
+          {
+            "id": "topics",
+            "weight": 0.1,
+            "description": "topics_discussed array has at least 2 non-empty string entries.",
+            "testPattern": "topics_discussed has at least 2 entries"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated two audio files simulating different meeting speakers, transcribed each using speech-to-text, and produced structured meeting notes.\n\nCriterion 1: Pipeline Execution (Weight: 40%)\n1.0: Two separate audio files were generated and transcribed. Transcripts reflect actual STT output (may have minor recognition errors). Combined transcript preserves speaker attribution.\n0.5: Audio was generated but only one was transcribed, or transcripts are just the original text copied.\n0: No audio generation or transcription was performed.\n\nCriterion 2: Meeting Notes Quality (Weight: 35%)\n1.0: Action items correctly identify real commitments from the dialogue (sprint timeline, code review checkpoint). Topics are relevant. Word counts are consistent with transcript content.\n0.5: Notes exist but action items are generic or topics don't match the content.\n0: Meeting notes are missing or clearly fabricated.\n\nCriterion 3: Speaker Handling (Weight: 25%)\n1.0: Each speaker has a separate transcript file, combined transcript correctly attributes text to speakers, speaker stats are accurate.\n0.5: Speaker separation exists but attribution is inconsistent.\n0: No speaker differentiation.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/openai-whisper",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "medium"
+}

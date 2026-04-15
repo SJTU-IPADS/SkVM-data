@@ -1,0 +1,96 @@
+{
+  "id": "regulatory-affairs-head_task_02",
+  "name": "Build Multi-Market Submission Strategy and Sequence Plan",
+  "category": "regulatory_affairs",
+  "gradingType": "hybrid",
+  "prompt": "You are a head of regulatory affairs building a global market access plan for a new medical device. Analyze the target markets and produce a structured multi-market strategy.\n\nDevice profile:\n- Name: OrthoScan Plus\n- Type: AI-assisted orthopedic imaging software (SaMD — Software as a Medical Device)\n- Risk class: EU Class IIb, FDA Class II\n- FDA pathway: 510(k) (predicate available: K201567)\n- Target markets: USA, EU, Canada, Australia, Japan\n- Available evidence: FDA bench testing + usability study + clinical performance data from 500 patients\n- Business priority: USA first, then EU, then recognition markets\n\nStep 1: Build a market priority matrix and save to market_matrix.json.\n\nFor each target market include: market, regulation (\"21 CFR 820\" for USA, \"MDR 2017/745\" for EU, \"MDSAP\" for Canada, \"TGA\" for Australia, \"PMDA\" for Japan), pathway (\"510(k)\" for USA, \"Class IIb MDR\" for EU, \"Class II MDSAP\" for Canada, \"ARTG Entry\" for Australia, \"Shonin\" for Japan), phase (1 for USA and EU, 2 for Canada and Australia, 3 for Japan), estimated_timeline_months (6 for USA 510k, 18 for EU MDR, 12 for Canada, 10 for Australia, 24 for Japan), complexity (\"High\" for USA/EU/Japan, \"Medium\" for Canada/Australia), and local_rep_required (true for EU/Canada/Australia/Japan, false for USA).\n\nSave as: { \"device\": \"OrthoScan Plus\", \"markets\": [ { \"market\": \"...\", \"regulation\": \"...\", \"pathway\": \"...\", \"phase\": N, \"estimated_timeline_months\": N, \"complexity\": \"...\", \"local_rep_required\": bool }, ... ] }\n\nStep 2: Identify which documents can be shared across markets (single source) versus which require localization, and save to documentation_plan.json.\n\nFor each of these 6 document types, specify single_source (true/false) and localization_needed (list of markets requiring localization or \"None\"): Technical file core, Risk management file, Clinical data, QMS certificate, Labeling, IFU.\n\nSave as: { \"documents\": [ { \"doc_type\": \"...\", \"single_source\": bool, \"localization_needed\": [...] }, ... ] }\n\nStep 3: Identify the top 3 regulatory risks and save to regulatory_risks.json.\n\nFor each risk include: risk_id (R1-R3), description, probability (\"Low\"/\"Medium\"/\"High\"), impact (\"Low\"/\"Medium\"/\"High\"), and mitigation (1 sentence).\n\nSave as: { \"device\": \"OrthoScan Plus\", \"risks\": [ { \"risk_id\": \"...\", \"description\": \"...\", \"probability\": \"...\", \"impact\": \"...\", \"mitigation\": \"...\" }, ... ] }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "regulatory-affairs-head_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "matrix-exists",
+            "weight": 0.08,
+            "description": "market_matrix.json exists in the working directory.",
+            "testPattern": "market_matrix.json.*exists|file exists.*market_matrix"
+          },
+          {
+            "id": "five-markets",
+            "weight": 0.1,
+            "description": "market_matrix.json markets array contains exactly 5 entries covering USA, EU, Canada, Australia, and Japan.",
+            "testPattern": "has markets array with 5 entries|all 5 expected markets are present"
+          },
+          {
+            "id": "phase-assignments",
+            "weight": 0.15,
+            "description": "USA has phase=1 and EU has phase=1 in the markets array.",
+            "testPattern": "USA.*phase.*1|phase 1.*USA|EU.*phase.*1"
+          },
+          {
+            "id": "phase2-markets",
+            "weight": 0.1,
+            "description": "Canada has phase=2 and Australia has phase=2 in the markets array.",
+            "testPattern": "Canada.*phase.*2|Australia.*phase.*2"
+          },
+          {
+            "id": "japan-phase3",
+            "weight": 0.08,
+            "description": "Japan has phase=3 in the markets array.",
+            "testPattern": "Japan.*phase.*3|phase 3.*Japan"
+          },
+          {
+            "id": "local-rep",
+            "weight": 0.1,
+            "description": "EU has local_rep_required=true and USA has local_rep_required=false.",
+            "testPattern": "EU requires local representative|USA does not require local representative"
+          },
+          {
+            "id": "docs-exists",
+            "weight": 0.08,
+            "description": "documentation_plan.json exists in the working directory.",
+            "testPattern": "documentation_plan.json.*exists|file exists.*documentation"
+          },
+          {
+            "id": "docs-6-types",
+            "weight": 0.12,
+            "description": "documentation_plan.json documents array contains exactly 6 entries, each with doc_type, single_source (boolean), and localization_needed fields.",
+            "testPattern": "6 document types|six document|documents.*6"
+          },
+          {
+            "id": "risks-exists",
+            "weight": 0.07,
+            "description": "regulatory_risks.json exists in the working directory.",
+            "testPattern": "regulatory_risks.json.*exists|file exists.*regulatory_risks"
+          },
+          {
+            "id": "risks-count",
+            "weight": 0.12,
+            "description": "regulatory_risks.json risks array contains exactly 3 entries with IDs R1, R2, and R3, each with probability, impact (Low/Medium/High), and a mitigation string.",
+            "testPattern": "3 risks|three risks|risks.*3"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent built a multi-market regulatory strategy including market phasing, documentation planning, and risk identification.\n\nCriterion 1: Market Matrix Accuracy (Weight: 50%)\n1.0: All 5 markets present with correct regulations, pathways, and phase assignments (USA+EU in phase 1, Canada+Australia in phase 2, Japan in phase 3). Timeline estimates are plausible and consistent with known regulatory review durations. local_rep_required is correct for each market.\n0.5: At least 4 markets correct with mostly accurate phasing and complexity ratings.\n0: Market assignments or phases are systematically wrong.\n\nCriterion 2: Documentation and Risk Quality (Weight: 50%)\n1.0: Documentation plan correctly identifies which document types are single-source (risk management, clinical data, QMS, tech file) vs. requiring localization (labeling and IFU for all markets). Risks file contains 3 plausible, specific regulatory risks for an AI SaMD product with actionable mitigations.\n0.5: Documentation plan has minor inaccuracies; risks are present but generic.\n0: Documentation plan or risks file is missing or contains fewer than 2 entries.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/regulatory-affairs-head",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

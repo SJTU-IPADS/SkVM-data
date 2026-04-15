@@ -1,0 +1,97 @@
+{
+  "id": "git-essentials_task_01",
+  "name": "Set Up Repo with Branching Workflow",
+  "category": "development",
+  "gradingType": "hybrid",
+  "prompt": "Initialize a new git repository in a directory called `demo-project`. Set up the git user config locally (user.name=\"Test User\", user.email=\"test@example.com\"). Create an initial commit on main with a README.md file that contains a short project description. Then create a feature branch called `feature/add-config`, switch to it, add a `config.json` file with the following content:\n\n```json\n{\"version\": \"1.0.0\", \"debug\": false}\n```\n\nCommit the config.json on the feature branch. Switch back to main.\n\nFinally, produce a `repo_report.json` file in the `demo-project` directory with the following fields:\n\n1. `branches` — array of branch name strings (e.g. [\"main\", \"feature/add-config\"])\n2. `current_branch` — string, the currently checked-out branch\n3. `commit_count` — number, total commits across all branches (count unique commits)\n4. `has_feature_branch` — boolean, whether the feature/add-config branch exists\n5. `latest_commit_message` — string, the commit message of the most recent commit on main\n6. `files_on_main` — array of filenames tracked on the main branch\n7. `files_on_feature` — array of filenames tracked on the feature/add-config branch",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "git-essentials_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "repo-exists",
+            "weight": 0.1,
+            "description": "The directory demo-project/ exists.",
+            "testPattern": "demo-project directory exists"
+          },
+          {
+            "id": "git-init",
+            "weight": 0.1,
+            "description": "demo-project contains a .git directory, confirming it is a git repository.",
+            "testPattern": "is a git repository"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.05,
+            "description": "The file demo-project/repo_report.json exists.",
+            "testPattern": "repo_report.json exists"
+          },
+          {
+            "id": "report-valid-json",
+            "weight": 0.05,
+            "description": "repo_report.json is valid JSON with all 7 required fields.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "branches-correct",
+            "weight": 0.15,
+            "description": "The branches array contains both 'main' and 'feature/add-config'.",
+            "testPattern": "contains main and feature"
+          },
+          {
+            "id": "current-branch",
+            "weight": 0.1,
+            "description": "current_branch is 'main', confirming the repo was switched back after creating the feature branch.",
+            "testPattern": "current_branch is main"
+          },
+          {
+            "id": "commit-count",
+            "weight": 0.1,
+            "description": "commit_count is a number of at least 2 (one on main, one on feature).",
+            "testPattern": "commit_count"
+          },
+          {
+            "id": "has-feature-branch",
+            "weight": 0.1,
+            "description": "has_feature_branch is the boolean true.",
+            "testPattern": "has_feature_branch is true"
+          },
+          {
+            "id": "files-on-main",
+            "weight": 0.1,
+            "description": "files_on_main is an array that includes 'README.md'.",
+            "testPattern": "files_on_main"
+          },
+          {
+            "id": "files-on-feature",
+            "weight": 0.15,
+            "description": "files_on_feature is an array that includes 'config.json'.",
+            "testPattern": "files_on_feature"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to initialize a git repo with a branching workflow and produce a report.\n\nCriterion 1: Repository Setup (Weight: 40%)\n1.0: demo-project directory exists, is a valid git repo, has correct user config, main branch and feature/add-config branch both exist with appropriate commits.\n0.5: Repo exists but missing some configuration or branch setup.\n0: No repo created.\n\nCriterion 2: Report Accuracy (Weight: 60%)\n1.0: repo_report.json exists with all 7 fields correctly populated, branch names match, commit count is accurate, file lists are correct.\n0.5: Report exists but has 1-2 inaccurate fields.\n0: Report missing or mostly incorrect.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/git-essentials",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "easy"
+}

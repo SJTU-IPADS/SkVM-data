@@ -1,0 +1,90 @@
+{
+  "id": "file-manager_task_02",
+  "name": "Organize Files by Type into Subdirectories",
+  "category": "file_management",
+  "gradingType": "hybrid",
+  "prompt": "You have a flat directory called `mixed/` that needs to be organized by file type. Your task is to create the files, organize them, and produce a summary.\n\nStep 1: Create the `mixed/` directory and populate it with these files (content does not matter, use any short placeholder text):\n- `report.pdf`\n- `notes.txt`\n- `photo.jpg`\n- `data.csv`\n- `readme.txt`\n- `banner.png`\n- `budget.csv`\n- `logo.jpg`\n\nStep 2: Organize these files by moving (or copying) them into type-based subdirectories inside `organized/`:\n- `organized/documents/` — `.txt` and `.pdf` files\n- `organized/images/` — `.jpg` and `.png` files\n- `organized/data/` — `.csv` files\n\nStep 3: Write `organize_summary.json` with this exact structure:\n```json\n{\n  \"source_dir\": \"mixed\",\n  \"output_dir\": \"organized\",\n  \"total_moved\": 8,\n  \"categories\": {\n    \"documents\": [\"notes.txt\", \"readme.txt\", \"report.pdf\"],\n    \"images\": [\"banner.png\", \"logo.jpg\", \"photo.jpg\"],\n    \"data\": [\"budget.csv\", \"data.csv\"]\n  }\n}\n```\nEach category array must list filenames sorted alphabetically.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "file-manager_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "summary-exists",
+            "weight": 0.08,
+            "description": "The file organize_summary.json exists in the working directory.",
+            "testPattern": "summary file exists"
+          },
+          {
+            "id": "summary-parse",
+            "weight": 0.07,
+            "description": "organize_summary.json parses as valid JSON with fields: source_dir, output_dir, total_moved, categories.",
+            "testPattern": "valid JSON|parses as JSON"
+          },
+          {
+            "id": "total-moved",
+            "weight": 0.12,
+            "description": "total_moved is exactly 8, reflecting all 8 files moved.",
+            "testPattern": "total_moved is 8"
+          },
+          {
+            "id": "documents-dir",
+            "weight": 0.15,
+            "description": "organized/documents/ directory exists and contains notes.txt, readme.txt, and report.pdf.",
+            "testPattern": "documents directory|organized.documents"
+          },
+          {
+            "id": "images-dir",
+            "weight": 0.15,
+            "description": "organized/images/ directory exists and contains banner.png, logo.jpg, and photo.jpg.",
+            "testPattern": "images directory|organized.images"
+          },
+          {
+            "id": "data-dir",
+            "weight": 0.12,
+            "description": "organized/data/ directory exists and contains budget.csv and data.csv.",
+            "testPattern": "data directory|organized.data"
+          },
+          {
+            "id": "documents-sorted",
+            "weight": 0.1,
+            "description": "categories.documents array has 3 entries sorted alphabetically: [notes.txt, readme.txt, report.pdf].",
+            "testPattern": "documents sorted|documents array"
+          },
+          {
+            "id": "images-sorted",
+            "weight": 0.1,
+            "description": "categories.images array has 3 entries sorted alphabetically: [banner.png, logo.jpg, photo.jpg].",
+            "testPattern": "images sorted|images array"
+          },
+          {
+            "id": "data-sorted",
+            "weight": 0.11,
+            "description": "categories.data array has 2 entries sorted alphabetically: [budget.csv, data.csv].",
+            "testPattern": "data sorted|data array"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent organized files from a flat directory into type-based subdirectories.\n\nCriterion 1: File Organization Correctness (Weight: 70%)\n1.0: All 8 files are present in the correct subdirectories and the summary JSON exactly matches the expected structure.\n0.5: Most files are in the right location but one category is wrong or files are missing.\n0: Files are not organized or directories are not created.\n\nCriterion 2: Summary Completeness (Weight: 30%)\n1.0: The JSON summary is complete, all arrays are sorted, counts are correct.\n0.5: Summary exists but has minor inaccuracies in counts or ordering.\n0: Summary is missing or malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/file-manager",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

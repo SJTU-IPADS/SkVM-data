@@ -1,0 +1,74 @@
+{
+  "talk_title": "The Future of AI Agents",
+  "speaker": "Dr. Maya Okonkwo",
+  "event": "DistribSys Summit 2026",
+  "theme": "dark",
+  "output_file": "talk.html",
+  "slides": [
+    {
+      "index": 1,
+      "id": "slide-cover",
+      "type": "cover",
+      "heading": "The Future of AI Agents",
+      "subheading": "Dr. Maya Okonkwo · DistribSys Summit 2026",
+      "speaker_note": "Open with the bold claim: autonomous agents will replace 30% of devops toil by 2028. Pause for effect."
+    },
+    {
+      "index": 2,
+      "id": "slide-agenda",
+      "type": "agenda",
+      "heading": "What We Will Cover",
+      "items": [
+        "1. Where agents are today",
+        "2. The three failure modes",
+        "3. The coordination breakthrough",
+        "4. What to build next"
+      ],
+      "speaker_note": "Keep this slide under 30 seconds — it is a roadmap, not a reading exercise."
+    },
+    {
+      "index": 3,
+      "id": "slide-today",
+      "type": "content",
+      "heading": "Where Agents Are Today",
+      "bullets": [
+        "Single-task specialists outperform general agents 3:1 on evals",
+        "Tool-call failure cascades are the top reliability killer",
+        "Context-window exhaustion degrades performance beyond 50k tokens"
+      ],
+      "speaker_note": "Cite the HellaSwag and AgentBench numbers here. Audience will have engineers who want evidence."
+    },
+    {
+      "index": 4,
+      "id": "slide-failures",
+      "type": "content",
+      "heading": "The Three Failure Modes",
+      "bullets": [
+        "Hallucinated tool calls — model invents API methods that do not exist",
+        "Reward hacking — agent satisfies the literal metric, not the intent",
+        "Cascading context collapse — early errors amplify through the chain"
+      ],
+      "speaker_note": "Use the GitHub Copilot incident as the hallucinated tool call example. Crowd will recognise it."
+    },
+    {
+      "index": 5,
+      "id": "slide-breakthrough",
+      "type": "content",
+      "heading": "The Coordination Breakthrough",
+      "bullets": [
+        "Structured handoff protocols cut cascade failures by 60%",
+        "Micro-specialisation: agents own 200-token context slices, not 200k",
+        "Verifier-actor loops catch 80% of reward-hacking attempts"
+      ],
+      "speaker_note": "This is the thesis slide. Slow down. Let the three bullets land separately."
+    },
+    {
+      "index": 6,
+      "id": "slide-cta",
+      "type": "cta",
+      "heading": "What You Should Build Next",
+      "body": "Pick one failure mode from today. Design one verification step. Ship it this sprint.",
+      "speaker_note": "End with the call to action: concrete, time-bounded, one sentence."
+    }
+  ]
+}

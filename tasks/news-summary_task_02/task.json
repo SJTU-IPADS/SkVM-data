@@ -1,0 +1,85 @@
+{
+  "id": "news-summary_task_02",
+  "name": "Multi-source news briefing grouped by topic",
+  "category": "writing_content",
+  "gradingType": "hybrid",
+  "prompt": "I need a comprehensive news briefing that pulls from multiple sources. Fetch the latest headlines from these two RSS feeds:\n\n1. BBC World News: http://feeds.bbci.co.uk/news/world/rss.xml\n2. NPR News: https://feeds.npr.org/1001/rss.xml\n\nCombine all headlines, group them by topic (e.g. politics, conflict, economy, science, culture), and produce a structured briefing report. Save the output to multi_source_briefing.json with:\n\n- sources: array of objects, each with name (string) and headline_count (number) for each feed\n- total_headlines: total number of headlines across all sources\n- topics: array of at least 3 topic groups, each with:\n  - topic_name: descriptive name for the topic area (string)\n  - headlines: array of objects with title (string), source (string naming which feed), and link (string URL)\n  - summary: a paragraph synthesizing the key developments in this topic area (at least 80 characters)\n- cross_source_analysis: a paragraph (at least 150 characters) noting any stories covered by both sources and how their coverage differs\n- fetched_at: ISO 8601 timestamp",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "news-summary_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "multi_source_briefing.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "sources-array",
+            "weight": 0.1,
+            "description": "sources array contains at least 2 entries, each with a non-empty name and a positive headline_count.",
+            "testPattern": "sources array with both feeds"
+          },
+          {
+            "id": "total-headlines",
+            "weight": 0.1,
+            "description": "total_headlines equals the sum of all source headline_counts and is at least 5.",
+            "testPattern": "total headline count"
+          },
+          {
+            "id": "topics-structure",
+            "weight": 0.2,
+            "description": "topics array has at least 3 groups, each with a non-empty topic_name and at least one headline.",
+            "testPattern": "at least 3 topic groups"
+          },
+          {
+            "id": "topic-headlines",
+            "weight": 0.15,
+            "description": "Every topic headline has title (>5 chars), source, and an http/https link; headlines represent at least 2 different sources.",
+            "testPattern": "topic headlines have required fields"
+          },
+          {
+            "id": "topic-summaries",
+            "weight": 0.15,
+            "description": "Each topic has a summary string of at least 80 characters.",
+            "testPattern": "topic summaries are substantial"
+          },
+          {
+            "id": "cross-source",
+            "weight": 0.15,
+            "description": "cross_source_analysis is a string of at least 150 characters comparing coverage across BBC and NPR.",
+            "testPattern": "cross-source analysis"
+          },
+          {
+            "id": "timestamp",
+            "weight": 0.1,
+            "description": "fetched_at is a valid ISO 8601 timestamp within the last 24 hours.",
+            "testPattern": "valid timestamp"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent fetched headlines from BBC and NPR RSS feeds, grouped them by topic, and produced a comparative multi-source briefing.\n\nCriterion 1: Multi-Source Integration (Weight: 40%)\n1.0: Headlines from both BBC and NPR are present and correctly attributed. Topics contain mixed sources where relevant. The cross-source analysis identifies genuine overlaps or differences in coverage.\n0.5: Both sources present but poorly integrated or cross-source analysis is generic.\n0: Only one source used, or sources are fabricated.\n\nCriterion 2: Topic Organization and Synthesis (Weight: 60%)\n1.0: Topics are well-chosen and coherent (not too broad or too narrow). Headlines are correctly categorized. Topic summaries synthesize the news rather than just listing headlines. The overall report gives a reader a genuine understanding of the day's news.\n0.5: Topics exist but groupings are questionable or summaries are weak.\n0: No meaningful topic organization.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/news-summary",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "medium"
+}

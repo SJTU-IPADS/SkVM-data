@@ -1,0 +1,31 @@
+{
+  "id": "cantian-bazi_task_01",
+  "name": "Four Pillars Chart for a Late-Night Birth with Explicit Midnight-Hour Convention",
+  "category": "chinese_calendar",
+  "gradingType": "hybrid",
+  "prompt": "A genealogist is preparing a family archive. She needs the Four Pillars (BaZi) chart for her grandfather, born on **November 15, 1995 at 23:30 (11:30 PM)**. The family follows the traditional convention where the hours between 23:00 and 23:59 belong to the Zi hour (子时) of the **following calendar day** — i.e., use sect=1.\n\nGenerate the BaZi chart using the solar datetime `1995-11-15T23:30:00`, gender male (1), and sect 1. Write the result to a file named `bazi_chart.json` in the current directory.\n\n`bazi_chart.json` must contain exactly these top-level string fields:\n- `solar_datetime`: the input datetime as given (`\"1995-11-15T23:30:00\"`)\n- `sect`: the string `\"1\"`\n- `year_pillar`: the Year Pillar stem-branch pair in Chinese characters (2 characters, e.g. `\"乙亥\"`)\n- `month_pillar`: the Month Pillar stem-branch pair in Chinese characters\n- `day_pillar`: the Day Pillar stem-branch pair — **this field is the key discriminator; with sect=1 the day advances to November 16**\n- `hour_pillar`: the Hour Pillar stem-branch pair\n- `bazi_string`: the full eight-character BaZi notation as one string (4 pillars joined by spaces, e.g. `\"乙亥 丁亥 辛亥 戊子\"`)\n- `day_master`: the Day Stem (日主) character alone (1 Chinese character)\n\nInvariants the grader enforces:\n1. Each pillar field must be exactly 2 Chinese characters (heavenly stem + earthly branch).\n2. `bazi_string` must equal `year_pillar + \" \" + month_pillar + \" \" + day_pillar + \" \" + hour_pillar`.\n3. `day_master` must equal the first character of `day_pillar`.\n4. With sect=1 and a 23:30 birth on Nov 15, the day pillar belongs to Nov 16 — a model that uses sect=2 (default) will produce a different day pillar.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to generate a BaZi Four Pillars chart for a birth on November 15, 1995 at 23:30, using sect=1 (23:00–23:59 belongs to the next day). The result must be saved as bazi_chart.json with exact fields.\n\nCriterion 1: Artifact correctness (Weight: 40%)\n1.0: bazi_chart.json exists, parses as valid JSON, and contains all 8 required fields (solar_datetime, sect, year_pillar, month_pillar, day_pillar, hour_pillar, bazi_string, day_master) as non-empty strings.\n0.5: File exists and parses but is missing one or two fields, or some fields are empty.\n0: File is missing, unparseable, or has fewer than 5 of the 8 required fields.\n\nCriterion 2: Sect-1 midnight convention applied correctly (Weight: 40%)\n1.0: The day_pillar reflects the sect=1 rule — with a 23:30 birth on Nov 15, the Day Pillar belongs to Nov 16 (not Nov 15). The agent explicitly passed sect=1 to the tool, producing the correct Day Pillar (辛亥 per the reference).\n0.5: The agent acknowledged the sect parameter but applied it inconsistently, or the day_pillar is partially correct.\n0: The agent ignored sect=1 and used the default sect=2, or produced a day_pillar that matches what sect=2 would give (庚戌).\n\nCriterion 3: BaZi string internal consistency (Weight: 20%)\n1.0: bazi_string matches the four individual pillar fields joined by spaces. day_master equals the first character of day_pillar. The agent demonstrated understanding that all four pillars form a coherent eight-character sequence.\n0.5: Minor inconsistency in one field (e.g. bazi_string has extra characters or day_master is slightly off).\n0: bazi_string is missing or contradicts the individual pillar fields.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/cantian-bazi",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

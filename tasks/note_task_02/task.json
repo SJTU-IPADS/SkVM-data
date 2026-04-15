@@ -1,0 +1,96 @@
+{
+  "id": "note_task_02",
+  "name": "Find Notes and Synthesize Knowledge on a Topic",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "You are working with an existing note storage system. First create the notes data, then perform a retrieval and synthesis task.\n\nStep 1: Create memory/notes/notes.json with these 5 notes:\n[\n  {\"id\": \"NOTE-001\", \"content\": \"CAC (Customer Acquisition Cost) is total spend divided by new customers. High CAC with low LTV is unsustainable.\", \"topic\": \"growth-metrics\", \"project\": \"product-strategy\", \"created_at\": \"2026-03-01\"},\n  {\"id\": \"NOTE-002\", \"content\": \"LTV (Lifetime Value) = ARPU * gross margin * average customer lifespan. LTV:CAC ratio above 3 is generally healthy.\", \"topic\": \"growth-metrics\", \"project\": \"product-strategy\", \"created_at\": \"2026-03-05\"},\n  {\"id\": \"NOTE-003\", \"content\": \"Churn rate: monthly churn above 5% signals product-market fit issues. Net Revenue Retention above 100% means expansion revenue covers churn.\", \"topic\": \"growth-metrics\", \"project\": \"product-strategy\", \"created_at\": \"2026-03-10\"},\n  {\"id\": \"NOTE-004\", \"content\": \"Payback period: how many months to recover CAC from gross profit per customer. Industry standard is under 12 months for SaaS.\", \"topic\": \"growth-metrics\", \"project\": \"product-strategy\", \"created_at\": \"2026-03-15\"},\n  {\"id\": \"NOTE-005\", \"content\": \"North Star Metric should capture the core value your product delivers. For Slack it is DAU, for Airbnb it is nights booked.\", \"topic\": \"product-analytics\", \"project\": \"product-strategy\", \"created_at\": \"2026-03-20\"}\n]\n\nStep 2: Find all notes related to the topic 'growth-metrics' and save search results to search_results.json:\n{\n  \"query\": \"growth-metrics\",\n  \"matched_note_ids\": [\"NOTE-XXX\", ...],\n  \"count\": <number>\n}\n\nStep 3: Synthesize the growth-metrics notes into a coherent framework and save to synthesis.json:\n{\n  \"topic\": \"growth-metrics\",\n  \"framework_title\": \"<title>\",\n  \"key_concepts\": [\n    {\"name\": \"<metric name>\", \"definition\": \"<one sentence>\", \"source_note\": \"NOTE-XXX\"}\n  ],\n  \"relationships\": [\"<relationship statement>\", ...],\n  \"summary\": \"<2-3 sentence synthesis paragraph>\"\n}\nRequirements: key_concepts must include CAC, LTV, churn_rate, and payback_period (4 concepts minimum). relationships must have at least 2 entries describing how metrics relate to each other.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "note_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "notes-exists",
+            "weight": 0.07,
+            "description": "memory/notes/notes.json file is present.",
+            "testPattern": "notes.json.*exists|notes file exists"
+          },
+          {
+            "id": "search-exists",
+            "weight": 0.07,
+            "description": "search_results.json file is present in the working directory.",
+            "testPattern": "search_results.json.*exists|search results file"
+          },
+          {
+            "id": "synthesis-exists",
+            "weight": 0.07,
+            "description": "synthesis.json file is present in the working directory.",
+            "testPattern": "synthesis.json.*exists|synthesis file"
+          },
+          {
+            "id": "notes-count",
+            "weight": 0.1,
+            "description": "notes.json is an array containing exactly 5 notes.",
+            "testPattern": "5 notes|exactly 5"
+          },
+          {
+            "id": "search-matched",
+            "weight": 0.15,
+            "description": "matched_note_ids contains exactly NOTE-001, NOTE-002, NOTE-003, and NOTE-004 (the 4 growth-metrics notes), excluding NOTE-005.",
+            "testPattern": "matched.*4|4 matched|growth-metrics.*4"
+          },
+          {
+            "id": "search-count",
+            "weight": 0.08,
+            "description": "search_results.json count field equals 4.",
+            "testPattern": "count.*4|search count"
+          },
+          {
+            "id": "concepts-count",
+            "weight": 0.15,
+            "description": "key_concepts array has at least 4 entries, each with name, definition, and a source_note matching NOTE-NNN pattern.",
+            "testPattern": "key_concepts has at least 4 entries with name, definition, and source_note"
+          },
+          {
+            "id": "concept-names",
+            "weight": 0.15,
+            "description": "key_concepts include entries whose names contain CAC, LTV, churn, and payback (case-insensitive).",
+            "testPattern": "CAC|LTV|churn|payback"
+          },
+          {
+            "id": "relationships",
+            "weight": 0.1,
+            "description": "relationships array contains at least 2 entries describing how growth metrics relate to each other.",
+            "testPattern": "at least 2 relationships|relationships.*2"
+          },
+          {
+            "id": "source-notes",
+            "weight": 0.06,
+            "description": "Every key concept's source_note field references a valid NOTE-NNN identifier.",
+            "testPattern": "source_note|NOTE-00"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent retrieved notes on growth metrics and synthesized them into a structured framework.\n\nCriterion 1: Synthesis Coherence (Weight: 60%)\n1.0: The framework_title is meaningful, key_concepts accurately distill the note content, and relationships describe genuine logical connections between metrics (e.g., LTV:CAC ratio, how churn affects LTV, how payback period relates to CAC). The summary reads as a coherent analytical paragraph.\n0.5: Synthesis is present but relationships are generic or the summary is just a list of definitions.\n0: Framework is missing key concepts, relationships are absent, or summary is a single sentence.\n\nCriterion 2: Source Traceability (Weight: 40%)\n1.0: Every key_concept has a source_note field pointing to the correct NOTE-XXX that contains that metric's definition. Matched note IDs in search_results correctly identify all 4 growth-metrics notes.\n0.5: Most source_note references are correct but one or two point to wrong notes.\n0: source_note fields are missing or all point to the same note.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/note",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

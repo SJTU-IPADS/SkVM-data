@@ -1,0 +1,63 @@
+{
+  "forecast_periods": [
+    {
+      "period": "2024-Q1",
+      "forecast": 400000,
+      "actual": 380000
+    },
+    {
+      "period": "2024-Q2",
+      "forecast": 440000,
+      "actual": 410000
+    },
+    {
+      "period": "2024-Q3",
+      "forecast": 480000,
+      "actual": 450000
+    },
+    {
+      "period": "2024-Q4",
+      "forecast": 520000,
+      "actual": 490000
+    },
+    {
+      "period": "2025-Q1",
+      "forecast": 560000,
+      "actual": 525000
+    },
+    {
+      "period": "2025-Q2",
+      "forecast": 600000,
+      "actual": 570000
+    },
+    {
+      "period": "2025-Q3",
+      "forecast": 650000,
+      "actual": 620000
+    },
+    {
+      "period": "2025-Q4",
+      "forecast": 700000,
+      "actual": 0
+    }
+  ],
+  "category_breakdowns": {
+    "by_rep": [
+      {
+        "category": "Rep A",
+        "forecast": 200000,
+        "actual": 192000
+      },
+      {
+        "category": "Rep B",
+        "forecast": 250000,
+        "actual": 235000
+      },
+      {
+        "category": "Rep C",
+        "forecast": 200000,
+        "actual": 193000
+      }
+    ]
+  }
+}

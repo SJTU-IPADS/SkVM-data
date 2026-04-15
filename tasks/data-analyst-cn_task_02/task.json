@@ -1,0 +1,90 @@
+{
+  "id": "data-analyst-cn_task_02",
+  "name": "Descriptive Statistics and Correlation Analysis",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "Create a file `input/metrics.csv` with the following content:\n```\nweek,ad_spend,revenue,orders\n1,500,2100,42\n2,600,2400,48\n3,550,2200,44\n4,700,2800,56\n5,800,3200,64\n6,650,2600,52\n7,750,3000,60\n8,900,3600,72\n9,850,3400,68\n10,1000,4000,80\n```\n\nUsing Python, compute statistics and write `output/stats_report.json` with exactly these keys:\n- `ad_spend_stats`: object with keys `mean`, `std`, `min`, `max` — descriptive stats for the `ad_spend` column (rounded to 2 decimal places)\n- `revenue_stats`: object with keys `mean`, `std`, `min`, `max` — descriptive stats for the `revenue` column (rounded to 2 decimal places)\n- `correlation_ad_revenue`: number, Pearson correlation coefficient between `ad_spend` and `revenue`, rounded to 4 decimal places\n- `correlation_ad_orders`: number, Pearson correlation coefficient between `ad_spend` and `orders`, rounded to 4 decimal places\n- `revenue_per_spend`: number, total revenue divided by total ad_spend, rounded to 4 decimal places\n\nUse sample standard deviation (ddof=1) for std calculations.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "data-analyst-cn_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "output/stats_report.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "output/stats_report.json can be parsed as valid JSON without throwing.",
+            "testPattern": "valid JSON format"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "output/stats_report.json has all five required keys: ad_spend_stats, revenue_stats, correlation_ad_revenue, correlation_ad_orders, and revenue_per_spend.",
+            "testPattern": "has all required keys"
+          },
+          {
+            "id": "ad-spend-structure",
+            "weight": 0.1,
+            "description": "ad_spend_stats is an object containing all four required keys: mean, std, min, and max.",
+            "testPattern": "ad_spend_stats has correct structure"
+          },
+          {
+            "id": "ad-spend-values",
+            "weight": 0.2,
+            "description": "ad_spend_stats.mean equals approximately 730 (within 0.1), min=500, and max=1000.",
+            "testPattern": "ad_spend_stats mean is 730"
+          },
+          {
+            "id": "revenue-values",
+            "weight": 0.2,
+            "description": "revenue_stats.mean equals approximately 2930 (within 0.1), min=2100, and max=4000.",
+            "testPattern": "revenue_stats mean is 2930"
+          },
+          {
+            "id": "corr-revenue",
+            "weight": 0.15,
+            "description": "correlation_ad_revenue equals approximately 1.0 (within 0.001), reflecting perfect linear correlation.",
+            "testPattern": "correlation_ad_revenue is close"
+          },
+          {
+            "id": "corr-orders",
+            "weight": 0.1,
+            "description": "correlation_ad_orders equals approximately 1.0 (within 0.001), reflecting perfect linear correlation.",
+            "testPattern": "correlation_ad_orders is close"
+          },
+          {
+            "id": "revenue-per-spend",
+            "weight": 0.05,
+            "description": "revenue_per_spend equals approximately 4.0137 (total revenue / total ad spend, within 0.01 tolerance).",
+            "testPattern": "revenue_per_spend is approximately"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent computed descriptive statistics and correlations from time-series marketing data.\n\nCriterion 1: Statistical correctness (Weight: 70%)\n1.0: All stats and correlations match expected values within rounding tolerance.\n0.5: Most values correct with minor precision issues.\n0: Significant computation errors.\n\nCriterion 2: Code clarity (Weight: 30%)\n1.0: Well-structured Python, appropriate use of pandas/numpy/scipy.\n0.5: Works but unnecessarily complex.\n0: Incomprehensible or wrong approach.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/data-analyst-cn",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

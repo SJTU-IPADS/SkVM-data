@@ -1,0 +1,32 @@
+{
+  "id": "git_task_01",
+  "name": "Clean Up a Messy Feature Branch for PR",
+  "category": "development",
+  "gradingType": "hybrid",
+  "prompt": "You inherited a feature branch, `feature/user-api`, that's ready for review but the history is a mess. The working tree at HEAD is correct — the `getUser` endpoint has the validation you want to ship. The history is not. Before you open a PR you need to clean it up.\n\n**What's in the repo**\n- `main` is a shared branch with 3 clean commits. It must NOT be touched: its SHA at the end must equal its SHA at the start.\n- `feature/user-api` is checked out and sits 8 commits ahead of `main`. The 8 commits include WIP messages, a `fixup!` commit, an \"oops\" commit, a `typo` commit, a non-imperative \"added more stuff\" commit, and — most importantly — one commit (`wip: local config`) that accidentally committed `.env.local` with API secrets in it.\n\n**What you need to deliver**\n\n1. **Purge the secret from history.** `.env.local` must not appear in ANY commit reachable from `feature/user-api`. `git log feature/user-api -- .env.local` must return empty output. A new commit that simply deletes the file is not enough — the secret is still in history and would leak if the branch were pushed.\n2. **Preserve the final feature state.** The HEAD of `feature/user-api` must still contain `src/user.js` with the `validateId` helper and the `id must be non-negative` error message. The cleanup should not regress the feature work.\n3. **Rewrite the commit messages.** Every remaining commit on `feature/user-api` (commits reachable from feature but not from main) must:\n   - Match the conventional commit format: `type(scope)?: description` with one of the recognized types (`feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `chore`, `build`, `ci`, `revert`).\n   - Have a subject line at most 72 characters long.\n   - Use imperative mood (e.g. `add`, `fix`, `update`) — not past tense (`added`, `fixed`) or gerunds (`adding`, `fixing`).\n   - Not contain the words `wip`, `fixup`, `squash`, `oops`, `typo`, `temp`, `tmp`, `checkpoint`, or `misc` in any form.\n4. **Reduce the commit count.** `feature/user-api` should end up with between 1 and 5 commits over `main`, down from the original 8. Squash related work together; drop the noise.\n5. **Do not touch `main`.** No new commits, no rewrites on `main`. Its rev-parse must match the pre-cleanup value.\n\n**Notes**\n- Work locally only — this repo has no remotes, so you do not need to push or worry about `--force-with-lease`. But the safety discipline still applies: rewriting `main` is forbidden.\n- You are free to use any workflow you like: interactive rebase, soft reset + recommit, `git filter-repo`, `git replace` — whatever achieves the invariants above.\n- When you're done, leave the repo checked out on `feature/user-api`.",
+  "timeoutMs": 300000,
+  "maxSteps": 60,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent received a git repository with a messy 8-commit feature branch that included an accidentally-committed .env.local file with secrets. It needed to clean up history, preserve the final feature work, and leave main untouched.\n\nCriterion 1: Secret purge and history cleanup (Weight: 45%)\n1.0: .env.local appears in no commit reachable from feature/user-api (purged from history, not just the working tree). The feature branch has 1-5 clean commits over main. The final src/user.js still contains the validateId helper.\n0.5: Secret was removed from working tree but remains in history, OR history was cleaned but validation logic regressed.\n0: Either .env.local still in history AND validation missing, or the cleanup did not happen at all.\n\nCriterion 2: Commit-message discipline (Weight: 35%)\n1.0: Every remaining commit on feature/user-api uses conventional format (feat/fix/etc.), imperative mood, ≤72 chars, and contains no WIP/fixup/oops/typo wording.\n0.5: Most commit messages comply but one or two still violate format, length, or mood rules.\n0: Commit messages largely ignore the stated rules.\n\nCriterion 3: Respect main invariant (Weight: 20%)\n1.0: main branch SHA equals its pre-cleanup value; agent did not rewrite or add commits to main.\n0.5: main was touched minimally (e.g. a merge attempt) but not destroyed.\n0: main was rewritten or advanced.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/git",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "hard"
+}

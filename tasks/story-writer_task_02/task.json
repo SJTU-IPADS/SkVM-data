@@ -1,0 +1,90 @@
+{
+  "id": "story-writer_task_02",
+  "name": "Design Story Characters and Dialogue",
+  "category": "creative_writing",
+  "gradingType": "hybrid",
+  "prompt": "Design two characters for a science fiction short story and write a dialogue scene between them. Save the result as characters_and_dialogue.json in the current directory.\n\nThe story setting: a generation ship traveling to a new planet, year 2387. One character is a seasoned navigator who doubts the mission, the other is a young engineer full of idealism.\n\nThe JSON file must have exactly these fields:\n- \"characters\": an array of exactly 2 character objects. Each object must have:\n  - \"name\": string\n  - \"age\": integer (between 18 and 80)\n  - \"role\": string — either \"navigator\" or \"engineer\"\n  - \"personality\": string — 1–3 sentences describing personality traits\n  - \"motivation\": string — one sentence about what drives this character\n  - \"flaw\": string — one word or short phrase describing their key flaw\n- \"dialogue\": an array of at least 8 exchange objects. Each exchange must have:\n  - \"speaker\": string — must match a character name from the characters array\n  - \"line\": string — the spoken dialogue (10–200 characters)\n- \"setting_description\": string — 2–4 sentences describing the scene location on the ship\n\nThe navigator character must have role \"navigator\" and the engineer must have role \"engineer\".",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "story-writer_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "characters_and_dialogue.json exists as a readable file in the working directory.",
+            "testPattern": "characters_and_dialogue.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "characters_and_dialogue.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "characters_and_dialogue.json has all three required top-level keys: characters, dialogue, and setting_description.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "characters-count",
+            "weight": 0.12,
+            "description": "The characters array has exactly 2 entries.",
+            "testPattern": "characters array has exactly 2 entries"
+          },
+          {
+            "id": "character-fields",
+            "weight": 0.12,
+            "description": "Every character has name, age (18-80), role, personality, motivation, and flaw fields with correct types.",
+            "testPattern": "each character has required fields"
+          },
+          {
+            "id": "roles-present",
+            "weight": 0.12,
+            "description": "One character has role 'navigator' and another has role 'engineer'.",
+            "testPattern": "navigator and engineer roles are both present"
+          },
+          {
+            "id": "dialogue-count",
+            "weight": 0.15,
+            "description": "The dialogue array has at least 8 exchange objects, each with speaker and line fields.",
+            "testPattern": "dialogue has at least 8 exchanges"
+          },
+          {
+            "id": "speaker-match",
+            "weight": 0.13,
+            "description": "Every dialogue exchange's speaker value matches one of the character names defined in the characters array.",
+            "testPattern": "all speakers in dialogue match a character name"
+          },
+          {
+            "id": "setting-present",
+            "weight": 0.1,
+            "description": "setting_description is a non-empty string of more than 20 characters.",
+            "testPattern": "setting_description is a non-empty string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to design two sci-fi characters and write a dialogue scene between them on a generation ship.\n\nCriterion 1: Character Depth (Weight: 50%)\n1.0: Both characters feel distinct — personality, motivation, and flaw are specific and coherent. The navigator's doubt and engineer's idealism are clearly reflected in their profiles.\n0.5: Characters are defined but one feels generic or their traits don't reflect the given archetypes.\n0: Characters have placeholder or contradictory traits.\n\nCriterion 2: Dialogue Quality (Weight: 50%)\n1.0: Dialogue feels natural, each character has a distinct voice, tension or conflict is present between the two viewpoints, and lines advance the scene meaningfully.\n0.5: Dialogue is present and attributed correctly but feels stilted or both characters sound the same.\n0: Dialogue is mechanical, repetitive, or the characters swap viewpoints without reason.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/story-writer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

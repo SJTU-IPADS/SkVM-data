@@ -1,0 +1,90 @@
+{
+  "id": "database-designer_task_02",
+  "name": "Index Optimization Analysis for a Given Schema",
+  "category": "database_design",
+  "gradingType": "hybrid",
+  "prompt": "You are given the following PostgreSQL schema in `input/schema.sql`. Create that file first with this exact content:\n\n```sql\nCREATE TABLE users (\n    id SERIAL PRIMARY KEY,\n    email VARCHAR(255) NOT NULL,\n    username VARCHAR(100) NOT NULL,\n    created_at TIMESTAMP DEFAULT NOW(),\n    status VARCHAR(20) DEFAULT 'active'\n);\n\nCREATE TABLE posts (\n    id SERIAL PRIMARY KEY,\n    user_id INTEGER NOT NULL,\n    title VARCHAR(500) NOT NULL,\n    body TEXT,\n    published_at TIMESTAMP,\n    status VARCHAR(20) DEFAULT 'draft'\n);\n\nCREATE TABLE comments (\n    id SERIAL PRIMARY KEY,\n    post_id INTEGER NOT NULL,\n    user_id INTEGER NOT NULL,\n    body TEXT NOT NULL,\n    created_at TIMESTAMP DEFAULT NOW()\n);\n\nCREATE TABLE tags (\n    id SERIAL PRIMARY KEY,\n    name VARCHAR(100) UNIQUE NOT NULL\n);\n\nCREATE TABLE post_tags (\n    post_id INTEGER NOT NULL,\n    tag_id INTEGER NOT NULL,\n    PRIMARY KEY (post_id, tag_id)\n);\n```\n\nAnalyze this schema and produce `output/index_recommendations.json` with exactly these keys:\n- `missing_foreign_keys`: array of objects, each with `table` (string) and `column` (string) for columns that reference another table but have no FK constraint\n- `recommended_indexes`: array of objects, each with `table` (string), `columns` (array of strings), and `reason` (string) explaining why the index is useful\n- `existing_issues`: array of strings describing schema problems found (e.g. missing constraints, naming issues)\n- `issue_count`: integer, total number of issues found",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "database-designer_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "output/index_recommendations.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "output/index_recommendations.json can be parsed as valid JSON without throwing.",
+            "testPattern": "valid JSON format"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "output/index_recommendations.json has all four required keys: missing_foreign_keys, recommended_indexes, existing_issues, and issue_count.",
+            "testPattern": "has all required keys"
+          },
+          {
+            "id": "missing-fk-count",
+            "weight": 0.2,
+            "description": "missing_foreign_keys is an array with at least 3 entries, covering columns such as posts.user_id, comments.post_id, and comments.user_id.",
+            "testPattern": "missing_foreign_keys is an array with at least 3"
+          },
+          {
+            "id": "missing-fk-structure",
+            "weight": 0.15,
+            "description": "Every missing_foreign_keys entry has string fields \"table\" and \"column\" identifying the affected column.",
+            "testPattern": "missing_foreign_keys entries have table and column"
+          },
+          {
+            "id": "indexes-non-empty",
+            "weight": 0.15,
+            "description": "recommended_indexes is a non-empty array with at least 2 entries.",
+            "testPattern": "recommended_indexes is a non-empty array"
+          },
+          {
+            "id": "indexes-structure",
+            "weight": 0.15,
+            "description": "Every recommended_indexes entry has a string \"table\", a non-empty \"columns\" array, and a non-empty \"reason\" string.",
+            "testPattern": "recommended_indexes entries have table, columns"
+          },
+          {
+            "id": "issues-array",
+            "weight": 0.05,
+            "description": "existing_issues is an array (may be empty if no issues beyond missing FKs are identified).",
+            "testPattern": "existing_issues is an array"
+          },
+          {
+            "id": "issue-count",
+            "weight": 0.1,
+            "description": "issue_count is a positive integer reflecting the number of schema problems found.",
+            "testPattern": "issue_count is a positive integer"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed a blog schema and produced index and constraint recommendations.\n\nCriterion 1: Correctness of identified issues (Weight: 60%)\n1.0: Correctly identifies all FK-less columns (posts.user_id, comments.post_id, comments.user_id, post_tags.post_id, post_tags.tag_id) and recommends sensible indexes.\n0.5: Identifies most issues but misses some FK relationships or index opportunities.\n0: Misses most issues or recommendations are irrelevant.\n\nCriterion 2: Quality of recommendations (Weight: 40%)\n1.0: Index recommendations are practical, with clear rationale (e.g., query patterns, FK lookups).\n0.5: Some recommendations present but rationale is vague.\n0: No recommendations or reasons are meaningless.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/database-designer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

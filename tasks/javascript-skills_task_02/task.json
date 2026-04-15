@@ -1,0 +1,108 @@
+{
+  "id": "javascript-skills_task_02",
+  "name": "Async Data Pipeline with Error Handling and Class",
+  "category": "code_generation",
+  "gradingType": "hybrid",
+  "prompt": "Write a JavaScript file called pipeline.js that demonstrates async patterns, class usage, and error handling following modern best-practice conventions. The file should be runnable with node or bun and produce deterministic output.\n\nImplement the following:\n\n1. A class called DataPipeline with:\n   - constructor(name) storing the name\n   - An async method process(items) that uses Promise.all to resolve all items (each item is already a resolved value, wrap with Promise.resolve), filters out null/undefined using filter, and returns the cleaned array\n   - A method getStats(items) that returns an object with count (number of items) and sum (sum of numeric items, 0 if none are numbers)\n\n2. A custom error class called PipelineError extending Error with a constructor(message, code) that sets this.name = 'PipelineError' and this.code = code.\n\n3. An async main function (named, not anonymous) that:\n   - Creates a DataPipeline instance with name 'test-pipeline'\n   - Calls process([1, null, 2, undefined, 3]) and stores result\n   - Calls getStats on the result\n   - Wraps everything in try/catch, throws PipelineError('stats failed', 'ERR_STATS') if getStats returns count 0\n   - Writes results to pipeline_output.json with fields: \"name\" (pipeline name), \"processed\" (the cleaned array), \"stats\" (the stats object)\n\nCall main() at the end of the file. Run the file and save its output (if any) but the key deliverable is pipeline_output.json.\n\nExpected pipeline_output.json content:\n- name: \"test-pipeline\"\n- processed: [1, 2, 3]\n- stats: { count: 3, sum: 6 }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "javascript-skills_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "pipeline-exists",
+            "weight": 0.05,
+            "description": "pipeline.js file is present in the workspace.",
+            "testPattern": "pipeline.js > file exists"
+          },
+          {
+            "id": "class-datapipeline",
+            "weight": 0.1,
+            "description": "pipeline.js contains a class declaration named DataPipeline.",
+            "testPattern": "class syntax for DataPipeline"
+          },
+          {
+            "id": "class-error",
+            "weight": 0.08,
+            "description": "pipeline.js declares PipelineError as a class extending Error.",
+            "testPattern": "PipelineError extending Error"
+          },
+          {
+            "id": "async-await",
+            "weight": 0.07,
+            "description": "pipeline.js uses both the async and await keywords.",
+            "testPattern": "async/await pattern"
+          },
+          {
+            "id": "try-catch",
+            "weight": 0.07,
+            "description": "pipeline.js contains a try block paired with a catch clause.",
+            "testPattern": "try/catch"
+          },
+          {
+            "id": "promise-all",
+            "weight": 0.08,
+            "description": "pipeline.js calls Promise.all() for concurrent resolution.",
+            "testPattern": "Promise.all"
+          },
+          {
+            "id": "no-var",
+            "weight": 0.05,
+            "description": "pipeline.js contains no var declarations and no .prototype. manipulation.",
+            "testPattern": "does not use var"
+          },
+          {
+            "id": "output-exists",
+            "weight": 0.05,
+            "description": "pipeline_output.json file is present in the workspace.",
+            "testPattern": "pipeline_output.json > file exists"
+          },
+          {
+            "id": "output-fields",
+            "weight": 0.05,
+            "description": "pipeline_output.json contains the top-level keys name, processed, and stats.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "output-name",
+            "weight": 0.08,
+            "description": "pipeline_output.json name field is exactly \"test-pipeline\".",
+            "testPattern": "name is test-pipeline"
+          },
+          {
+            "id": "processed-array",
+            "weight": 0.17,
+            "description": "pipeline_output.json processed array is exactly [1, 2, 3] with null and undefined entries removed.",
+            "testPattern": "processed array is"
+          },
+          {
+            "id": "stats-correct",
+            "weight": 0.15,
+            "description": "pipeline_output.json stats.count is 3 and stats.sum is 6.",
+            "testPattern": "stats has correct count"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a JavaScript file demonstrating async/await, class syntax, custom errors, and Promise.all following style conventions.\n\nCriterion 1: Code Style Quality (Weight: 40%)\n1.0: Code uses class syntax, async/await with try/catch, custom Error subclass, named functions, const/let, arrow callbacks — no var or prototype manipulation.\n0.5: Most patterns correct but 1-2 style deviations.\n0: Major style violations or non-functional code.\n\nCriterion 2: Output Correctness (Weight: 60%)\n1.0: pipeline_output.json has name='test-pipeline', processed=[1,2,3], stats.count=3, stats.sum=6.\n0.5: JSON exists but some values differ from expected.\n0: JSON missing or structurally incorrect.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/javascript-skills",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

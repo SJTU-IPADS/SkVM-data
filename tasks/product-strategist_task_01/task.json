@@ -1,0 +1,96 @@
+{
+  "id": "product-strategist_task_01",
+  "name": "Generate OKR Cascade JSON for Growth Strategy",
+  "category": "product_strategy",
+  "gradingType": "hybrid",
+  "prompt": "Generate a complete OKR cascade for a growth strategy and save it to okr_cascade.json.\n\nContext: A product organization with the following metrics:\n- Current MAU: 80,000 | Target MAU: 120,000\n- Current NPS: 35 | Target NPS: 55\n- Teams: Engineering, Design, Growth, Data\n- Product contribution to company OKRs: 35%\n- Quarter: Q2 2025\n- Strategy: growth\n\nOutput requirements — save to okr_cascade.json with this exact structure:\n{\n  \"quarter\": \"Q2 2025\",\n  \"strategy\": \"growth\",\n  \"product_contribution\": 0.35,\n  \"company\": {\n    \"objectives\": [\n      {\n        \"id\": \"CO-1\",\n        \"title\": \"<objective>\",\n        \"key_results\": [\n          { \"id\": \"CO-1-KR1\", \"title\": \"<KR>\", \"current\": <number>, \"target\": <number> }\n        ]\n      }\n    ]\n  },\n  \"product\": {\n    \"contribution\": 0.35,\n    \"objectives\": [\n      {\n        \"id\": \"PO-1\",\n        \"title\": \"<objective>\",\n        \"supports\": \"CO-1\",\n        \"key_results\": [\n          { \"id\": \"PO-1-KR1\", \"title\": \"<KR>\", \"current\": <number>, \"target\": <number> }\n        ]\n      }\n    ]\n  },\n  \"teams\": [\n    {\n      \"name\": \"Engineering\",\n      \"objectives\": [\n        {\n          \"id\": \"ENG-1\",\n          \"title\": \"<objective>\",\n          \"supports\": \"PO-1\",\n          \"key_results\": [\n            { \"id\": \"ENG-1-KR1\", \"title\": \"<KR>\", \"current\": <number>, \"target\": <number> }\n          ]\n        }\n      ]\n    }\n  ],\n  \"alignment_scores\": {\n    \"vertical_alignment\": <0-100 float>,\n    \"horizontal_alignment\": <0-100 float>,\n    \"coverage\": <0-100 float>,\n    \"balance\": <0-100 float>,\n    \"overall\": <0-100 float>\n  }\n}\n\nRequirements:\n- Company level: exactly 3 objectives (CO-1, CO-2, CO-3), each with 2-3 key results\n- Product level: exactly 3 objectives (PO-1, PO-2, PO-3), each supporting a company objective\n- Teams level: all 4 teams present (Engineering, Design, Growth, Data), each with 1-2 objectives\n- At least one KR must reference the MAU growth from 80,000 to 120,000\n- alignment_scores.overall must be between 60.0 and 100.0",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "product-strategist_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "okr_cascade.json exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "top-level-fields",
+            "weight": 0.08,
+            "description": "okr_cascade.json contains all required top-level fields: quarter, strategy, product_contribution, company, product, teams, and alignment_scores.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "metadata",
+            "weight": 0.08,
+            "description": "quarter equals 'Q2 2025', strategy equals 'growth', and product_contribution equals 0.35.",
+            "testPattern": "Q2 2025.*growth.*0.35|quarter is Q2 2025"
+          },
+          {
+            "id": "company-objectives",
+            "weight": 0.14,
+            "description": "company.objectives is an array of exactly 3 items with IDs CO-1, CO-2, and CO-3.",
+            "testPattern": "exactly 3 objectives.*CO-1.*CO-2.*CO-3|company has exactly 3"
+          },
+          {
+            "id": "company-krs",
+            "weight": 0.1,
+            "description": "Each company objective has a key_results array with 2 or 3 items.",
+            "testPattern": "2 or 3 key results"
+          },
+          {
+            "id": "product-objectives",
+            "weight": 0.12,
+            "description": "product.objectives contains exactly 3 items with IDs PO-1, PO-2, and PO-3, each with a supports field.",
+            "testPattern": "PO-1.*PO-2.*PO-3|product has exactly 3"
+          },
+          {
+            "id": "teams-present",
+            "weight": 0.14,
+            "description": "teams array contains exactly 4 entries with names Engineering, Design, Growth, and Data.",
+            "testPattern": "Engineering.*Design.*Growth.*Data|exactly 4 teams"
+          },
+          {
+            "id": "team-objectives",
+            "weight": 0.1,
+            "description": "Each team has at least 1 objective, and each objective has at least 1 key result.",
+            "testPattern": "at least 1 objective with key_results"
+          },
+          {
+            "id": "mau-reference",
+            "weight": 0.11,
+            "description": "At least one key result across company or product objectives contains both the values 80000 (or 80,000) and 120000 (or 120,000) referencing MAU growth.",
+            "testPattern": "80000.*120000|references MAU"
+          },
+          {
+            "id": "alignment-scores",
+            "weight": 0.08,
+            "description": "alignment_scores contains five numeric fields: vertical_alignment, horizontal_alignment, coverage, balance, and overall, all between 60 and 100.",
+            "testPattern": "alignment_scores.*overall|alignment score fields"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated an OKR cascade JSON for a growth strategy targeting MAU growth from 80K to 120K.\n\nCriterion 1: OKR Quality and Measurability (Weight: 60%)\n1.0: Objectives are outcome-oriented and strategic (not task-oriented), key results are measurable with realistic current/target values that reflect the provided metrics (MAU 80K→120K, NPS 35→55). Team OKRs are appropriately scoped for each team's function (Engineering builds infrastructure, Growth drives acquisition, etc.).\n0.5: Most OKRs are measurable but some are vague or the team assignments don't match team functions.\n0: OKRs are unmeasurable, purely task-based, or ignore the provided metrics entirely.\n\nCriterion 2: Cascade Coherence (Weight: 40%)\n1.0: Clear parent-child relationships — product objectives logically support company objectives, team objectives logically support product objectives. The cascade tells a coherent growth story from company to team level.\n0.5: Some cascade links exist but one or two team objectives don't logically derive from their parent product objective.\n0: No logical cascade — objectives at different levels are unrelated.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/product-strategist",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

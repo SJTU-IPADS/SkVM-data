@@ -1,0 +1,96 @@
+{
+  "id": "planning-with-files_task_02",
+  "name": "Recover an Interrupted Plan and Complete a Remaining Phase",
+  "category": "planning",
+  "gradingType": "hybrid",
+  "prompt": "You are resuming an interrupted planning session. The previous session was working on building a REST API for a task management app. The planning files below represent the state left behind. Your job is to read them, recover context, and complete the remaining work.\n\nFirst, create the following pre-existing planning files exactly as shown:\n\n**task_plan.md** (create this file):\n```\n# Task Plan: Task Manager API\n\nGoal: Build a REST API with CRUD endpoints for tasks\n\n## Phases\n- [x] Phase 1: Define data model\n- [x] Phase 2: Set up Express server skeleton\n- [ ] Phase 3: Implement GET /tasks and GET /tasks/:id endpoints\n- [ ] Phase 4: Implement POST /tasks endpoint\n- [ ] Phase 5: Write API documentation\n\n## Decisions\n- Use JSON files for storage (no database)\n- Tasks have fields: id, title, status, created_at\n\n## Errors Encountered\n- Phase 2: Port 3000 was in use, switched to 3001\n```\n\n**findings.md** (create this file):\n```\n# Findings\n\n## Data Model\nTask object: { id: string (UUID), title: string, status: 'pending'|'in_progress'|'done', created_at: ISO-8601 string }\n```\n\nThen complete Phase 3 by creating the file api_spec.json with this structure:\n{\n  \"endpoints\": [\n    {\n      \"method\": \"GET\",\n      \"path\": \"/tasks\",\n      \"description\": \"<description>\",\n      \"response_200\": { \"type\": \"array\", \"item_schema\": { \"id\": \"string\", \"title\": \"string\", \"status\": \"string\", \"created_at\": \"string\" } }\n    },\n    {\n      \"method\": \"GET\",\n      \"path\": \"/tasks/:id\",\n      \"description\": \"<description>\",\n      \"response_200\": { \"type\": \"object\", \"schema\": { \"id\": \"string\", \"title\": \"string\", \"status\": \"string\", \"created_at\": \"string\" } },\n      \"response_404\": { \"error\": \"string\" }\n    }\n  ]\n}\n\nThen update task_plan.md to mark Phase 3 as complete [x] and add a new entry to progress.md (create it if it does not exist) with at least 1 timestamped entry logging that Phase 3 was completed.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "planning-with-files_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "task-plan-exists",
+            "weight": 0.08,
+            "description": "task_plan.md file is present in the working directory.",
+            "testPattern": "task_plan.md > file exists"
+          },
+          {
+            "id": "phase3-complete",
+            "weight": 0.18,
+            "description": "task_plan.md contains \"[x]\" followed by \"Phase 3\" (case-insensitive), marking Phase 3 as complete.",
+            "testPattern": "Phase 3 is marked complete"
+          },
+          {
+            "id": "other-phases-intact",
+            "weight": 0.1,
+            "description": "Phases 1 and 2 remain marked [x] complete and Phases 4 and 5 remain marked [ ] incomplete.",
+            "testPattern": "phases 1 and 2 remain marked complete"
+          },
+          {
+            "id": "api-spec-exists",
+            "weight": 0.1,
+            "description": "api_spec.json file is present in the working directory.",
+            "testPattern": "api_spec.json > file exists"
+          },
+          {
+            "id": "api-spec-json",
+            "weight": 0.08,
+            "description": "api_spec.json parses as valid JSON without errors.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "endpoints-count",
+            "weight": 0.12,
+            "description": "endpoints array contains exactly 2 entries.",
+            "testPattern": "exactly 2 endpoints"
+          },
+          {
+            "id": "endpoint-methods",
+            "weight": 0.1,
+            "description": "Both endpoints use GET method, with paths /tasks and /tasks/:id, and each has a description string.",
+            "testPattern": "GET /tasks and GET /tasks/:id"
+          },
+          {
+            "id": "response-schemas",
+            "weight": 0.1,
+            "description": "Response schemas reference all 4 task fields: id, title, status, and created_at; /tasks/:id includes a response_404.",
+            "testPattern": "response schemas include all 4 task fields"
+          },
+          {
+            "id": "progress-updated",
+            "weight": 0.08,
+            "description": "progress.md contains at least one timestamped entry in [YYYY-MM-DD format.",
+            "testPattern": "progress.md has at least one timestamped entry"
+          },
+          {
+            "id": "progress-phase3",
+            "weight": 0.06,
+            "description": "progress.md entry mentions Phase 3 completion.",
+            "testPattern": "progress entry mentions Phase 3"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent recovered an interrupted planning session and completed a specific phase.\n\nCriterion 1: Phase Completion Quality (Weight: 60%)\n1.0: api_spec.json has both endpoints with accurate descriptions (list all tasks vs get by ID), correct HTTP methods, response schemas include all 4 task fields, and the 404 response for GET /tasks/:id is present and meaningful.\n0.5: Both endpoints present but descriptions are minimal or the 404 schema is missing.\n0: api_spec.json is missing or has fewer than 2 endpoints.\n\nCriterion 2: Planning File Update Quality (Weight: 40%)\n1.0: task_plan.md has Phase 3 marked as [x] complete, the pre-existing phases 1 and 2 remain [x] and phases 4 and 5 remain [ ], progress.md has a descriptive timestamped entry about completing Phase 3.\n0.5: Phase 3 is marked complete but other phase statuses were accidentally changed, or progress entry is present but very brief.\n0: task_plan.md was not updated or Phase 3 is still marked incomplete.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/planning-with-files",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

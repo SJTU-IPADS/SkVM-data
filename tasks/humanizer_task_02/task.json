@@ -1,0 +1,31 @@
+{
+  "id": "humanizer_task_02",
+  "name": "Humanize a SaaS Article with Section Headers and Produce a Categorized Audit Log",
+  "category": "writing_content",
+  "gradingType": "hybrid",
+  "prompt": "Your queue contains `article.md` — a five-section markdown article about SaaS adoption in enterprise technology that was written by an AI assistant. Your job is two-fold: rewrite the article to remove all AI writing signals, and produce a structured audit log of every change you made.\n\n**Output 1: `clean.md`** — a rewritten version of the article. Apply these rules:\n\nRemove or rewrite every occurrence of the following (case-insensitive), restructuring surrounding sentences so they still read naturally:\n- AI vocabulary words: cornerstone, tapestry, landscape (when used metaphorically), pivotal, multifaceted, groundbreaking, undoubtedly, delve/delving, foster/fostering, leverage\n- Filler/hedge phrases: \"it's worth noting that\", \"it is worth noting that\", \"it's important to note that\", \"it is important to note that\", \"it is crucial to understand that\", \"it goes without saying that\", \"nothing short of\" (followed by a superlative), \"serves as a testament to\"\n- Verbose constructions: \"in order to\" → replace with \"to\"; \"due to the fact that\" → replace with \"because\"\n- Chatbot-default transitions (sentence-starting only): \"Additionally,\", \"Furthermore,\", \"Moreover,\"\n- Chatbot artifacts: remove any sentence containing \"I hope\", \"Feel free\", \"As an AI\"\n\nStructural rules for `clean.md`:\n- Preserve all six section headers exactly as written (including the H1 title).\n- Keep all factual claims about SaaS adoption, TCO, vendor management, legacy integration, and policy intact.\n- Do not introduce new information or change the article's section structure.\n- Output word count must stay between 70% and 110% of the input word count.\n\n**Output 2: `audit.json`** — a JSON object at the workspace root with exactly these top-level keys:\n- `total_replacements` (integer): the total count of distinct phrase/word instances removed or rewritten\n- `by_category` (object): integer counts grouped by category using at least these three category names: `ai-vocab`, `filler-phrase`, `chatgpt-transition`; add `chatbot-artifact` as a fourth if applicable\n- `items` (list): one entry per instance removed, each entry being an object with at minimum a `phrase` key (the exact phrase or word removed) and a `category` key\n\n**Invariant**: `total_replacements` must equal the length of the `items` list exactly.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent rewrote a 5-section SaaS article (article.md) to remove AI filler phrases, AI vocabulary, and ChatGPT-default transitions, and produced an audit log JSON. The prompt required 6 section headers preserved, word count in 70-110% range, audit.json total_replacements to equal len(items), and by_category to have at least 3 distinct keys.\n\nCriterion 1: Prose quality of clean.md (Weight: 40%)\n1.0: The rewritten sections read like a competent human author wrote them. Sentences that previously began with 'Additionally,' or 'Furthermore,' have been restructured so the continuation flows naturally. AI vocabulary (cornerstone, tapestry, landscape, leverage, undoubtedly) is gone and replaced with plain direct language. Factual content about SaaS TCO models, vendor management, legacy integration, and procurement is preserved accurately.\n0.5: Most patterns removed but 1-2 sentences are awkward, or one factual detail was dropped.\n0: The text still contains clear AI-writing signals, or significant factual content was lost.\n\nCriterion 2: Completeness of removal (Weight: 40%)\n1.0: A close reading of clean.md finds none of the banned vocabulary, none of the filler-hedge phrases, no 'Additionally,'/'Furthermore,'/'Moreover,' transitions, and no chatbot artifacts. 'In order to' has been replaced with 'to' and 'due to the fact that' with 'because'.\n0.5: 2-3 banned items remain.\n0: 4 or more banned items remain or the agent made only superficial changes.\n\nCriterion 3: Audit log quality (Weight: 20%)\n1.0: audit.json exists with total_replacements matching len(items), by_category has at least 3 distinct keys (ai-vocab, filler-phrase, chatgpt-transition) with plausible counts, and each items entry has phrase and category fields. The data is internally consistent.\n0.5: JSON exists but total_replacements does not match list length, or only 1-2 categories are used.\n0: JSON missing or malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/humanizer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

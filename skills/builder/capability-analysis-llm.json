@@ -1,0 +1,17 @@
+{
+  "skill_name": "builder",
+  "purposes": [
+    {
+      "id": "provide-build-system-reference",
+      "description": "Output reference documentation about build systems (Make, CMake, Bazel, Gradle) covering concepts, patterns, debugging, performance, and security.",
+      "current_path": {
+        "primitives": [
+          {"id": "gen.text.prose", "min_level": "L2", "evidence": "Generates multi-paragraph structured reference documentation across 8 topic areas with domain-appropriate register"},
+          {"id": "follow.format", "min_level": "L1", "evidence": "Outputs plain-text reference documentation via heredoc in a named format"}
+        ]
+      },
+      "alternative_paths": []
+    }
+  ],
+  "unmatched_requirements": []
+}

@@ -1,0 +1,31 @@
+{
+  "id": "ui-design-system_task_01",
+  "name": "Build a Flat Design Token File with Semantic Aliases and WCAG Contrast Audit",
+  "category": "design_systems",
+  "gradingType": "hybrid",
+  "prompt": "A product team has given you a brand brief in `brand-brief.md`. They need a complete, production-ready token file plus a contrast audit before their design system review.\n\nProduce two files at the workspace root:\n\n**1. `tokens.json`** — a flat JSON object where every key uses dot-notation like `color.brand.primary.500` (not a nested tree). The file must contain:\n\n- A 9-step primary color scale with keys `color.brand.primary.50`, `color.brand.primary.100`, `color.brand.primary.200`, `color.brand.primary.300`, `color.brand.primary.400`, `color.brand.primary.500`, `color.brand.primary.600`, `color.brand.primary.700`, `color.brand.primary.800`, `color.brand.primary.900`. The brand anchor color `#1A56DB` maps to step `color.brand.primary.500`. Generate lighter steps (50–400) by increasing lightness and reducing saturation; generate darker steps (600–900) by decreasing lightness. Each value is a hex color string like `#1A56DB`.\n\n- A 9-step neutral gray scale with keys `color.brand.neutral.50` through `color.brand.neutral.900`. Use the same hue as the brand color but very low saturation. Each value is a hex color string.\n\n- Exactly these 8 semantic token keys, with their values being **references to palette token keys** (string values that are themselves keys in this same tokens.json — not raw hex colors):\n  - `color.semantic.action` → `color.brand.primary.500`\n  - `color.semantic.action-hover` → `color.brand.primary.600`\n  - `color.semantic.action-text` → `color.brand.primary.900`\n  - `color.semantic.background` → `color.brand.neutral.50`\n  - `color.semantic.surface` → `color.brand.neutral.100`\n  - `color.semantic.border` → `color.brand.neutral.300`\n  - `color.semantic.text-primary` → `color.brand.neutral.900`\n  - `color.semantic.text-secondary` → `color.brand.neutral.600`\n\nThe semantic token values must be the exact palette key strings listed above, not the hex colors those keys resolve to.\n\n**2. `contrast-audit.json`** — a JSON array of exactly 5 objects, in this order:\n1. `color.semantic.action-text` on `color.semantic.background`\n2. `color.semantic.text-primary` on `color.semantic.background`\n3. `color.semantic.text-secondary` on `color.semantic.background`\n4. `color.semantic.action-text` on `color.semantic.surface`\n5. `color.semantic.text-primary` on `color.semantic.surface`\n\nEach object must have:\n- `pair` (string): `\"<foreground-token> on <background-token>\"` — use the semantic token names, not hex colors\n- `ratio` (number): WCAG 2.1 contrast ratio rounded to 2 decimal places. Compute by resolving each semantic token through its palette reference to the actual hex value, then applying the WCAG 2.1 relative luminance formula: linearize each sRGB channel (divide by 255, then if c ≤ 0.03928 use c/12.92, else use ((c+0.055)/1.055)^2.4), compute L = 0.2126R + 0.7152G + 0.0722B, and contrast = (L_lighter + 0.05) / (L_darker + 0.05).\n- `aa_normal` (boolean): true if ratio ≥ 4.5\n- `aa_large` (boolean): true if ratio ≥ 3.0\n- `aaa_normal` (boolean): true if ratio ≥ 7.0",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent produced tokens.json (flat dot-notation design tokens with palette + semantic layers) and contrast-audit.json (WCAG contrast ratios for 5 semantic token pairs). Brand anchor is #1A56DB.\n\nCriterion 1: Token structure quality (Weight: 40%)\n1.0: tokens.json is a flat object with dot-notation keys throughout (no nested JSON trees). The primary and neutral palettes each have all 9 steps (50–900). Semantic tokens use token key references as values (strings like 'color.brand.primary.500'), not raw hex colors. The exact semantic→palette mapping matches the spec.\n0.5: Mostly correct structure but either the keys are nested, semantic values are hex colors instead of references, or the mapping is partially wrong.\n0: tokens.json is missing, uses a nested structure, or semantic tokens are absent.\n\nCriterion 2: WCAG contrast audit correctness (Weight: 40%)\n1.0: contrast-audit.json has exactly 5 entries in the specified order. Each entry's pair string uses semantic token names. Ratios are computed using the correct WCAG 2.1 linearization formula. The aa_normal/aa_large/aaa_normal booleans are self-consistent with the ratio in each entry.\n0.5: Most entries present but order is wrong, ratios use a simplified formula, or some boolean flags disagree with the ratio.\n0: contrast-audit.json missing or has fewer than 3 entries.\n\nCriterion 3: Adherence discipline (Weight: 20%)\n1.0: No duplicate property names. Semantic token values are exactly the required palette key strings. No extra or missing semantic keys. The file reads like a real production token registry.\n0.5: Minor deviations — extra keys, slightly different key names, or one mismatched mapping.\n0: The agent guessed at the structure without following the spec.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ui-design-system",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

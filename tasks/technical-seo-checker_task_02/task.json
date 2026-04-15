@@ -1,0 +1,96 @@
+{
+  "id": "technical-seo-checker_task_02",
+  "name": "Analyze URL Structure and Redirect Issues",
+  "category": "seo",
+  "gradingType": "hybrid",
+  "prompt": "Analyze the following list of URLs for technical SEO issues related to URL structure, redirects, and canonicalization. Save the result as url_audit.json in the current directory.\n\nURL list to analyze:\n```\nhttps://www.example.com/page-one\nhttps://www.example.com/Page-One\nhttps://example.com/page-one\nhttp://www.example.com/page-one\nhttps://www.example.com/page-one?utm_source=newsletter&utm_medium=email\nhttps://www.example.com/about-us\nhttps://www.example.com/about_us\nhttps://www.example.com/products/widget%20blue\nhttps://www.example.com/products/WIDGET-BLUE\n```\n\nThe output file url_audit.json must have exactly these fields:\n- \"total_urls\": 9\n- \"unique_canonical_pages\": integer — count of distinct logical pages (after de-duplication by canonical form)\n- \"issues\": array of issue objects. Each issue object must have:\n  - \"type\": string — one of: \"duplicate_content\", \"mixed_case\", \"http_not_https\", \"parameter_duplicate\", \"underscore_vs_hyphen\", \"url_encoding\"\n  - \"urls\": array of strings — the affected URLs\n  - \"severity\": string — one of: \"low\", \"medium\", \"high\", \"critical\"\n  - \"recommendation\": string — one sentence fix\n- \"issue_types_found\": array of strings — all unique issue type strings found\n- \"overall_score\": integer from 0 to 10 — URL health score (lower is worse)\n- \"canonical_recommendations\": array of at least 3 strings, each a canonical URL that should be the preferred version for a duplicate group\n\nIdentify at least 4 distinct issue types from the list above.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "technical-seo-checker_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "url_audit.json exists as a readable file in the working directory.",
+            "testPattern": "url_audit.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "url_audit.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "url_audit.json has all six required top-level keys: total_urls, unique_canonical_pages, issues, issue_types_found, overall_score, and canonical_recommendations.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "total-urls",
+            "weight": 0.1,
+            "description": "total_urls is exactly 9.",
+            "testPattern": "total_urls is 9"
+          },
+          {
+            "id": "issues-array",
+            "weight": 0.1,
+            "description": "The issues field is a non-empty array containing at least one issue object.",
+            "testPattern": "issues is a non-empty array"
+          },
+          {
+            "id": "issue-fields",
+            "weight": 0.1,
+            "description": "Every issue object has all four required fields: type (string), urls (non-empty array), severity (string), and recommendation (string).",
+            "testPattern": "each issue has type, urls, severity, recommendation"
+          },
+          {
+            "id": "issue-types-found",
+            "weight": 0.12,
+            "description": "issue_types_found is an array containing at least 4 distinct issue type strings.",
+            "testPattern": "issue_types_found has at least 4 entries"
+          },
+          {
+            "id": "overall-score",
+            "weight": 0.08,
+            "description": "overall_score is an integer between 0 and 10 inclusive.",
+            "testPattern": "overall_score is an integer between 0 and 10"
+          },
+          {
+            "id": "canonical-recs",
+            "weight": 0.12,
+            "description": "canonical_recommendations has at least 3 entries, each a string matching 'https?://'.",
+            "testPattern": "canonical_recommendations has at least 3 entries"
+          },
+          {
+            "id": "severity-values",
+            "weight": 0.12,
+            "description": "Every issue's severity value is one of the four allowed strings: low, medium, high, or critical.",
+            "testPattern": "severity values are valid"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to audit a URL list for technical SEO issues and produce a structured JSON report.\n\nCriterion 1: Issue Detection Accuracy (Weight: 60%)\n1.0: At least 4 distinct issue types correctly identified (http_not_https, mixed_case, parameter_duplicate, underscore_vs_hyphen are all clearly present in the data); affected URLs correctly grouped per issue; severities are reasonable.\n0.5: 2-3 issue types found but some affected URLs are misattributed or a clear issue is missed.\n0: Fewer than 2 issue types detected or issues don't match the URL data.\n\nCriterion 2: Recommendations Quality (Weight: 40%)\n1.0: canonical_recommendations lists correct preferred canonical URLs (e.g., https://www.example.com/page-one as canonical for the page-one cluster); issue recommendations are specific and technically correct (e.g., 301 redirect http to https, lowercase URLs).\n0.5: Canonical recommendations present but some point to wrong URL variants.\n0: canonical_recommendations are missing or all wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/technical-seo-checker",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

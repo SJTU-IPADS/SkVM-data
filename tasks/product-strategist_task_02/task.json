@@ -1,0 +1,96 @@
+{
+  "id": "product-strategist_task_02",
+  "name": "Generate a Retention Strategy OKR Cascade with Custom Team Configuration",
+  "category": "product_strategy",
+  "gradingType": "hybrid",
+  "prompt": "Generate a retention strategy OKR cascade and save it to retention_okrs.json.\n\nContext:\n- Quarter: Q3 2025\n- Strategy: retention\n- Teams: Backend, Frontend, Analytics, CustomerSuccess\n- Product contribution: 40%\n- Current retention rate: 62% | Target: 80%\n- Current churn rate: 8.5% | Target: 3.0%\n- Current LTV: $1,200 | Target LTV: $2,000\n\nOutput requirements:\n1. Company level: exactly 3 objectives (CO-1, CO-2, CO-3). CO-1 must have a key result referencing the retention improvement from 62% to 80%. Each objective must have 2-3 key results with numeric current and target values.\n2. Product level: exactly 3 objectives (PO-1, PO-2, PO-3), each with a \"supports\" field pointing to a company objective ID.\n3. Teams level: all 4 teams present, each with 1-2 objectives. CustomerSuccess team must have at least 1 objective focused on churn reduction.\n4. alignment_scores: compute and include vertical_alignment, horizontal_alignment, coverage, balance, overall (all as 0-100 floats).\n\nSave to retention_okrs.json:\n{\n  \"quarter\": \"Q3 2025\",\n  \"strategy\": \"retention\",\n  \"product_contribution\": 0.40,\n  \"metrics\": {\n    \"retention_current\": 62,\n    \"retention_target\": 80,\n    \"churn_current\": 8.5,\n    \"churn_target\": 3.0,\n    \"ltv_current\": 1200,\n    \"ltv_target\": 2000\n  },\n  \"company\": { \"objectives\": [...] },\n  \"product\": { \"contribution\": 0.40, \"objectives\": [...] },\n  \"teams\": [...],\n  \"alignment_scores\": { ... }\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "product-strategist_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "retention_okrs.json exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "top-level-fields",
+            "weight": 0.08,
+            "description": "retention_okrs.json contains all required top-level fields including quarter, strategy, product_contribution, metrics, company, product, teams, and alignment_scores.",
+            "testPattern": "required top-level fields including metrics"
+          },
+          {
+            "id": "metadata",
+            "weight": 0.08,
+            "description": "quarter equals 'Q3 2025', strategy equals 'retention', and product_contribution equals 0.40.",
+            "testPattern": "Q3 2025.*retention.*0.40|quarter is Q3 2025"
+          },
+          {
+            "id": "metrics-values",
+            "weight": 0.12,
+            "description": "metrics block has exact values: retention_current=62, retention_target=80, churn_current=8.5, churn_target=3.0, ltv_current=1200, ltv_target=2000.",
+            "testPattern": "metrics block has correct values"
+          },
+          {
+            "id": "company-objectives",
+            "weight": 0.12,
+            "description": "company.objectives contains exactly 3 items with IDs CO-1, CO-2, and CO-3.",
+            "testPattern": "CO-1.*CO-2.*CO-3|company has exactly 3"
+          },
+          {
+            "id": "co1-retention",
+            "weight": 0.1,
+            "description": "CO-1's key_results JSON contains at least one of the values 62 or 80 referencing the retention rate targets.",
+            "testPattern": "62.*80.*retention|CO-1 key results reference"
+          },
+          {
+            "id": "product-supports",
+            "weight": 0.12,
+            "description": "product.objectives contains exactly 3 items, each with a supports field that starts with 'CO-'.",
+            "testPattern": "supports field|product has exactly 3"
+          },
+          {
+            "id": "team-names",
+            "weight": 0.14,
+            "description": "teams array contains exactly 4 entries with names Backend, Frontend, Analytics, and CustomerSuccess.",
+            "testPattern": "Backend.*Frontend.*Analytics.*CustomerSuccess|teams array contains"
+          },
+          {
+            "id": "churn-objective",
+            "weight": 0.11,
+            "description": "CustomerSuccess team has at least 1 objective whose text mentions 'churn', 'retention', or 'customer' (case-insensitive).",
+            "testPattern": "churn|CustomerSuccess team has"
+          },
+          {
+            "id": "alignment-scores",
+            "weight": 0.08,
+            "description": "alignment_scores contains all five numeric fields (vertical_alignment, horizontal_alignment, coverage, balance, overall), each between 0 and 100.",
+            "testPattern": "alignment_scores.*0 and 100|alignment_scores has all required"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a retention strategy OKR cascade with custom teams targeting retention improvement from 62% to 80%.\n\nCriterion 1: Retention Focus and Specificity (Weight: 55%)\n1.0: OKRs throughout the cascade are clearly retention-focused. Key results reference the provided metrics (62%→80% retention, 8.5%→3.0% churn, $1200→$2000 LTV). CustomerSuccess team objectives specifically address churn reduction tactics. Engineering/Frontend objectives address product stickiness features.\n0.5: Some OKRs reference retention metrics but others are too generic. Team objectives don't clearly map to their team's specific contribution to retention.\n0: OKRs are not retention-focused or ignore the provided metrics.\n\nCriterion 2: Strategic Coherence (Weight: 45%)\n1.0: The cascade forms a coherent retention strategy story — company objectives set direction, product objectives translate them into product decisions, team objectives specify delivery. Each level adds specificity without losing alignment to the level above.\n0.5: Some coherence but cascade has gaps — some team objectives don't logically derive from product objectives.\n0: No coherent strategy narrative or cascade links are arbitrary.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/product-strategist",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

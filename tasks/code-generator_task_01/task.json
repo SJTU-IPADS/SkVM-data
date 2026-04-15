@@ -1,0 +1,96 @@
+{
+  "id": "code-generator_task_01",
+  "name": "Generate a Python Class with Methods and Unit Tests",
+  "category": "code_generation",
+  "gradingType": "hybrid",
+  "prompt": "Generate a Python class and its unit tests.\n\nStep 1: Create a file called inventory.py containing a Python class called Inventory with these methods:\n- __init__(self): initializes an empty dict called items\n- add_item(self, name: str, quantity: int, price: float) -> None: adds the item or updates quantity if it already exists (add to existing quantity)\n- remove_item(self, name: str, quantity: int) -> bool: reduces quantity by the given amount; if quantity would go below 0, do nothing and return False; if quantity reaches exactly 0, remove the item; return True on success\n- get_total_value(self) -> float: returns the sum of (quantity * price) for all items, rounded to 2 decimal places\n- get_item_count(self) -> int: returns the total number of distinct item names\n- to_dict(self) -> dict: returns a dict mapping item name to {\"quantity\": int, \"price\": float}\n\nStep 2: Create a file called test_inventory.py with unit tests using Python's unittest module. The test file must include at least these 6 test methods:\n- test_add_item: add \"Widget\" with quantity=10, price=2.50 and verify it's in items\n- test_add_item_accumulates: add \"Widget\" twice and verify quantities sum\n- test_remove_item_success: add then remove some quantity and verify return is True\n- test_remove_item_insufficient: try to remove more than available, verify return is False and quantity unchanged\n- test_get_total_value: add \"Widget\" (10 × 2.50) and \"Gadget\" (5 × 8.00) and verify total is 65.0\n- test_get_item_count: add 3 distinct items and verify count is 3\n\nStep 3: Run the tests with `python3 -m unittest test_inventory.py -v` and write the output (stdout + stderr combined) to test_output.txt. The tests must all pass.\n\nStep 4: Create a file called code_summary.json with:\n- \"class_name\": \"Inventory\"\n- \"language\": \"python\"\n- \"method_count\": 6\n- \"test_count\": 6\n- \"all_tests_passed\": true",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "code-generator_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "class-exists",
+            "weight": 0.06,
+            "description": "inventory.py file is present in the working directory.",
+            "testPattern": "inventory.py > file exists"
+          },
+          {
+            "id": "class-def",
+            "weight": 0.07,
+            "description": "inventory.py contains a 'class Inventory' declaration.",
+            "testPattern": "Inventory class definition"
+          },
+          {
+            "id": "methods-present",
+            "weight": 0.1,
+            "description": "inventory.py defines all 6 required methods: __init__, add_item, remove_item, get_total_value, get_item_count, and to_dict.",
+            "testPattern": "all 6 required methods"
+          },
+          {
+            "id": "add-total-value",
+            "weight": 0.18,
+            "description": "Adding Widget (10×$2.50) and Gadget (5×$8.00) yields get_total_value() == 65.0.",
+            "testPattern": "add.*get_total_value work correctly"
+          },
+          {
+            "id": "remove-false",
+            "weight": 0.15,
+            "description": "remove_item returns False and leaves quantity unchanged when requested quantity exceeds available stock.",
+            "testPattern": "remove_item returns False"
+          },
+          {
+            "id": "item-count",
+            "weight": 0.1,
+            "description": "get_item_count returns the number of distinct item names currently in the inventory.",
+            "testPattern": "get_item_count returns correct count"
+          },
+          {
+            "id": "tests-exist",
+            "weight": 0.06,
+            "description": "A test_inventory.py unit test file exists alongside the implementation.",
+            "testPattern": "test_inventory.py > file exists"
+          },
+          {
+            "id": "tests-count",
+            "weight": 0.08,
+            "description": "test_inventory.py contains at least 6 methods whose names start with 'test_'.",
+            "testPattern": "at least 6 test methods"
+          },
+          {
+            "id": "tests-pass",
+            "weight": 0.12,
+            "description": "Running python3 -m unittest on test_inventory.py prints 'OK' and no 'FAILED' line.",
+            "testPattern": "all unit tests pass"
+          },
+          {
+            "id": "summary-values",
+            "weight": 0.08,
+            "description": "code_summary.json has class_name='Inventory', language='python', method_count=6, and all_tests_passed=true.",
+            "testPattern": "correct field values"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to generate a Python Inventory class, unit tests, and run them.\n\nCriterion 1: Code Correctness (Weight: 60%)\n1.0: inventory.py implements all 6 methods correctly. test_inventory.py covers all 6 required test cases. All tests pass as evidenced by test_output.txt.\n0.5: Class exists with most methods working, tests mostly pass.\n0: Class is missing or tests fail.\n\nCriterion 2: Code Quality (Weight: 40%)\n1.0: Code follows Python conventions, has clear variable names, methods handle edge cases (e.g. quantity=0 removes item, adding existing item accumulates).\n0.5: Code works but has style issues or misses one edge case.\n0: Poor quality code.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/code-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

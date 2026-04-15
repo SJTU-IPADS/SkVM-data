@@ -1,0 +1,96 @@
+{
+  "id": "planning-with-files_task_01",
+  "name": "Create a File-Based Plan for a Multi-Step Research Task",
+  "category": "planning",
+  "gradingType": "hybrid",
+  "prompt": "You must plan and partially execute a multi-step research task using persistent planning files. The task is: research and summarize the tradeoffs between three database indexing strategies — B-tree indexes, Hash indexes, and Bitmap indexes — then produce a recommendation for an e-commerce product catalog with 10 million rows and heavy read traffic.\n\nComplete the following steps in order:\n\nStep 1: Create task_plan.md in the current directory. It must contain:\n- A 'Goal:' line stating the research objective\n- A section '## Phases' listing at least 4 phases, each with a status indicator (e.g., [ ] or [x] or 'pending'/'complete')\n- A section '## Decisions' (may be empty initially)\n- A section '## Errors Encountered' (may be empty initially)\n\nStep 2: Create findings.md. It must contain:\n- A heading '# Research Findings'\n- A subsection '## B-tree Indexes' with at least 3 bullet points covering tradeoffs\n- A subsection '## Hash Indexes' with at least 3 bullet points covering tradeoffs\n- A subsection '## Bitmap Indexes' with at least 3 bullet points covering tradeoffs\n\nStep 3: Create progress.md. It must contain:\n- A heading '# Session Log'\n- At least 2 timestamped entries (format: '- [YYYY-MM-DD HH:MM] <action>') logging what was done\n\nStep 4: Create recommendation.json with this structure:\n{\n  \"use_case\": \"e-commerce product catalog, 10M rows, heavy read traffic\",\n  \"recommended_index\": \"<B-tree|Hash|Bitmap>\",\n  \"confidence\": \"<high|medium|low>\",\n  \"reasons\": [\"<reason 1>\", \"<reason 2>\", \"<reason 3>\"],\n  \"tradeoffs_accepted\": [\"<tradeoff 1>\", \"<tradeoff 2>\"]\n}\n\nStep 5: Update task_plan.md to mark all phases as complete.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "planning-with-files_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "task-plan-exists",
+            "weight": 0.1,
+            "description": "task_plan.md file is present in the working directory.",
+            "testPattern": "task_plan.md > file exists"
+          },
+          {
+            "id": "task-plan-sections",
+            "weight": 0.12,
+            "description": "task_plan.md contains a \"Goal:\" line and ## Phases, ## Decisions, and ## Errors sections.",
+            "testPattern": "task_plan has Phases, Decisions, and Errors sections"
+          },
+          {
+            "id": "phases-count",
+            "weight": 0.1,
+            "description": "task_plan.md contains at least 4 phase list entries (bullet, numbered, or checkbox format).",
+            "testPattern": "at least 4 phases"
+          },
+          {
+            "id": "findings-exists",
+            "weight": 0.08,
+            "description": "findings.md file is present in the working directory.",
+            "testPattern": "findings.md > file exists"
+          },
+          {
+            "id": "findings-subsections",
+            "weight": 0.12,
+            "description": "findings.md contains ## B-tree, ## Hash, and ## Bitmap subsections with at least 9 bullet points total.",
+            "testPattern": "B-tree.*Hash.*Bitmap subsections"
+          },
+          {
+            "id": "progress-exists",
+            "weight": 0.08,
+            "description": "progress.md file is present in the working directory.",
+            "testPattern": "progress.md > file exists"
+          },
+          {
+            "id": "progress-entries",
+            "weight": 0.1,
+            "description": "progress.md contains at least 2 timestamped log entries in [YYYY-MM-DD format.",
+            "testPattern": "at least 2 timestamped log entries"
+          },
+          {
+            "id": "recommendation-exists",
+            "weight": 0.1,
+            "description": "recommendation.json file is present in the working directory.",
+            "testPattern": "recommendation.json > file exists"
+          },
+          {
+            "id": "recommendation-fields",
+            "weight": 0.12,
+            "description": "recommendation.json has use_case, recommended_index, confidence, reasons (≥3), and tradeoffs_accepted (≥2) fields.",
+            "testPattern": "recommendation has required fields"
+          },
+          {
+            "id": "recommendation-values",
+            "weight": 0.08,
+            "description": "recommended_index is one of: B-tree, Hash, or Bitmap.",
+            "testPattern": "recommended_index is a valid value"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent used file-based planning to research database indexing strategies and produce a recommendation.\n\nCriterion 1: Research Quality (Weight: 60%)\n1.0: findings.md covers meaningful tradeoffs for all 3 index types (e.g., B-tree: good range queries, moderate write overhead; Hash: O(1) exact lookups, no range queries; Bitmap: great for low-cardinality, bad for high-cardinality). The recommendation.json choice is B-tree with at least 3 coherent reasons relevant to the described use case.\n0.5: Findings are present but superficial (fewer than 2 meaningful points per index type) or the recommendation lacks domain-specific reasoning.\n0: findings.md is missing or the index tradeoffs are factually wrong.\n\nCriterion 2: Planning File Quality (Weight: 40%)\n1.0: task_plan.md has all required sections, all phases are marked complete, decisions section notes the chosen index, progress.md log entries are descriptive enough to understand what was done in the session.\n0.5: Planning files exist but phases are not marked complete or progress.md has placeholder entries.\n0: Planning files are missing or empty.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/planning-with-files",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

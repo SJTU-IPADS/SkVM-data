@@ -1,0 +1,96 @@
+{
+  "id": "nonprofit-rbm-logic-model_task_01",
+  "name": "Generate RBM Chain and Logframe for a Nonprofit Project",
+  "category": "nonprofit",
+  "gradingType": "hybrid",
+  "prompt": "Generate a results-based management (RBM) logic chain and logframe for the following nonprofit project, saving output to two files.\n\nProject description: A 2-year literacy program in rural Kenya targeting 500 out-of-school girls aged 10-14. The program will train 20 community literacy facilitators, establish 10 reading centers, distribute 2,000 books, and run weekly 2-hour reading sessions. Expected outcome: 70% of enrolled girls achieve Grade 4 reading level by end of Year 2. Donor: USAID. Budget: $250,000.\n\nTask 1: Save the RBM chain to rbm_chain.json with this exact structure:\n{\n  \"project\": \"<project name>\",\n  \"inputs\": [\"<input 1>\", ...],\n  \"activities\": [\"<activity 1>\", ...],\n  \"outputs\": [\"<output 1>\", ...],\n  \"outcomes\": {\n    \"short_term\": [\"<outcome>\", ...],\n    \"long_term\": [\"<outcome>\", ...]\n  },\n  \"impact\": \"<impact statement>\"\n}\nRequirements: at least 3 inputs, 4 activities, 3 outputs, 2 short_term outcomes, 1 long_term outcome.\n\nTask 2: Save a logframe matrix to logframe.json as:\n{\n  \"logframe\": [\n    {\n      \"level\": \"<Impact|Outcome|Output|Activity>\",\n      \"description\": \"<statement>\",\n      \"indicator\": \"<SMART indicator>\",\n      \"baseline\": \"<baseline value or description>\",\n      \"target\": \"<target value>\",\n      \"means_of_verification\": \"<data source>\",\n      \"assumptions\": \"<key assumption>\"\n    }\n  ]\n}\nRequirements: exactly 1 Impact row, exactly 2 Outcome rows, exactly 3 Output rows, exactly 3 Activity rows (9 rows total).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "nonprofit-rbm-logic-model_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "rbm-exists",
+            "weight": 0.07,
+            "description": "rbm_chain.json file is present in the working directory.",
+            "testPattern": "rbm_chain.json.*exists|rbm chain file"
+          },
+          {
+            "id": "logframe-exists",
+            "weight": 0.07,
+            "description": "logframe.json file is present in the working directory.",
+            "testPattern": "logframe.json.*exists|logframe file"
+          },
+          {
+            "id": "rbm-inputs",
+            "weight": 0.1,
+            "description": "rbm_chain.json inputs array contains at least 3 entries.",
+            "testPattern": "at least 3 inputs|inputs array"
+          },
+          {
+            "id": "rbm-activities",
+            "weight": 0.1,
+            "description": "rbm_chain.json activities array contains at least 4 entries.",
+            "testPattern": "at least 4 activities|activities array"
+          },
+          {
+            "id": "rbm-outputs",
+            "weight": 0.1,
+            "description": "rbm_chain.json outputs array contains at least 3 entries.",
+            "testPattern": "at least 3 outputs|outputs array"
+          },
+          {
+            "id": "rbm-outcomes",
+            "weight": 0.1,
+            "description": "outcomes object has short_term array (≥2 entries) and long_term array (≥1 entry).",
+            "testPattern": "outcomes.*short_term|short_term.*long_term"
+          },
+          {
+            "id": "rbm-impact",
+            "weight": 0.08,
+            "description": "impact field is a non-empty string of more than 10 characters.",
+            "testPattern": "impact statement|impact field"
+          },
+          {
+            "id": "logframe-rows",
+            "weight": 0.15,
+            "description": "logframe.json logframe array contains exactly 9 rows.",
+            "testPattern": "9 rows|exactly 9|logframe.*9"
+          },
+          {
+            "id": "logframe-levels",
+            "weight": 0.15,
+            "description": "logframe level distribution is exactly 1 Impact, 2 Outcome, 3 Output, and 3 Activity rows.",
+            "testPattern": "Impact.*Outcome.*Output|level distribution"
+          },
+          {
+            "id": "logframe-fields",
+            "weight": 0.08,
+            "description": "Each logframe row has non-empty string fields for level, description, indicator, baseline, target, means_of_verification, and assumptions.",
+            "testPattern": "logframe fields|indicator.*baseline.*target"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated an RBM chain and logframe for a rural Kenya girls' literacy program.\n\nCriterion 1: RBM Logic Coherence (Weight: 50%)\n1.0: The causal chain from inputs through activities to outputs to outcomes to impact is logically consistent and grounded in the described project. Inputs reflect actual resources (budget, facilitators, books), activities match the described interventions, outputs are measurable deliverables, and outcomes build toward the stated 70% literacy impact.\n0.5: The chain is mostly coherent but has one or two mismatches or overly generic entries that don't reflect the project specifics.\n0: The chain has logical gaps, entries don't relate to the project, or levels are confused.\n\nCriterion 2: Logframe Indicator Quality (Weight: 50%)\n1.0: Indicators are SMART (specific, measurable, achievable, relevant, time-bound) — they include quantities, percentages, or timeframes tied to the project data. Baselines and targets are realistic and distinguishable. Means of verification reference plausible data sources.\n0.5: Most indicators are directionally correct but some lack specificity or the baseline/target pairs are too vague.\n0: Indicators are non-measurable, missing units, or just restate the description.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/nonprofit-rbm-logic-model",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

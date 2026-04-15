@@ -1,0 +1,96 @@
+{
+  "id": "resume-screener-pro_task_01",
+  "name": "Screen Resumes Against Job Description and Produce Ranked Report",
+  "category": "recruiting",
+  "gradingType": "hybrid",
+  "prompt": "You are processing a batch of resumes for an open engineering position. Analyze each candidate against the job requirements and produce a structured screening report.\n\nJob Description:\nRole: Senior Backend Engineer\nRequired: 5+ years backend experience, proficiency in Python or Go, experience with distributed systems, strong SQL skills\nPreferred: Experience with Kubernetes, prior work at a high-growth startup, open-source contributions\nTeam size: 8 engineers, fast-paced environment\n\nCandidates:\n\nCandidate 1 — Alex Chen\n- 7 years backend experience at two fintech companies\n- Expert in Python and Go; built distributed payment processing system handling 50K TPS\n- Strong SQL (PostgreSQL, MySQL); Kubernetes certified\n- 3 open-source contributions on GitHub\n- No startup experience; all enterprise companies\n\nCandidate 2 — Maria Gomez\n- 3 years backend experience (career changer from data analytics)\n- Python proficient; limited Go experience\n- No distributed systems experience; SQL skills strong\n- No Kubernetes; no open-source\n- High motivation letter, strong portfolio of personal projects\n\nCandidate 3 — James Park\n- 6 years backend at two early-stage startups (one IPO)\n- Go expert; Python intermediate\n- Designed microservices architecture for 2M daily users\n- Kubernetes daily user; no open-source contributions\n- Strong culture fit indicators\n\nStep 1: Score each candidate and save to screening_report.json.\n\nFor each candidate produce: id (C1, C2, C3), name, match_score (0.0-10.0, one decimal place), ats_score (0-100 integer), core_strengths (array of 2-3 strings), risk_points (array of 1-2 strings), recommendation (\"Advance\" if match_score >= 7.0, \"Maybe\" if 5.0-6.9, \"Pass\" if < 5.0).\n\nSave as: { \"role\": \"Senior Backend Engineer\", \"candidates\": [ { \"id\": \"C1\", \"name\": \"...\", \"match_score\": X.X, \"ats_score\": N, \"core_strengths\": [...], \"risk_points\": [...], \"recommendation\": \"...\" }, ... ] }\n\nStep 2: Produce a ranked shortlist and save to shortlist.json.\n\nRank candidates by match_score descending. Save as: { \"shortlist\": [ { \"rank\": 1, \"id\": \"...\", \"name\": \"...\", \"match_score\": X.X, \"recommendation\": \"...\" }, ... ] }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "resume-screener-pro_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "screening-exists",
+            "weight": 0.08,
+            "description": "screening_report.json exists in the working directory.",
+            "testPattern": "screening_report.json.*exists|file exists.*screening_report"
+          },
+          {
+            "id": "three-candidates",
+            "weight": 0.1,
+            "description": "screening_report.json candidates array contains exactly 3 entries.",
+            "testPattern": "3 candidates|three candidates"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.1,
+            "description": "Each candidate entry has id, name, match_score (number), ats_score (number), core_strengths (array), risk_points (array), and recommendation ('Advance'/'Maybe'/'Pass').",
+            "testPattern": "match_score.*ats_score|required fields.*id.*name"
+          },
+          {
+            "id": "alex-advance",
+            "weight": 0.15,
+            "description": "Candidate C1 (Alex Chen) has recommendation='Advance' with match_score >= 7.0.",
+            "testPattern": "C1.*Advance|Advance.*C1|Alex.*Advance"
+          },
+          {
+            "id": "james-advance",
+            "weight": 0.12,
+            "description": "Candidate C3 (James Park) has recommendation='Advance' with match_score >= 7.0.",
+            "testPattern": "C3.*Advance|Advance.*C3|James.*Advance"
+          },
+          {
+            "id": "maria-pass-maybe",
+            "weight": 0.12,
+            "description": "Candidate C2 (Maria Gomez) has recommendation 'Pass' or 'Maybe' (not 'Advance') with match_score < 7.0.",
+            "testPattern": "C2.*Pass|C2.*Maybe|Maria.*Pass|Maria.*Maybe"
+          },
+          {
+            "id": "score-range",
+            "weight": 0.08,
+            "description": "Every candidate's match_score is a number between 0.0 and 10.0 inclusive.",
+            "testPattern": "match_score.*between|score.*0.*10"
+          },
+          {
+            "id": "shortlist-exists",
+            "weight": 0.08,
+            "description": "shortlist.json exists in the working directory.",
+            "testPattern": "shortlist.json.*exists|file exists.*shortlist"
+          },
+          {
+            "id": "shortlist-ranked",
+            "weight": 0.1,
+            "description": "shortlist.json shortlist array has 3 entries sorted by match_score descending, each with rank, id, name, match_score, and recommendation.",
+            "testPattern": "rank.*1|shortlist.*ranked|ranked.*shortlist"
+          },
+          {
+            "id": "maria-last",
+            "weight": 0.07,
+            "description": "Maria Gomez (C2) is assigned rank 3 (last place) in shortlist.json.",
+            "testPattern": "Maria.*rank.*3|rank 3.*Maria|C2.*rank.*3"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent screened three engineering candidates against a job description and produced a ranked screening report.\n\nCriterion 1: Scoring Reasonableness (Weight: 60%)\n1.0: Alex Chen and James Park both score >= 7.0 and receive Advance recommendations (both meet all required criteria and most preferred). Maria Gomez scores < 7.0 (only 3 years experience, misses distributed systems requirement). Rankings place Alex or James first, with Maria last. Scores reflect the evidence in each resume.\n0.5: 2 of 3 recommendations are reasonable given the job requirements; scoring is in the right relative order.\n0: Maria scores higher than Alex or James, or all candidates receive the same recommendation regardless of qualifications.\n\nCriterion 2: Output Completeness (Weight: 40%)\n1.0: All required fields present for all 3 candidates in both files. core_strengths and risk_points are specific and accurate (e.g., Alex's strength = distributed systems expertise; risk = no startup experience). Shortlist is sorted correctly by match_score descending.\n0.5: Files exist with all 3 candidates but some fields are missing or vague.\n0: Either output file is missing or contains fewer than 3 candidates.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/resume-screener-pro",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

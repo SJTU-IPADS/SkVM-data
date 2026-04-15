@@ -1,0 +1,96 @@
+{
+  "id": "shell-script_task_02",
+  "name": "Write a Backup Script with Manifest",
+  "category": "shell_scripting",
+  "gradingType": "hybrid",
+  "prompt": "Write a bash backup script and demonstrate it by creating a test workspace and running the script. Save all files in the current working directory.\n\n1. Create the script `backup.sh`. The script must:\n   - Accept two arguments: source directory (`$1`) and backup destination directory (`$2`)\n   - Use `set -euo pipefail`\n   - Validate that both arguments are provided; exit code 1 + stderr message if not\n   - Validate that the source directory exists; exit code 2 + stderr message if not\n   - Create the destination directory if it does not exist\n   - Copy all files from the source to a timestamped subdirectory: `$2/backup_YYYYMMDD_HHMMSS/`\n   - After copying, create a manifest file at `$2/backup_YYYYMMDD_HHMMSS/MANIFEST.txt` listing each copied filename (one per line) and the total file count on the last line as: `Total files: N`\n   - Print the backup path to stdout on success\n\n2. Create a test source directory `test_source/` with exactly 5 files: `file1.txt`, `file2.txt`, `file3.log`, `config.json`, `README.md`. Each file must have at least one line of content.\n\n3. Run the script: `bash backup.sh test_source/ test_backup/` and save results to `backup_result.json`:\n   {\n     \"exit_code\": <integer>,\n     \"backup_path\": \"<the printed path from stdout>\",\n     \"manifest_content\": \"<full content of MANIFEST.txt as a string>\",\n     \"files_backed_up\": <integer>\n   }\n   files_backed_up must equal the number of files listed in MANIFEST.txt (not counting the Total files line).\n\nSave backup.sh, backup_result.json, and the test_source/ directory in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "shell-script_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.08,
+            "description": "backup.sh exists as a readable file in the working directory.",
+            "testPattern": "backup.sh > file exists"
+          },
+          {
+            "id": "set-pipefail",
+            "weight": 0.08,
+            "description": "backup.sh contains the literal string 'set -euo pipefail'.",
+            "testPattern": "set -euo pipefail"
+          },
+          {
+            "id": "arg-validation",
+            "weight": 0.1,
+            "description": "backup.sh exits with code 1 when invoked with no arguments.",
+            "testPattern": "exits.*code 1.*no arguments|no arguments.*exit 1"
+          },
+          {
+            "id": "source-validation",
+            "weight": 0.1,
+            "description": "backup.sh exits with code 2 when the source directory argument does not exist.",
+            "testPattern": "exits.*code 2.*source.*not exist|source.*not exist.*exit 2"
+          },
+          {
+            "id": "test-source-files",
+            "weight": 0.1,
+            "description": "test_source/ directory contains all 5 required files: file1.txt, file2.txt, file3.log, config.json, and README.md.",
+            "testPattern": "test_source.*5 files|5 required files"
+          },
+          {
+            "id": "result-exists",
+            "weight": 0.06,
+            "description": "backup_result.json exists as a readable file in the working directory.",
+            "testPattern": "backup_result.json > file exists"
+          },
+          {
+            "id": "result-exit-code-0",
+            "weight": 0.1,
+            "description": "backup_result.json has exit_code equal to 0, indicating the backup script ran successfully.",
+            "testPattern": "exit_code.*0|successful run"
+          },
+          {
+            "id": "result-files-count",
+            "weight": 0.15,
+            "description": "backup_result.json has files_backed_up equal to exactly 5.",
+            "testPattern": "files_backed_up.*5|backed up 5 files"
+          },
+          {
+            "id": "manifest-content",
+            "weight": 0.13,
+            "description": "manifest_content in backup_result.json contains a 'Total files:' line and lists exactly 5 file entries before it.",
+            "testPattern": "manifest_content.*Total files|manifest has total files line"
+          },
+          {
+            "id": "backup-path-exists",
+            "weight": 0.1,
+            "description": "The backup_path recorded in backup_result.json points to a directory that actually exists on the filesystem.",
+            "testPattern": "backup directory.*exists|backup_path directory exists"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a backup script with manifest generation.\n\nCriterion 1: Script Robustness and Best Practices (Weight: 60%)\n1.0: Uses set -euo pipefail, validates arguments with correct exit codes, creates timestamped directories, generates the MANIFEST.txt correctly. Variables are quoted. The timestamp format is correct (YYYYMMDD_HHMMSS using date command).\n0.5: Script mostly works but may have quoting issues or the timestamp format is non-standard.\n0: Script lacks error handling or fails to create the manifest.\n\nCriterion 2: Completeness of Execution Evidence (Weight: 40%)\n1.0: backup_result.json accurately reflects a successful run (exit_code=0, backup_path points to an existing timestamped directory, manifest_content is non-empty, files_backed_up=5). The MANIFEST.txt exists in the backup directory.\n0.5: Some fields are populated but backup_path or manifest_content is incorrect.\n0: backup_result.json is missing or shows a failed run.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/shell-script",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

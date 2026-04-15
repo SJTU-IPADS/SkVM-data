@@ -1,0 +1,90 @@
+{
+  "id": "poetry_task_01",
+  "name": "Compose a Classical Chinese Quatrain on Autumn",
+  "category": "creative_writing",
+  "gradingType": "hybrid",
+  "prompt": "Compose an original classical Chinese poem and save the result to poem.json.\n\nRequirements:\n- Form: 五言绝句 (five-character quatrain) — exactly 4 lines, exactly 5 Chinese characters per line\n- Theme: 秋天 (autumn)\n- The poem must follow the standard rhyme scheme: lines 1, 2, and 4 must rhyme (end with the same rhyme group); line 3 does not need to rhyme\n- Do NOT copy any existing famous poem\n\nSave the output to poem.json with the following exact structure:\n{\n  \"form\": \"五言绝句\",\n  \"theme\": \"秋天\",\n  \"title\": \"<poem title in Chinese>\",\n  \"lines\": [\"<line1>\", \"<line2>\", \"<line3>\", \"<line4>\"],\n  \"rhyme_char\": \"<the shared rhyme character sound, e.g. 'an'>\",\n  \"annotation\": \"<brief English explanation of the poem's imagery, 20-60 words>\"\n}\n\nAll four line strings in the lines array must be exactly 5 Chinese characters each (no punctuation inside the line strings).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "poetry_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "poem.json exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.1,
+            "description": "poem.json is valid JSON containing all six required fields: form, theme, title, lines, rhyme_char, and annotation.",
+            "testPattern": "valid JSON with required fields"
+          },
+          {
+            "id": "correct-form",
+            "weight": 0.1,
+            "description": "The form field equals the exact string 五言绝句.",
+            "testPattern": "form is 五言绝句"
+          },
+          {
+            "id": "correct-theme",
+            "weight": 0.08,
+            "description": "The theme field equals the exact string 秋天.",
+            "testPattern": "theme is 秋天"
+          },
+          {
+            "id": "line-count",
+            "weight": 0.14,
+            "description": "The lines field is an array containing exactly 4 elements.",
+            "testPattern": "array of exactly 4 elements"
+          },
+          {
+            "id": "char-count",
+            "weight": 0.22,
+            "description": "Each of the 4 lines contains exactly 5 Chinese characters (CJK Unified Ideographs), with no punctuation counted.",
+            "testPattern": "exactly 5 Chinese characters"
+          },
+          {
+            "id": "title-valid",
+            "weight": 0.1,
+            "description": "The title field is a non-empty string containing at least one Chinese character.",
+            "testPattern": "title is a non-empty string"
+          },
+          {
+            "id": "rhyme-char",
+            "weight": 0.08,
+            "description": "The rhyme_char field is a non-empty string (indicating the shared rhyme sound for lines 1, 2, and 4).",
+            "testPattern": "rhyme_char is a non-empty string"
+          },
+          {
+            "id": "annotation",
+            "weight": 0.1,
+            "description": "The annotation field is an English string with between 10 and 120 words describing the poem's imagery.",
+            "testPattern": "annotation is a non-empty English string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to compose an original five-character quatrain (五言绝句) on the theme of autumn and save it as poem.json.\n\nCriterion 1: Poetic Quality (Weight: 60%)\n1.0: The poem evokes vivid autumn imagery through classical Chinese aesthetics (e.g., falling leaves, cold wind, moonlight, geese), uses elegant language, and avoids clichés. Each line feels cohesive and the poem reads naturally as a unit.\n0.5: The poem references autumn but imagery is generic or forced; language is somewhat stilted.\n0: The poem has no identifiable autumn imagery or is grammatically broken.\n\nCriterion 2: Annotation Clarity (Weight: 40%)\n1.0: The English annotation clearly explains the imagery and emotional tone in 20-60 words, giving a reader unfamiliar with classical Chinese poetry a meaningful interpretation.\n0.5: Annotation exists but is vague, too short, or merely translates word-by-word.\n0: No annotation or annotation is incomprehensible.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/poetry",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

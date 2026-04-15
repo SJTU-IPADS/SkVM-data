@@ -1,0 +1,32 @@
+{
+  "id": "word-docx_task_01",
+  "name": "Produce a Style-Compliant Engineering Report in DOCX",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "A lead engineer handed you `spec.json`, a structured description of a quarterly engineering report. Your job is to turn it into `report.docx` — a Word document disciplined enough to survive round-tripping through Word, LibreOffice, and Google Docs without layout drift. The spec contains a title, overview paragraphs, action items, a metrics table, and an appendix with entries.\n\nProduce `report.docx` at the workspace root with the following OOXML-level properties:\n\n1. **Named styles, not direct formatting.** The title must use the built-in `Title` paragraph style. The four top-level sections (Overview, Action Items, Metrics, Appendix) must each appear as a separate `Heading 1` paragraph. Each appendix entry term (e.g. `MTTR`, `Deploy`) must use `Heading 2`. Body paragraphs (overview, appendix definitions) may use `Normal` or `Body Text`. Do not set direct font-size or bold formatting on paragraphs that should be styled via these names.\n\n2. **Action items as a real numbered list.** Render the action items using Word's numbering system — either the `List Number` built-in paragraph style or explicit `w:numPr` in paragraph properties. Do NOT paste bullet glyphs, Unicode digits, or use plain paragraphs starting with `1.`. A future editor opening this document must see a live numbered list.\n\n3. **Metrics table with explicit column widths.** Create a Word table with exactly 4 columns and 4 rows (1 header row + 3 data rows). Populate it with all headers and data values from `spec.metrics_table`. Every column must have an explicit width set (roughly 1.5 inches each). Do not rely on auto-fit — SKILL.md rule: explicit table widths are safer than auto-fit across viewers.\n\n4. **Appendix in its own section.** Insert a section break before the appendix title so the document has at least 2 sections (two `sectPr` elements in `word/document.xml`). This isolates the appendix so future header/footer changes to the main body don't bleed into it.\n\n5. **No tracked-change metadata.** The generated `word/document.xml` must contain no `w:ins`, `w:del`, or `w:commentRangeStart` elements. This is a clean delivery, not a review document.\n\n6. **Faithful content.** Every string from `spec.json` — title, both overview paragraphs, all three action items, all table cells (headers + data), appendix title, and all appendix terms + definitions — must appear somewhere in the document body in a sensible order.\n\nUse `python-docx` (already installed) or direct OOXML manipulation — your call. Save the result as `report.docx` at the workspace root.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent produced report.docx from spec.json with named-style rules, a real numbered list, a fixed-width metrics table, a section break before the appendix, and no tracked-change metadata.\n\nCriterion 1: Style discipline (Weight: 40%)\n1.0: Title uses 'Title' style; the four top-level sections appear as 'Heading 1' paragraphs; appendix terms use 'Heading 2'; action items are rendered as a real Word numbered list (List Number style or numPr), not as plain paragraphs or bullet glyphs. No direct font-size / bold hacks replace named styles.\n0.5: Most paragraphs are styled but one category (e.g. numbered list, or Heading 2 for appendix terms) is missing.\n0: Document is mostly direct formatting with few or no named styles; numbered list is faked with text.\n\nCriterion 2: Structural compliance (Weight: 40%)\n1.0: Metrics table has exactly 4 columns × 4 rows with every column carrying an explicit width (not auto-fit), cells populated correctly; document has at least 2 sections (appendix lives in its own section); word/document.xml has no w:ins / w:del / w:comment elements.\n0.5: Table has right shape but auto-fit widths, OR only one section, OR content largely correct but at least one structural rule violated.\n0: Missing table, wrong table shape, or fundamental OOXML structural failures.\n\nCriterion 3: Content faithfulness (Weight: 20%)\n1.0: All spec.json content (title, overview paragraphs, action items, table cells, appendix entries) appears in the document body.\n0.5: Most content present but one or two items missing.\n0: Significant content missing or heavily paraphrased.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/word-docx",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "hard"
+}

@@ -1,0 +1,102 @@
+{
+  "id": "builder_task_02",
+  "name": "Create a CMake Build Configuration and Dependency Analysis",
+  "category": "devtools",
+  "gradingType": "hybrid",
+  "prompt": "Create a CMakeLists.txt for a C++ project and a dependency analysis JSON file.\n\nPart 1: Write CMakeLists.txt in the current directory for a project with these requirements:\n- cmake_minimum_required: 3.20\n- project name: DataProcessor, version: 2.1.0, language: CXX\n- C++ standard: 17 (required, not optional)\n- An executable target named 'data_processor' built from: src/main.cpp, src/processor.cpp, src/io_handler.cpp\n- include_directories: include/\n- A compile definition: ENABLE_LOGGING=1\n- Install rule: install the data_processor target to ${CMAKE_INSTALL_PREFIX}/bin\n\nPart 2: Write a file called dependency_graph.json that describes a hypothetical build dependency tree for this project. The JSON must have this exact structure:\n{\n  \"project\": \"DataProcessor\",\n  \"version\": \"2.1.0\",\n  \"build_tool\": \"CMake\",\n  \"cpp_standard\": 17,\n  \"targets\": [\n    {\n      \"name\": \"data_processor\",\n      \"type\": \"executable\",\n      \"sources\": [\"src/main.cpp\", \"src/processor.cpp\", \"src/io_handler.cpp\"],\n      \"include_dirs\": [\"include/\"],\n      \"compile_definitions\": [\"ENABLE_LOGGING=1\"],\n      \"dependencies\": []\n    }\n  ]\n}",
+  "timeoutMs": 180000,
+  "maxSteps": 30,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "builder_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "cmake-exists",
+            "weight": 0.06,
+            "description": "CMakeLists.txt file is present in the working directory.",
+            "testPattern": "CMakeLists.txt > file exists"
+          },
+          {
+            "id": "cmake-minimum",
+            "weight": 0.1,
+            "description": "CMakeLists.txt contains cmake_minimum_required(VERSION 3.20) or higher.",
+            "testPattern": "cmake_minimum_required.*3.20|3\\.20"
+          },
+          {
+            "id": "project-name-version",
+            "weight": 0.1,
+            "description": "CMakeLists.txt declares the project as 'DataProcessor' with version '2.1.0'.",
+            "testPattern": "DataProcessor.*2.1.0|project name"
+          },
+          {
+            "id": "cxx-standard",
+            "weight": 0.1,
+            "description": "CMakeLists.txt sets CMAKE_CXX_STANDARD or CXX_STANDARD to 17.",
+            "testPattern": "CXX standard.*17|sets CXX"
+          },
+          {
+            "id": "add-executable",
+            "weight": 0.12,
+            "description": "CMakeLists.txt calls add_executable for 'data_processor' and lists all 3 source files: src/main.cpp, src/processor.cpp, src/io_handler.cpp.",
+            "testPattern": "add_executable.*3 source|all 3 source"
+          },
+          {
+            "id": "include-dirs",
+            "weight": 0.07,
+            "description": "CMakeLists.txt adds 'include/' as an include directory using include_directories or target_include_directories.",
+            "testPattern": "include_directories.*include|include\\/"
+          },
+          {
+            "id": "compile-definition",
+            "weight": 0.1,
+            "description": "CMakeLists.txt defines the compile definition ENABLE_LOGGING=1.",
+            "testPattern": "ENABLE_LOGGING"
+          },
+          {
+            "id": "install-rule",
+            "weight": 0.08,
+            "description": "CMakeLists.txt contains an install() rule that installs 'data_processor' to the bin directory.",
+            "testPattern": "install rule"
+          },
+          {
+            "id": "json-structure",
+            "weight": 0.1,
+            "description": "dependency_graph.json contains all 5 required top-level fields: project, version, build_tool, cpp_standard, targets.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "json-values",
+            "weight": 0.12,
+            "description": "dependency_graph.json has project='DataProcessor', version='2.1.0', build_tool='CMake', and cpp_standard=17.",
+            "testPattern": "DataProcessor.*2.1.0.*CMake|project is DataProcessor"
+          },
+          {
+            "id": "json-sources",
+            "weight": 0.05,
+            "description": "The first target in dependency_graph.json lists all 3 source files in its sources array.",
+            "testPattern": "sources.*3 source|all 3 source files"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.75
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a CMakeLists.txt configuration and a dependency graph JSON file.\n\nCriterion 1: CMakeLists.txt Correctness (Weight: 60%)\n1.0: All required directives present with correct syntax — cmake_minimum_required, project with version, set(CMAKE_CXX_STANDARD 17), add_executable with all 3 sources, include_directories, add_compile_definitions, install rule.\n0.5: Most directives present but one or two are missing or have wrong values.\n0: File missing or fundamentally incorrect.\n\nCriterion 2: JSON File Accuracy (Weight: 40%)\n1.0: dependency_graph.json matches the exact structure specified, all field values match the project configuration exactly.\n0.5: JSON exists but has minor structural or value deviations.\n0: File missing or structure is wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.25
+    }
+  ],
+  "skill": "../../skills/builder",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

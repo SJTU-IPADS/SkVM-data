@@ -1,0 +1,96 @@
+{
+  "id": "leak-check_task_02",
+  "name": "Wildcard Pattern Matching for Credential Detection",
+  "category": "security",
+  "gradingType": "hybrid",
+  "prompt": "Write a standalone Node.js script called pattern_matcher.js that implements wildcard credential pattern matching as described below, then test it against provided data and write results.\n\nWildcard pattern rules:\n- \"abc*\" — value starts with \"abc\"\n- \"*xyz\" — value ends with \"xyz\"\n- \"abc*xyz\" — value starts with \"abc\" AND ends with \"xyz\"\n- \"abc\" (no asterisk) — value contains \"abc\"\n- \"\" (empty string) — skip this pattern (never matches)\n\nImplement a function matchesPattern(value, pattern) that returns true/false following these rules.\n\nThen test the function against this data and write match_results.json:\n\nTest cases (each with a value, pattern, and expected boolean result):\n1. value: \"discord-BOT-token\", pattern: \"discord*\", expected: true\n2. value: \"discord-BOT-token\", pattern: \"*token\", expected: true\n3. value: \"discord-BOT-token\", pattern: \"discord*token\", expected: true\n4. value: \"discord-BOT-token\", pattern: \"slack*\", expected: false\n5. value: \"my-postmark-k7Qm9x-key\", pattern: \"k7Qm9x\", expected: true\n6. value: \"my-postmark-k7Qm9x-key\", pattern: \"\", expected: false\n7. value: \"sk-abc123\", pattern: \"sk-*\", expected: true\n8. value: \"sk-abc123\", pattern: \"*456\", expected: false\n\nWrite match_results.json as an array of 8 objects each with:\n- \"case_id\": integer 1-8\n- \"value\": string\n- \"pattern\": string\n- \"expected\": boolean\n- \"actual\": boolean (result from your matchesPattern function)\n- \"passed\": boolean (actual === expected)\n\nAlso write match_summary.json with:\n- \"total\": 8\n- \"passed\": integer count where passed is true\n- \"failed\": integer count where passed is false",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "leak-check_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "results-exists",
+            "weight": 0.05,
+            "description": "match_results.json file is present in the workspace.",
+            "testPattern": "match_results.json > file exists"
+          },
+          {
+            "id": "results-count",
+            "weight": 0.08,
+            "description": "match_results.json is an array with exactly 8 entries.",
+            "testPattern": "array of exactly 8 entries"
+          },
+          {
+            "id": "results-fields",
+            "weight": 0.07,
+            "description": "Every entry has case_id, value, pattern, expected, actual, and passed fields.",
+            "testPattern": "case_id, value, pattern"
+          },
+          {
+            "id": "case1-startswith",
+            "weight": 0.12,
+            "description": "Case 1: pattern \"discord*\" matches \"discord-BOT-token\" (starts-with), actual=true and passed=true.",
+            "testPattern": "case 1: starts-with pattern"
+          },
+          {
+            "id": "case3-both",
+            "weight": 0.12,
+            "description": "Case 3: pattern \"discord*token\" matches \"discord-BOT-token\" (starts-and-ends), actual=true and passed=true.",
+            "testPattern": "case 3: starts-and-ends"
+          },
+          {
+            "id": "case4-nomatch",
+            "weight": 0.12,
+            "description": "Case 4: pattern \"slack*\" does not match \"discord-BOT-token\", actual=false and passed=true.",
+            "testPattern": "case 4: starts-with pattern slack"
+          },
+          {
+            "id": "case5-contains",
+            "weight": 0.12,
+            "description": "Case 5: pattern \"k7Qm9x\" (no asterisk, contains-match) matches \"my-postmark-k7Qm9x-key\", actual=true and passed=true.",
+            "testPattern": "case 5: contains pattern"
+          },
+          {
+            "id": "case6-empty",
+            "weight": 0.12,
+            "description": "Case 6: empty-string pattern never matches any value, actual=false and passed=true.",
+            "testPattern": "case 6: empty pattern"
+          },
+          {
+            "id": "all-passed",
+            "weight": 0.15,
+            "description": "All 8 entries have passed=true (actual equals expected for every case).",
+            "testPattern": "all 8 cases have passed"
+          },
+          {
+            "id": "summary-correct",
+            "weight": 0.05,
+            "description": "match_summary.json has total=8, passed=8, and failed=0.",
+            "testPattern": "total is 8, passed is 8"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to implement wildcard pattern matching logic and run it against 8 test cases.\n\nCriterion 1: Implementation Correctness (Weight: 70%)\n1.0: All 8 test cases pass (actual matches expected for every case); the empty-string pattern correctly returns false.\n0.5: 5-7 cases pass; minor edge case missed.\n0: Fewer than 5 cases pass or output files are missing.\n\nCriterion 2: Code Clarity (Weight: 30%)\n1.0: matchesPattern function is clearly structured, handles all four pattern types with distinct logic branches, and is easy to read.\n0.5: Function works but uses a single regex approach or is hard to follow.\n0: Function is absent, hardcoded, or uses external libraries.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/leak-check",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

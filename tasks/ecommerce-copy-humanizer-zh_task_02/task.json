@@ -1,0 +1,84 @@
+{
+  "id": "ecommerce-copy-humanizer-zh_task_02",
+  "name": "Humanize a Live Streaming Script for Skincare Product",
+  "category": "content_writing",
+  "gradingType": "hybrid",
+  "prompt": "You are given a Chinese live streaming script for a skincare product that sounds AI-generated and robotic. Rewrite it to sound natural and convert it into a structured output file.\n\nOriginal script:\n\"各位观众朋友们，欢迎来到我们的直播间。今天为大家带来的是我们精心研制的高科技护肤产品。该产品具有多重功效，能够全面改善肌肤状况，帮助用户实现理想的肌肤目标。经临床验证，效果显著。现在下单享受超值优惠，数量有限，把握机会！\"\n\nPlatform: Douyin live stream. Audience: women aged 20-35. Product: moisturizing face cream. Compliance rule: do NOT use claims like '临床验证' (clinically verified) or '医学证明' (medically proven) as they require regulatory approval.\n\nWrite results to humanized_script.json with exactly this structure:\n{\n  \"ai_tone_issues\": [<array of at least 2 strings>],\n  \"main_rewrite\": \"<string, humanized script in Chinese>\",\n  \"alternative_version\": \"<string, second variant in Chinese>\",\n  \"risk_safe_swaps\": [\n    {\"original\": \"<string>\", \"replacement\": \"<string>\", \"reason\": \"<string>\"}\n  ]\n}\n\nRequirements:\n- risk_safe_swaps must contain at least 2 entries, each with original, replacement, and reason fields.\n- Neither main_rewrite nor alternative_version may contain the phrases '临床验证' or '医学证明'.\n- The main_rewrite must be at least 50 characters long.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "ecommerce-copy-humanizer-zh_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "The file humanized_script.json exists in the working directory.",
+            "testPattern": "humanized_script.json.*exists|file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.08,
+            "description": "humanized_script.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON|parses.*JSON"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.12,
+            "description": "The JSON has all four required top-level fields: ai_tone_issues, main_rewrite, alternative_version, risk_safe_swaps.",
+            "testPattern": "required fields|ai_tone_issues.*main_rewrite"
+          },
+          {
+            "id": "ai-issues-count",
+            "weight": 0.1,
+            "description": "ai_tone_issues is an array with at least 2 entries.",
+            "testPattern": "at least 2.*ai_tone_issues|ai_tone_issues.*2"
+          },
+          {
+            "id": "main-rewrite-length",
+            "weight": 0.15,
+            "description": "main_rewrite is a string of at least 50 characters.",
+            "testPattern": "main_rewrite is at least 50 characters long"
+          },
+          {
+            "id": "no-prohibited-phrases",
+            "weight": 0.2,
+            "description": "Neither main_rewrite nor alternative_version contains the prohibited phrases '临床验证' or '医学证明'.",
+            "testPattern": "prohibited.*phrases|临床验证|no banned"
+          },
+          {
+            "id": "swaps-count",
+            "weight": 0.12,
+            "description": "risk_safe_swaps contains at least 2 entries.",
+            "testPattern": "risk_safe_swaps.*2|at least 2.*swaps"
+          },
+          {
+            "id": "swap-reason-field",
+            "weight": 0.13,
+            "description": "Each risk_safe_swaps entry has 'original', 'replacement', and 'reason' string fields.",
+            "testPattern": "reason.*field|swap.*reason"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent rewrote a Douyin live streaming script for skincare, removing AI tone and compliance-risky phrases.\n\nCriterion 1: Compliance Safety (Weight: 50%)\n1.0: Neither rewrite contains prohibited phrases ('临床验证', '医学证明'), and the risk_safe_swaps clearly identifies and replaces them with safe alternatives.\n0.5: Prohibited phrases are removed but the replacements are generic or not clearly explained.\n0: The rewrites still contain prohibited phrases or risk_safe_swaps does not address them.\n\nCriterion 2: Natural Live-Stream Voice (Weight: 50%)\n1.0: The main rewrite sounds like a real Douyin host speaking — uses conversational Chinese, specific product claims appropriate for a moisturizer, and maintains urgency without sounding robotic.\n0.5: The script is improved but still has stiff phrasing or generic copy.\n0: The rewrite does not sound like live stream content or is not in Chinese.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ecommerce-copy-humanizer-zh",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

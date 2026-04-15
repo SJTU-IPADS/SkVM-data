@@ -1,0 +1,96 @@
+{
+  "id": "internet-failure-analysis-expert_task_02",
+  "name": "Comparative Failure Pattern Analysis",
+  "category": "failure_analysis",
+  "gradingType": "hybrid",
+  "prompt": "You are given descriptions of two fictional security/infrastructure failures. Analyze both and produce a comparative report. Do not fetch any external URLs.\n\nFailure A — Database Credential Leak:\nA startup called DataPipe accidentally committed AWS credentials to a public GitHub repository on 2024-01-10 at 14:00 UTC. A bot scanned the repo and used the credentials to spin up EC2 instances for crypto mining within 3 minutes (14:03 UTC). The team discovered the mining activity via an AWS billing alert at 16:30 UTC, revoked the credentials at 16:45 UTC, and terminated rogue instances by 17:00 UTC. 120,000 dollars of unauthorized AWS charges were incurred.\n\nFailure B — Database Injection Outage:\nA web app called ShopEasy had a SQL injection vulnerability introduced in a deployment on 2024-02-20 at 10:00 UTC. An attacker discovered and exploited it at 11:30 UTC, dumping 50,000 user records. The company's WAF detected anomalous query patterns at 11:45 UTC. The vulnerable endpoint was taken offline at 12:00 UTC. A patch was deployed at 14:00 UTC and the endpoint restored.\n\nProduce a file named comparison_report.json with this exact structure:\n{\n  \"failures\": [\n    {\n      \"id\": \"A\",\n      \"name\": \"DataPipe Credential Leak\",\n      \"type\": \"...\",\n      \"mttd_minutes\": <int>,\n      \"mttr_minutes\": <int>,\n      \"financial_impact\": \"...\",\n      \"data_impact\": \"...\",\n      \"root_cause_category\": \"...\",\n      \"key_vulnerabilities\": [\"...\", \"...\"]\n    },\n    { \"id\": \"B\", ... }\n  ],\n  \"common_patterns\": [\"...\"],\n  \"key_differences\": [\"...\"],\n  \"priority_recommendation\": \"...\"\n}\nmttd = time from incident start to detection. mttr = time from detection to full restoration. Include at least 2 items each in key_vulnerabilities, common_patterns, and key_differences.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "internet-failure-analysis-expert_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "report_exists",
+            "weight": 0.08,
+            "description": "comparison_report.json file is present in the workspace.",
+            "testPattern": "comparison_report.json exists"
+          },
+          {
+            "id": "report_keys",
+            "weight": 0.08,
+            "description": "comparison_report.json contains all four required top-level keys: failures, common_patterns, key_differences, and priority_recommendation.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "failures_count",
+            "weight": 0.1,
+            "description": "The failures array contains exactly 2 entries.",
+            "testPattern": "exactly 2 entries"
+          },
+          {
+            "id": "failure_fields",
+            "weight": 0.1,
+            "description": "Each failure object has the fields id, name, mttd_minutes, mttr_minutes, root_cause_category, and key_vulnerabilities.",
+            "testPattern": "all required fields"
+          },
+          {
+            "id": "failure_ids",
+            "weight": 0.08,
+            "description": "The two failure id values are exactly \"A\" and \"B\".",
+            "testPattern": "failure IDs are A and B"
+          },
+          {
+            "id": "mttd_mttr_valid",
+            "weight": 0.1,
+            "description": "mttd_minutes and mttr_minutes for each failure are positive numeric values greater than zero.",
+            "testPattern": "positive integers"
+          },
+          {
+            "id": "failure_a_mttd",
+            "weight": 0.15,
+            "description": "Failure A mttd_minutes is approximately 150 (within ±10), matching the 14:00–16:30 detection window.",
+            "testPattern": "approximately 150"
+          },
+          {
+            "id": "key_vulnerabilities",
+            "weight": 0.1,
+            "description": "Each failure's key_vulnerabilities array has at least 2 entries.",
+            "testPattern": "key_vulnerabilities has at least 2"
+          },
+          {
+            "id": "common_patterns",
+            "weight": 0.1,
+            "description": "The top-level common_patterns array has at least 2 entries identifying shared patterns across both failures.",
+            "testPattern": "common_patterns has at least 2"
+          },
+          {
+            "id": "key_differences",
+            "weight": 0.11,
+            "description": "The top-level key_differences array has at least 2 entries distinguishing the two failures.",
+            "testPattern": "key_differences has at least 2"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed two fictional failures and produced a comparative JSON report.\n\nCriterion 1: Metric Accuracy (Weight: 50%)\n1.0: Failure A mttd=150 min (14:00 to 16:30), mttr=30 min (16:30 to 17:00); Failure B mttd=75 min (10:00 to 11:15 exploit + WAF at 11:45 = 105 min from deployment, or 15 min from exploit), mttr=75 min (11:45 to 14:00) — reasonable interpretation of the timeline is accepted with ±5 min tolerance.\n0.5: One failure has a metric off by more than 10 minutes.\n0: Multiple metrics are significantly wrong.\n\nCriterion 2: Comparative Insight Quality (Weight: 50%)\n1.0: common_patterns identify shared issues (both involve lack of preventative controls, rapid attacker exploitation), key_differences correctly identify distinct aspects (credential vs code vulnerability, financial vs data impact), priority_recommendation is specific and actionable.\n0.5: Patterns/differences are generic without connecting to specifics of these two incidents.\n0: Comparative sections are superficial or copy the incident descriptions verbatim.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/internet-failure-analysis-expert",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "has-anonymizer_task_02",
+  "name": "Anonymize Text and Produce Mapping, Then Restore Using Mapping",
+  "category": "privacy_security",
+  "gradingType": "hybrid",
+  "prompt": "You need to implement a text anonymization and restoration workflow using regex-based tag replacement. No external models or network calls are allowed.\n\nStep 1: Create a file called original.txt with exactly this content:\n\"Dr. Emily Chen and Dr. Marcus Webb attended the symposium in Boston. Dr. Chen can be reached at emily.chen@hospital.org. Dr. Webb's office number is 617-555-0198. Both doctors work at Northside Medical Center.\"\n\nStep 2: Write a Python script called anonymize.py that:\n- Reads original.txt\n- Finds and replaces using regex:\n  - Person names matching 'Dr. [A-Z][a-z]+ [A-Z][a-z]+' → replace first occurrence with <person_name[1].personal.name>, second unique with <person_name[2].personal.name>, etc.\n  - Email addresses → <email[1].contact.email>\n  - Phone numbers (NXX-NXX-XXXX) → <phone[1].contact.phone>\n  - The institution name 'Northside Medical Center' → <organization[1].institutional.name>\n- Writes the anonymized text to anonymized.txt\n- Writes a mapping JSON to mapping.json structured as:\n  {\"mappings\": [{\"tag\": \"<person_name[1].personal.name>\", \"original\": \"Dr. Emily Chen\"}, ...]}\n\nStep 3: Write a Python script called restore.py that:\n- Reads anonymized.txt and mapping.json\n- Replaces each tag with its original value from the mapping\n- Writes the restored text to restored.txt\n\nStep 4: Run both scripts:\n  python3 anonymize.py\n  python3 restore.py\n\nThe restored.txt must be identical to original.txt.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "has-anonymizer_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "original-exists",
+            "weight": 0.07,
+            "description": "original.txt exists and contains the expected text with Dr. Emily Chen, the email, phone, and institution name.",
+            "testPattern": "original.txt exists"
+          },
+          {
+            "id": "scripts-exist",
+            "weight": 0.08,
+            "description": "Both anonymize.py and restore.py exist in the working directory.",
+            "testPattern": "anonymize.py.*restore.py|scripts exist"
+          },
+          {
+            "id": "anonymized-exists",
+            "weight": 0.08,
+            "description": "The file anonymized.txt exists in the working directory.",
+            "testPattern": "anonymized.txt > file exists"
+          },
+          {
+            "id": "mapping-exists",
+            "weight": 0.08,
+            "description": "The file mapping.json exists in the working directory.",
+            "testPattern": "mapping.json > file exists"
+          },
+          {
+            "id": "mapping-structure",
+            "weight": 0.1,
+            "description": "mapping.json has a top-level 'mappings' array where each entry has 'tag' and 'original' fields.",
+            "testPattern": "mapping has mappings array"
+          },
+          {
+            "id": "mapping-count",
+            "weight": 0.1,
+            "description": "mappings array has at least 4 entries covering names, email (emily.chen@hospital.org), phone (617-555-0198), and org.",
+            "testPattern": "at least 4 mapping entries"
+          },
+          {
+            "id": "no-pii-in-anon",
+            "weight": 0.15,
+            "description": "anonymized.txt does not contain 'emily.chen@hospital.org' or '617-555-0198'.",
+            "testPattern": "anonymized text contains no original PII|Dr\\. Emily Chen not in anonymized"
+          },
+          {
+            "id": "tags-in-anon",
+            "weight": 0.1,
+            "description": "anonymized.txt contains semantic tags matching the pattern <type[N].category.field>.",
+            "testPattern": "anonymized text contains semantic tags"
+          },
+          {
+            "id": "restored-exists",
+            "weight": 0.08,
+            "description": "The file restored.txt exists in the working directory.",
+            "testPattern": "restored.txt > file exists"
+          },
+          {
+            "id": "round-trip",
+            "weight": 0.16,
+            "description": "restored.txt contains Dr. Emily Chen, the email, phone, and Northside Medical Center — matching the original.",
+            "testPattern": "restored.txt matches original"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to implement a text anonymization + restoration pipeline with tag-based mapping.\n\nCriterion 1: Anonymization Correctness (Weight: 50%)\n1.0: anonymized.txt has all 4 entity types replaced with semantic tags, no original PII values remain in the anonymized text, mapping.json covers all replacements.\n0.5: Most entities are replaced but one is missed or the mapping is incomplete.\n0: anonymized.txt is unchanged or tags are malformed.\n\nCriterion 2: Round-trip Fidelity (Weight: 50%)\n1.0: restored.txt is byte-for-byte identical to original.txt.\n0.5: restored.txt is very close to original but has whitespace or punctuation differences.\n0: restored.txt is missing or substantially different from original.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/has-anonymizer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

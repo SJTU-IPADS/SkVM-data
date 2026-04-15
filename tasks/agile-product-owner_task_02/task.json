@@ -1,0 +1,96 @@
+{
+  "id": "agile-product-owner_task_02",
+  "name": "Velocity Tracking and Sprint Retrospective Report",
+  "category": "agile_planning",
+  "gradingType": "hybrid",
+  "prompt": "You are a product owner analyzing sprint performance data. Complete the following and save results to velocity_report.json.\n\nYou have the following 6 sprints of historical data:\n- Sprint 1: committed=22, completed=20\n- Sprint 2: committed=24, completed=23\n- Sprint 3: committed=26, completed=26\n- Sprint 4: committed=28, completed=25\n- Sprint 5: committed=27, completed=27\n- Sprint 6: committed=30, completed=28\n\nCompute and write velocity_report.json with exactly these fields:\n1. sprints — array of 6 objects, each with: sprint_number (1-6), committed (number), completed (number), commitment_reliability (number, completed/committed rounded to 4 decimal places)\n2. average_velocity — mean of all completed values, rounded to 2 decimal places\n3. recommended_commitment — floor of (average_velocity * 0.85), as an integer\n4. velocity_trend — string: 'improving' if last 3 sprints average > first 3 sprints average, 'declining' if lower, 'stable' if equal\n5. best_sprint — sprint_number of the sprint with highest commitment_reliability (if tie, pick the earliest)\n6. worst_sprint — sprint_number of the sprint with lowest commitment_reliability (if tie, pick the earliest)\n\nSave the output as velocity_report.json in the current directory.",
+  "timeoutMs": 180000,
+  "maxSteps": 30,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "agile-product-owner_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "velocity_report.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "top-level-fields",
+            "weight": 0.08,
+            "description": "velocity_report.json has all 6 required top-level fields: sprints, average_velocity, recommended_commitment, velocity_trend, best_sprint, worst_sprint.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "sprints-array",
+            "weight": 0.1,
+            "description": "The sprints array contains exactly 6 entries, each with sprint_number, committed, completed, and commitment_reliability fields.",
+            "testPattern": "sprints array has 6 entries"
+          },
+          {
+            "id": "input-data",
+            "weight": 0.12,
+            "description": "Each sprint's committed and completed values exactly match the given historical input data.",
+            "testPattern": "committed and completed values match"
+          },
+          {
+            "id": "average-velocity",
+            "weight": 0.18,
+            "description": "average_velocity is exactly 24.83 (mean of completed values 20, 23, 26, 25, 27, 28 rounded to 2 decimal places).",
+            "testPattern": "average_velocity is 24"
+          },
+          {
+            "id": "recommended-commitment",
+            "weight": 0.18,
+            "description": "recommended_commitment is exactly 21 (floor of 24.83 × 0.85).",
+            "testPattern": "recommended_commitment is 21"
+          },
+          {
+            "id": "velocity-trend",
+            "weight": 0.12,
+            "description": "velocity_trend is 'improving' because the last 3 sprints average (26.67) exceeds the first 3 sprints average (23).",
+            "testPattern": "velocity_trend"
+          },
+          {
+            "id": "best-sprint",
+            "weight": 0.08,
+            "description": "best_sprint is 3, which is the earliest sprint with 100% commitment reliability.",
+            "testPattern": "best_sprint"
+          },
+          {
+            "id": "worst-sprint",
+            "weight": 0.07,
+            "description": "worst_sprint is 4, which has the lowest commitment reliability (0.8929) of all sprints.",
+            "testPattern": "worst_sprint"
+          },
+          {
+            "id": "reliability-range",
+            "weight": 0.02,
+            "description": "Every sprint's commitment_reliability value is between 0 (exclusive) and 1 (inclusive).",
+            "testPattern": "commitment_reliability values"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.8
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to compute sprint velocity metrics from fixed historical data and save them as a JSON report.\n\nCriterion 1: Computational Accuracy (Weight: 70%)\n1.0: All computed values match the expected results exactly — average_velocity=24.83, recommended_commitment=21, velocity_trend='improving', best_sprint=3 (or 5), worst_sprint=1.\n0.5: Most values are correct but one or two have minor rounding or logic errors.\n0: Results are missing or substantially incorrect.\n\nCriterion 2: JSON Structure (Weight: 30%)\n1.0: All 6 required fields are present with correct types and the sprints array has all required sub-fields.\n0.5: Most fields are present but some are missing or have wrong types.\n0: JSON file is missing or unreadable.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.2
+    }
+  ],
+  "skill": "../../skills/agile-product-owner",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

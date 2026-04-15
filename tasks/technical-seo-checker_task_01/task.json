@@ -1,0 +1,96 @@
+{
+  "id": "technical-seo-checker_task_01",
+  "name": "Audit robots.txt and Produce Crawlability Report",
+  "category": "seo",
+  "gradingType": "hybrid",
+  "prompt": "Analyze the following robots.txt content and produce a crawlability audit report. Save the result as crawlability_audit.json in the current directory.\n\nrobots.txt content to analyze:\n```\nUser-agent: *\nDisallow: /admin/\nDisallow: /checkout/\nDisallow: /api/\nDisallow: /css/\nDisallow: /js/\nAllow: /blog/\n\nUser-agent: Googlebot\nDisallow: /temp/\n\nSitemap: https://example.com/sitemap.xml\n```\n\nThe output file crawlability_audit.json must have exactly these fields:\n- \"domain\": \"example.com\"\n- \"robots_txt\": object with:\n  - \"sitemap_declared\": boolean — true if a Sitemap directive is present\n  - \"sitemap_url\": string — the sitemap URL declared, or null if none\n  - \"disallowed_paths\": array of strings — all paths listed under any Disallow directive\n  - \"assets_blocked\": boolean — true if CSS or JS directories are blocked (they are in this case)\n  - \"issues\": array of strings — list of SEO issues found (at least 2: blocking CSS/JS harms rendering, /api/ block is fine but CSS/JS blocks are problematic)\n- \"crawlability_score\": integer from 0 to 10\n- \"recommendations\": array of at least 2 strings, each a specific improvement action\n\nFor disallowed_paths, include all 5 unique paths from the Disallow directives above (not counting duplicates across user-agents).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "technical-seo-checker_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "crawlability_audit.json exists as a readable file in the working directory.",
+            "testPattern": "crawlability_audit.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "crawlability_audit.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "crawlability_audit.json has all four required top-level keys: domain, robots_txt, crawlability_score, and recommendations.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "domain",
+            "weight": 0.08,
+            "description": "The domain field is exactly the string 'example.com'.",
+            "testPattern": "domain is example.com"
+          },
+          {
+            "id": "sitemap-declared",
+            "weight": 0.1,
+            "description": "robots_txt.sitemap_declared is the boolean true.",
+            "testPattern": "sitemap_declared is true"
+          },
+          {
+            "id": "sitemap-url",
+            "weight": 0.1,
+            "description": "robots_txt.sitemap_url is exactly 'https://example.com/sitemap.xml'.",
+            "testPattern": "sitemap_url matches declared URL"
+          },
+          {
+            "id": "disallowed-paths",
+            "weight": 0.12,
+            "description": "robots_txt.disallowed_paths has at least 5 entries and includes '/css/' and '/js/'.",
+            "testPattern": "disallowed_paths has at least 5 entries"
+          },
+          {
+            "id": "assets-blocked",
+            "weight": 0.14,
+            "description": "robots_txt.assets_blocked is the boolean true (because /css/ and /js/ are blocked).",
+            "testPattern": "assets_blocked is true"
+          },
+          {
+            "id": "issues-present",
+            "weight": 0.1,
+            "description": "robots_txt.issues is an array with at least 2 non-empty string entries describing SEO problems.",
+            "testPattern": "issues array has at least 2 entries"
+          },
+          {
+            "id": "recommendations",
+            "weight": 0.1,
+            "description": "The top-level recommendations array has at least 2 non-empty strings describing actionable improvement steps.",
+            "testPattern": "recommendations has at least 2 entries"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to audit a specific robots.txt and produce a structured JSON crawlability report.\n\nCriterion 1: Issue Identification (Weight: 60%)\n1.0: assets_blocked is correctly true (CSS and JS are blocked), issues array contains at least 2 meaningful problems (blocking CSS/JS impacts rendering; mentions Google can't render pages properly), and recommendations are specific and actionable.\n0.5: assets_blocked is correct but issues are vague or recommendations are generic.\n0: assets_blocked is wrong or issues array is empty.\n\nCriterion 2: Completeness and Accuracy (Weight: 40%)\n1.0: All required fields present; disallowed_paths contains all 5+ paths from the robots.txt; sitemap_declared is true; sitemap_url matches the declared URL; crawlability_score is a reasonable integer (1-7 given the issues).\n0.5: Most fields correct but 1-2 paths missing from disallowed_paths or score is unreasonable.\n0: Major fields missing or most paths are wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/technical-seo-checker",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

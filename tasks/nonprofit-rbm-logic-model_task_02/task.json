@@ -1,0 +1,90 @@
+{
+  "id": "nonprofit-rbm-logic-model_task_02",
+  "name": "Generate Risk Matrix and Compliance Score for a Grant Proposal",
+  "category": "nonprofit",
+  "gradingType": "hybrid",
+  "prompt": "Generate a risk matrix and compliance assessment for the following grant proposal context, saving results to files.\n\nProject: A 12-month urban food security program in Nairobi, Kenya. The program provides weekly food vouchers to 1,000 households below the poverty line, trains 50 community health workers on nutrition, and establishes 5 community vegetable gardens. Budget: $180,000. Donor: European Union. There is no signed MoU with partner organizations yet. GESI analysis has been completed. SDG alignment covers SDG 2 (Zero Hunger) and SDG 3 (Good Health). A sustainability plan is incomplete.\n\nTask 1: Save a risk matrix to risk_matrix.json:\n{\n  \"risks\": [\n    {\n      \"id\": \"R-01\",\n      \"description\": \"<risk description>\",\n      \"category\": \"<Operational|Financial|External|Compliance>\",\n      \"likelihood\": \"<High|Medium|Low>\",\n      \"impact\": \"<High|Medium|Low>\",\n      \"mitigation\": \"<mitigation measure>\",\n      \"owner\": \"<role>\"\n    }\n  ]\n}\nRequirements: at least 5 risks, covering at least 3 different categories, at least one risk with High likelihood.\n\nTask 2: Save a compliance score to compliance_score.json:\n{\n  \"score\": <0-100 integer>,\n  \"checks\": [\n    {\"item\": \"<check name>\", \"status\": \"<pass|conditional|fail>\", \"note\": \"<brief note>\"}\n  ],\n  \"overall_recommendation\": \"<Go|Conditional Go|No-Go>\"\n}\nRequirements: at least 6 checks. Score must reflect the context: MoU missing (fail), GESI done (pass), SDG mapped (pass), sustainability incomplete (conditional). Score must be between 55 and 85.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "nonprofit-rbm-logic-model_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "risk-exists",
+            "weight": 0.07,
+            "description": "risk_matrix.json file is present in the working directory.",
+            "testPattern": "risk_matrix.json.*exists|risk matrix file"
+          },
+          {
+            "id": "compliance-exists",
+            "weight": 0.07,
+            "description": "compliance_score.json file is present in the working directory.",
+            "testPattern": "compliance_score.json.*exists|compliance file"
+          },
+          {
+            "id": "risk-count",
+            "weight": 0.12,
+            "description": "risk_matrix.json risks array contains at least 5 risk entries.",
+            "testPattern": "at least 5 risks|5 risk"
+          },
+          {
+            "id": "risk-fields",
+            "weight": 0.1,
+            "description": "Each risk has non-empty string fields for id, description, category, likelihood, impact, mitigation, and owner.",
+            "testPattern": "risk fields|id.*description.*category"
+          },
+          {
+            "id": "risk-categories",
+            "weight": 0.12,
+            "description": "Risks span at least 3 distinct category values (e.g., Operational, Financial, External, Compliance).",
+            "testPattern": "3 different categories|category diversity"
+          },
+          {
+            "id": "risk-high-likelihood",
+            "weight": 0.1,
+            "description": "At least one risk has likelihood value \"High\".",
+            "testPattern": "High likelihood|at least one.*High"
+          },
+          {
+            "id": "compliance-checks",
+            "weight": 0.12,
+            "description": "compliance_score.json checks array has at least 6 entries each with item, status, and note fields.",
+            "testPattern": "at least 6 checks|6 compliance"
+          },
+          {
+            "id": "compliance-score",
+            "weight": 0.15,
+            "description": "compliance score is an integer between 55 and 85 inclusive.",
+            "testPattern": "score.*55.*85|between 55 and 85"
+          },
+          {
+            "id": "compliance-recommendation",
+            "weight": 0.15,
+            "description": "overall_recommendation is one of the valid values: \"Go\", \"Conditional Go\", or \"No-Go\".",
+            "testPattern": "overall_recommendation|Go|Conditional Go"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a risk matrix and compliance score for a Nairobi food security grant proposal.\n\nCriterion 1: Risk Realism (Weight: 60%)\n1.0: Risks are specific to the project context (food vouchers, community gardens, Nairobi, EU donor) — not generic template risks. Mitigations are actionable and proportional to the likelihood/impact. At least one risk addresses the missing MoU and at least one addresses operational risks for voucher distribution.\n0.5: Risks are relevant but mitigations are vague or some risks are too generic to be useful.\n0: Risks are generic placeholders or mitigations are absent.\n\nCriterion 2: Compliance Assessment Accuracy (Weight: 40%)\n1.0: The checks correctly reflect the stated project context — MoU is flagged as fail, GESI as pass, SDG as pass, sustainability as conditional. The score and recommendation are internally consistent with the check results.\n0.5: Checks are present but one or two statuses contradict the project description.\n0: Checks ignore the provided context or score is outside the 55-85 range.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/nonprofit-rbm-logic-model",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

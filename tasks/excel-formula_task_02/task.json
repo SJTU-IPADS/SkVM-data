@@ -1,0 +1,90 @@
+{
+  "id": "excel-formula_task_02",
+  "name": "Diagnose Formula Errors and Produce a CSV Template",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "You are given 4 broken Excel formulas. Diagnose the error in each and provide a corrected version. Then generate a CSV template for a budget tracker.\n\nBroken formulas to diagnose:\n- E1: =VLOOKUP(A2,Sheet2!B:D,5,FALSE) — looking up in a 3-column range but requesting column 5\n- E2: =SUMIF(B2:B100,\">50\",C2:C90) — sum range is shorter than criteria range\n- E3: =AVERAGE(A1:A10,) — trailing comma\n- E4: =IF(D2=\"Yes\",\"Approved\") — IF with only 2 arguments (missing else branch)\n\nWrite results to formula_diagnosis.json with exactly this structure:\n{\n  \"diagnoses\": [\n    {\n      \"error_id\": \"E1\",\n      \"original_formula\": \"<the broken formula>\",\n      \"error_type\": \"<short string naming the error category>\",\n      \"error_description\": \"<string explaining the problem>\",\n      \"corrected_formula\": \"<fixed formula starting with =>\"\n    },\n    ... (E2, E3, E4)\n  ]\n}\n\nAlso write a CSV file named budget_template.csv with exactly these columns as the header row:\nDate,Category,Description,Amount,Currency,Notes\n\nThe CSV must have the header row plus exactly 3 example data rows with plausible sample values (use comma as delimiter, no extra spaces around commas).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "excel-formula_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "diagnosis-exists",
+            "weight": 0.1,
+            "description": "The file formula_diagnosis.json exists in the working directory.",
+            "testPattern": "formula_diagnosis.json.*exists|diagnosis.*file exists"
+          },
+          {
+            "id": "diagnosis-structure",
+            "weight": 0.1,
+            "description": "formula_diagnosis.json has a top-level 'diagnoses' key whose value is an array.",
+            "testPattern": "diagnoses.*array|has diagnoses"
+          },
+          {
+            "id": "four-entries",
+            "weight": 0.12,
+            "description": "The diagnoses array contains exactly 4 entries.",
+            "testPattern": "exactly 4.*diagnoses|4 entries"
+          },
+          {
+            "id": "error-ids",
+            "weight": 0.1,
+            "description": "The diagnoses array contains entries with error_id values E1, E2, E3, and E4.",
+            "testPattern": "E1.*E4|error_id.*E"
+          },
+          {
+            "id": "required-diag-fields",
+            "weight": 0.1,
+            "description": "Each diagnosis entry has all five required fields: error_id, original_formula, error_type, error_description, corrected_formula.",
+            "testPattern": "error_id.*error_type.*corrected|required.*diagnosis fields"
+          },
+          {
+            "id": "corrected-starts-eq",
+            "weight": 0.13,
+            "description": "Every corrected_formula field starts with '=' indicating a valid Excel formula.",
+            "testPattern": "corrected_formula.*starts.*=|corrected.*="
+          },
+          {
+            "id": "csv-exists",
+            "weight": 0.1,
+            "description": "The file budget_template.csv exists in the working directory.",
+            "testPattern": "budget_template.csv.*exists|csv.*file exists"
+          },
+          {
+            "id": "csv-header",
+            "weight": 0.15,
+            "description": "The first row of budget_template.csv is exactly 'Date,Category,Description,Amount,Currency,Notes'.",
+            "testPattern": "Date.*Category.*Amount|correct.*header"
+          },
+          {
+            "id": "csv-rows",
+            "weight": 0.1,
+            "description": "budget_template.csv has exactly 4 non-empty lines: 1 header row plus 3 data rows each with 6 comma-separated fields.",
+            "testPattern": "3 data rows|exactly 3.*rows"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent diagnosed 4 broken Excel formulas and produced a CSV budget template.\n\nCriterion 1: Diagnosis Accuracy (Weight: 70%)\n1.0: All 4 diagnoses correctly identify the specific error (E1: column index out of range for 3-col lookup; E2: mismatched range sizes in SUMIF; E3: syntax error trailing comma; E4: missing FALSE/else branch) and provide corrected formulas that fix exactly those issues.\n0.5: At least 3 diagnoses are correct with valid fixes; one has a minor error or incomplete explanation.\n0: Fewer than 3 diagnoses correctly identify the problem.\n\nCriterion 2: CSV Template Quality (Weight: 30%)\n1.0: budget_template.csv has the exact 6-column header, 3 data rows with realistic values, consistent comma-separated format, and no extraneous whitespace around delimiters.\n0.5: CSV exists with correct headers but data rows have formatting issues.\n0: CSV is missing or has wrong column names.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/excel-formula",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

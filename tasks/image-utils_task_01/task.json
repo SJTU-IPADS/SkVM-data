@@ -1,0 +1,84 @@
+{
+  "id": "image-utils_task_01",
+  "name": "Generate and Manipulate Images with Pillow",
+  "category": "image_processing",
+  "gradingType": "hybrid",
+  "prompt": "Use Python and the Pillow library to perform a series of image operations and save results as described below. Do not download anything from the internet — create all source images programmatically.\n\nStep 1: Create a source image.\nUsing Pillow, create a new RGB image of size 400x300 filled with solid color (100, 149, 237) (cornflower blue). Save it as source.png.\n\nStep 2: Resize it.\nResize source.png to exactly 200x150 pixels (no aspect ratio preservation). Save the result as resized.png.\n\nStep 3: Crop a region.\nFrom source.png, crop the region left=50, top=50, right=250, bottom=200. Save as cropped.png.\n\nStep 4: Convert to JPEG.\nSave source.png as output.jpg with JPEG quality=85.\n\nStep 5: Add a border.\nTake source.png, add a 10-pixel solid black border (color 0,0,0) on all sides. Save as bordered.png. The final size should be 420x320.\n\nStep 6: Write a summary JSON.\nSave image_info.json with the following structure:\n{\n  \"source\": {\"width\": <int>, \"height\": <int>, \"mode\": \"<str>\"},\n  \"resized\": {\"width\": <int>, \"height\": <int>},\n  \"cropped\": {\"width\": <int>, \"height\": <int>},\n  \"bordered\": {\"width\": <int>, \"height\": <int>}\n}\nPopulate all values by reading the actual saved images.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "image-utils_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "json_exists",
+            "weight": 0.1,
+            "description": "image_info.json file is present in the workspace.",
+            "testPattern": "exists"
+          },
+          {
+            "id": "json_valid",
+            "weight": 0.1,
+            "description": "image_info.json is parseable JSON containing the keys source, resized, cropped, and bordered.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "source_dimensions",
+            "weight": 0.15,
+            "description": "image_info.json reports source image width=400 and height=300.",
+            "testPattern": "source image dimensions"
+          },
+          {
+            "id": "source_mode",
+            "weight": 0.1,
+            "description": "image_info.json reports source image mode as \"RGB\".",
+            "testPattern": "source image mode"
+          },
+          {
+            "id": "resized_dimensions",
+            "weight": 0.15,
+            "description": "image_info.json reports resized image width=200 and height=150.",
+            "testPattern": "resized image dimensions"
+          },
+          {
+            "id": "cropped_dimensions",
+            "weight": 0.15,
+            "description": "image_info.json reports cropped image width=200 and height=150 (crop region right-left=200, bottom-top=150).",
+            "testPattern": "cropped image dimensions"
+          },
+          {
+            "id": "bordered_dimensions",
+            "weight": 0.15,
+            "description": "image_info.json reports bordered image width=420 and height=320 (original 400x300 plus 10px border on each side).",
+            "testPattern": "bordered image dimensions"
+          },
+          {
+            "id": "output_files",
+            "weight": 0.1,
+            "description": "All five output image files exist: source.png, resized.png, cropped.png, bordered.png, and output.jpg.",
+            "testPattern": "output.jpg exists|bordered.png exists|resized.png exists|cropped.png exists|source.png exists"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create and manipulate images using Pillow and save a summary JSON.\n\nCriterion 1: Correct Image Operations (Weight: 70%)\n1.0: All five output images exist with correct pixel dimensions and the JSON accurately reports those dimensions.\n0.5: Most images are correct but one dimension or file is wrong.\n0: Multiple files are missing or dimensions are significantly incorrect.\n\nCriterion 2: Code Clarity (Weight: 30%)\n1.0: Python code is straightforward, uses Pillow correctly, and would be easy to adapt.\n0.5: Code works but is overly convoluted or uses workarounds.\n0: Code is absent or non-functional.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/image-utils",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,97 @@
+{
+  "id": "git-essentials_task_02",
+  "name": "Analyze Git History and Generate Changelog",
+  "category": "development",
+  "gradingType": "hybrid",
+  "prompt": "Initialize a git repository in a directory called `changelog-project`. Set the local git user config (user.name=\"Dev Team\", user.email=\"dev@example.com\"). Create a series of at least 8 commits simulating a realistic development history. Use conventional commit messages for each:\n\n1. \"feat: add user authentication\" — create auth.py\n2. \"fix: resolve login timeout\" — create login_fix.patch or modify a relevant file\n3. \"docs: update API documentation\" — create api_docs.md\n4. \"refactor: simplify database queries\" — create db.py\n5. \"feat: add export feature\" — create export.py\n6. \"fix: handle empty input validation\" — create validation.py\n7. \"chore: update dependencies\" — create requirements.txt\n8. \"feat: add search functionality\" — create search.py\n\nEach commit should create or modify the corresponding file with some meaningful content (at least a few lines).\n\nThen analyze the full git log and produce a `changelog.json` file in the `changelog-project` directory with the following fields:\n\n1. `total_commits` — number of commits in the repository\n2. `features` — array of full commit message strings for commits starting with \"feat:\"\n3. `fixes` — array of full commit message strings for commits starting with \"fix:\"\n4. `other` — array of full commit message strings for all remaining commits\n5. `files_changed` — array of all unique filenames that have been committed at any point\n6. `first_commit_date` — ISO 8601 date string of the earliest commit\n7. `last_commit_date` — ISO 8601 date string of the most recent commit",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "git-essentials_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "repo-exists",
+            "weight": 0.08,
+            "description": "The directory changelog-project/ exists.",
+            "testPattern": "changelog-project directory exists"
+          },
+          {
+            "id": "git-init",
+            "weight": 0.07,
+            "description": "changelog-project contains a .git directory confirming it is a git repository.",
+            "testPattern": "is a git repository"
+          },
+          {
+            "id": "changelog-exists",
+            "weight": 0.05,
+            "description": "The file changelog-project/changelog.json exists.",
+            "testPattern": "changelog.json exists"
+          },
+          {
+            "id": "changelog-valid",
+            "weight": 0.05,
+            "description": "changelog.json is valid JSON with all 7 required fields: total_commits, features, fixes, other, files_changed, first_commit_date, last_commit_date.",
+            "testPattern": "valid JSON with required fields"
+          },
+          {
+            "id": "total-commits",
+            "weight": 0.15,
+            "description": "total_commits is a number of at least 8 matching the actual commit count.",
+            "testPattern": "total_commits is at least 8"
+          },
+          {
+            "id": "features-array",
+            "weight": 0.15,
+            "description": "features array is non-empty and every entry starts with 'feat:'.",
+            "testPattern": "features array"
+          },
+          {
+            "id": "fixes-array",
+            "weight": 0.1,
+            "description": "fixes array is non-empty and every entry starts with 'fix:'.",
+            "testPattern": "fixes array"
+          },
+          {
+            "id": "categories-sum",
+            "weight": 0.15,
+            "description": "features.length + fixes.length + other.length equals total_commits with no commits double-counted or missed.",
+            "testPattern": "categories sum to total_commits"
+          },
+          {
+            "id": "files-changed",
+            "weight": 0.1,
+            "description": "files_changed is a non-empty array listing all unique filenames committed across the repo's history.",
+            "testPattern": "files_changed"
+          },
+          {
+            "id": "dates-valid",
+            "weight": 0.1,
+            "description": "Both first_commit_date and last_commit_date are parseable ISO date strings.",
+            "testPattern": "valid ISO date"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a git repo with conventional commits and analyze the history into a changelog.\n\nCriterion 1: Repository Setup (Weight: 30%)\n1.0: changelog-project exists, is a valid git repo, has at least 8 commits with conventional commit messages, each commit created/modified a relevant file.\n0.5: Repo exists but fewer commits or inconsistent commit messages.\n0: No repo created.\n\nCriterion 2: Changelog Accuracy (Weight: 70%)\n1.0: changelog.json has all 7 fields, total_commits matches actual count, features/fixes/other arrays are correctly categorized with no misclassification, their lengths sum to total_commits, files_changed lists all committed files, dates are valid ISO strings.\n0.5: Changelog exists but has 1-2 categorization errors or missing fields.\n0: Changelog missing or mostly incorrect.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/git-essentials",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "medium"
+}

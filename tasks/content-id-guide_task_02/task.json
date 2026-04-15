@@ -1,0 +1,96 @@
+{
+  "id": "content-id-guide_task_02",
+  "name": "Multi-Platform Claim Inventory from Raw Notice Text",
+  "category": "creator_tools",
+  "gradingType": "hybrid",
+  "prompt": "A creator has received claims on two different platforms and wants to organize them into a structured inventory. They provide the following raw notice texts:\n\nNotice 1: \"Rights Manager Detection — Video ID: VID-20240901-A. Your video 'Product Review Sept 2024' contains a match to music track 'Blue Horizon' owned by SoundHouse LLC. Action: Limited distribution in 12 countries. Match: 0:12-1:05. Contact: rights@soundhouse.example.com. Phone: +1-555-234-5678.\"\n\nNotice 2: \"Content ID Claim — Platform: YouTube. Claimant: MusicCorp. Track: 'Summit Echo'. Segments matched: 2:00-3:10 and 4:20-5:00. Enforcement: Monetization redirect. Creator email: creator@example.net.\"\n\nProduce a file called claim_inventory.json with exactly this structure:\n- \"claims\": array of exactly 2 claim objects, each with keys: \"platform\" (string), \"claim_id\" (string, use the video/claim ID from the notice or 'unknown' if not present), \"claimant_identifier\" (string, redact any email addresses and phone numbers — replace with '[REDACTED]'), \"match_segments\" (array of objects with \"start\" and \"end\" string keys), \"enforcement_action\" (string), \"segment_count\" (number matching the match_segments array length)\n- \"total_claims\" (number): must equal 2\n- \"total_segments\" (number): sum of all segment_count values across all claims\n- \"pii_redacted\" (boolean): true, confirming PII was removed\n\nVerify: The raw notices contain email addresses and a phone number — these MUST be replaced with '[REDACTED]' in the output. Do not include any PII in the JSON.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "content-id-guide_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.07,
+            "description": "claim_inventory.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.07,
+            "description": "claim_inventory.json is valid JSON with all required top-level keys: claims, total_claims, total_segments, and pii_redacted.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "claims-count",
+            "weight": 0.1,
+            "description": "The claims array contains exactly 2 entries, one per input notice.",
+            "testPattern": "exactly 2 entries"
+          },
+          {
+            "id": "total-claims",
+            "weight": 0.08,
+            "description": "The top-level total_claims field equals the integer 2.",
+            "testPattern": "total_claims equals 2"
+          },
+          {
+            "id": "claim-fields",
+            "weight": 0.1,
+            "description": "Each claim object has correctly typed fields: platform (string), claim_id (string), claimant_identifier (string), match_segments (array), enforcement_action (string), and segment_count (number).",
+            "testPattern": "required fields with correct types"
+          },
+          {
+            "id": "segment-count",
+            "weight": 0.12,
+            "description": "For each claim, segment_count equals the actual length of the match_segments array.",
+            "testPattern": "segment_count matches match_segments"
+          },
+          {
+            "id": "total-segments-sum",
+            "weight": 0.1,
+            "description": "The top-level total_segments equals the sum of all individual claim segment_count values.",
+            "testPattern": "sum of all segment counts"
+          },
+          {
+            "id": "total-segments-val",
+            "weight": 0.1,
+            "description": "total_segments equals exactly 3 (1 segment from notice 1, 2 segments from notice 2).",
+            "testPattern": "total_segments is 3"
+          },
+          {
+            "id": "email-redacted",
+            "weight": 0.13,
+            "description": "No email addresses appear anywhere in the JSON output—both rights@soundhouse.example.com and creator@example.net are replaced with [REDACTED].",
+            "testPattern": "email addresses"
+          },
+          {
+            "id": "phone-redacted",
+            "weight": 0.13,
+            "description": "No phone numbers appear anywhere in the JSON output—+1-555-234-5678 from notice 1 is replaced with [REDACTED].",
+            "testPattern": "phone numbers"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to parse two content claim notices, redact PII, and output a structured inventory.\n\nCriterion 1: PII Redaction Quality (Weight: 50%)\n1.0: All email addresses and phone numbers from both notices are fully replaced with '[REDACTED]' in the output. No PII leaks anywhere in the JSON.\n0.5: PII partially redacted — some emails or phone numbers remain exposed.\n0: PII is not redacted at all.\n\nCriterion 2: Accuracy of Parsing (Weight: 50%)\n1.0: Claim details (platforms, segments, enforcement actions) accurately reflect both notices. Segment counts match the arrays.\n0.5: Most details are correct but one or two fields are inaccurate or missing.\n0: Significant parsing errors or missing claims.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/content-id-guide",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "medium"
+}

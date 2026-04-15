@@ -1,0 +1,96 @@
+{
+  "id": "sudoku_task_02",
+  "name": "Generate and Validate a 4x4 Kids Sudoku Puzzle",
+  "category": "puzzle",
+  "gradingType": "hybrid",
+  "prompt": "Create a valid 4x4 Sudoku puzzle (kids format) with its solution and save it as kids_sudoku.json in the current directory.\n\nRules for a valid 4x4 Sudoku:\n- The grid is 4 rows x 4 columns divided into four 2x2 boxes\n- Each row must contain digits 1-4 exactly once\n- Each column must contain digits 1-4 exactly once\n- Each 2x2 box must contain digits 1-4 exactly once\n\nWrite a program (Python or JavaScript) to generate a valid 4x4 Sudoku puzzle with at least 4 empty cells (represented as 0), then solve it.\n\nThe output file kids_sudoku.json must have exactly these fields:\n- \"grid_size\": integer — must be 4\n- \"puzzle\": a 4-element array of 4-element arrays representing the puzzle (0 = empty)\n- \"solution\": a 4-element array of 4-element arrays representing the complete solution (no zeros)\n- \"empty_cells\": integer — count of zero cells in puzzle, must be at least 4\n- \"difficulty\": string — must be \"kids4\"\n- \"valid\": boolean — must be true\n- \"validation\": object with:\n  - \"rows_valid\": boolean\n  - \"cols_valid\": boolean\n  - \"boxes_valid\": boolean\n\nThe solution must be a valid completion of the puzzle — all zero cells filled with correct digits. All three validation booleans must be true.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "sudoku_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "kids_sudoku.json exists as a readable file in the working directory.",
+            "testPattern": "kids_sudoku.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "kids_sudoku.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "kids_sudoku.json has all seven required top-level keys: grid_size, puzzle, solution, empty_cells, difficulty, valid, and validation.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "grid-size",
+            "weight": 0.1,
+            "description": "The grid_size field is exactly the integer 4.",
+            "testPattern": "grid_size is 4"
+          },
+          {
+            "id": "puzzle-shape",
+            "weight": 0.1,
+            "description": "The puzzle field is a 4-element array where each element is a 4-element array.",
+            "testPattern": "puzzle is a 4x4 array"
+          },
+          {
+            "id": "solution-shape",
+            "weight": 0.1,
+            "description": "The solution field is a 4-element array where each element is a 4-element array.",
+            "testPattern": "solution is a 4x4 array"
+          },
+          {
+            "id": "empty-cells",
+            "weight": 0.12,
+            "description": "empty_cells is at least 4 and matches the actual count of zeros in the puzzle array.",
+            "testPattern": "empty_cells is at least 4"
+          },
+          {
+            "id": "no-zeros-solution",
+            "weight": 0.12,
+            "description": "No cell in the solution array is 0; all 16 cells contain integers between 1 and 4.",
+            "testPattern": "solution has no zeros"
+          },
+          {
+            "id": "valid-true",
+            "weight": 0.1,
+            "description": "The valid field is the boolean value true.",
+            "testPattern": "valid is true"
+          },
+          {
+            "id": "validation-flags",
+            "weight": 0.1,
+            "description": "validation.rows_valid, validation.cols_valid, and validation.boxes_valid are all true.",
+            "testPattern": "all validation flags are true"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to programmatically generate and validate a 4x4 kids Sudoku puzzle.\n\nCriterion 1: Puzzle Validity (Weight: 60%)\n1.0: The solution is a genuinely valid 4x4 Sudoku (each row, column, and 2x2 box has 1-4 once), the puzzle is a proper subset with at least 4 blanks, and the solution correctly fills those blanks.\n0.5: Solution is mostly valid but has one constraint violation, or empty_cells count is wrong.\n0: Solution is invalid or puzzle/solution mismatch.\n\nCriterion 2: Implementation Quality (Weight: 40%)\n1.0: Agent wrote a clear program that generates and solves the puzzle rather than hardcoding a fixed answer; code is readable.\n0.5: A valid answer is produced but it appears to be hardcoded rather than algorithmically generated.\n0: No program written or output is structurally wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/sudoku",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

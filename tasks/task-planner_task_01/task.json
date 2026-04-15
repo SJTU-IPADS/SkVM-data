@@ -1,0 +1,96 @@
+{
+  "id": "task-planner_task_01",
+  "name": "Create and Export a Task List with Priorities",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "Create a task list by writing a JSON file named tasks.json in the current directory. The file represents a task planner data store.\n\nThe tasks.json file must be a valid JSON object with a top-level \"tasks\" array. Add exactly these 5 tasks to the array:\n\n1. Name: \"Buy groceries\", priority: \"high\", due_date: \"2026-04-15\", status: \"pending\", tags: [\"errands\", \"weekly\"]\n2. Name: \"Write project report\", priority: \"high\", due_date: \"2026-04-12\", status: \"pending\", tags: [\"work\", \"writing\"]\n3. Name: \"Schedule dentist appointment\", priority: \"medium\", due_date: \"2026-04-20\", status: \"pending\", tags: [\"health\"]\n4. Name: \"Read 30 pages of book\", priority: \"low\", due_date: \"2026-04-30\", status: \"pending\", tags: [\"personal\", \"reading\"]\n5. Name: \"Pay electricity bill\", priority: \"high\", due_date: \"2026-04-13\", status: \"completed\", tags: [\"finance\"]\n\nEach task object must have exactly these fields: \"id\" (integer, unique, starting at 1), \"name\" (string), \"priority\" (string: \"high\", \"medium\", or \"low\"), \"due_date\" (string in YYYY-MM-DD format), \"status\" (string: \"pending\" or \"completed\"), \"tags\" (array of strings).\n\nAlso create a summary file named tasks_summary.json with:\n- \"total\": 5\n- \"pending\": 4\n- \"completed\": 1\n- \"high_priority\": 3\n- \"overdue\": count of tasks with due_date before 2026-04-11 and status \"pending\" (should be 0 given the dates above)",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "task-planner_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "tasks-exists",
+            "weight": 0.08,
+            "description": "tasks.json exists as a readable file in the working directory.",
+            "testPattern": "tasks.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "tasks.json parses as valid JSON and has a top-level tasks array.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "tasks-count",
+            "weight": 0.1,
+            "description": "The tasks array contains exactly 5 task objects.",
+            "testPattern": "tasks array has exactly 5 entries"
+          },
+          {
+            "id": "task-fields",
+            "weight": 0.12,
+            "description": "Every task has id (number), name (string), priority (string), due_date (string), status (string), and tags (array).",
+            "testPattern": "each task has required fields"
+          },
+          {
+            "id": "priorities-valid",
+            "weight": 0.1,
+            "description": "Every task's priority value is exactly 'high', 'medium', or 'low'.",
+            "testPattern": "priority values are high, medium, or low"
+          },
+          {
+            "id": "status-values",
+            "weight": 0.1,
+            "description": "Every task's status value is exactly 'pending' or 'completed'.",
+            "testPattern": "status values are pending or completed"
+          },
+          {
+            "id": "specific-task",
+            "weight": 0.12,
+            "description": "The 'Pay electricity bill' task has status 'completed', priority 'high', and due_date '2026-04-13'.",
+            "testPattern": "Pay electricity bill is completed"
+          },
+          {
+            "id": "high-priority",
+            "weight": 0.1,
+            "description": "Exactly 3 tasks have priority set to 'high'.",
+            "testPattern": "3 tasks have high priority"
+          },
+          {
+            "id": "summary-exists",
+            "weight": 0.08,
+            "description": "tasks_summary.json exists as a readable file in the working directory.",
+            "testPattern": "tasks_summary.json > file exists"
+          },
+          {
+            "id": "summary-counts",
+            "weight": 0.12,
+            "description": "tasks_summary.json has total=5, pending=4, completed=1, high_priority=3, and overdue=0.",
+            "testPattern": "summary counts are correct"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create two structured JSON files representing a task planner data store and summary.\n\nCriterion 1: Data Completeness (Weight: 60%)\n1.0: Both files exist with all 5 tasks correctly represented — names, priorities, due dates, statuses, and tags all match the specification exactly.\n0.5: Tasks present but one or two field values differ from specification.\n0: Tasks file missing or fewer than 4 tasks.\n\nCriterion 2: Summary Accuracy (Weight: 40%)\n1.0: tasks_summary.json has all 5 required fields with correct counts (total=5, pending=4, completed=1, high_priority=3, overdue=0).\n0.5: Summary exists but one count is wrong.\n0: Summary file missing or all counts wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/task-planner",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

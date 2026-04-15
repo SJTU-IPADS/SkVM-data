@@ -1,0 +1,84 @@
+{
+  "id": "marketing-psychology_task_01",
+  "name": "Pricing Page Psychology Audit",
+  "category": "marketing",
+  "gradingType": "hybrid",
+  "prompt": "A SaaS product has three pricing tiers: Basic at $50/month, Pro at $51/month, and Enterprise at $200/month. The page shows all three side-by-side with equal visual weight and no recommended tier badge. Conversion is low.\n\nPerform a pricing psychology audit and save your findings to pricing_audit.json with this exact structure:\n{\n  \"issues\": [\n    { \"principle\": \"<principle name>\", \"problem\": \"<what is wrong>\", \"fix\": \"<concrete recommendation>\" }\n  ],\n  \"recommended_prices\": { \"basic\": <number>, \"pro\": <number>, \"enterprise\": <number> },\n  \"recommended_tier\": \"<basic|pro|enterprise>\",\n  \"decoy_explanation\": \"<one sentence explaining which tier is the decoy and why>\"\n}\n\nRequirements:\n- Identify at least 4 distinct psychological principles being violated (one issue per principle).\n- In recommended_prices, apply charm pricing to all three tiers (each price must end in 9 and be lower than the original by at most $2).\n- Set recommended_tier to the tier that should be highlighted as the default choice.\n- In decoy_explanation, name the decoy tier and explain its role in the Decoy Effect.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "marketing-psychology_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "pricing_audit.json file is present in the workspace.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "pricing_audit.json is parseable JSON without throwing.",
+            "testPattern": "valid JSON|parseable"
+          },
+          {
+            "id": "issues-count",
+            "weight": 0.15,
+            "description": "pricing_audit.json issues array contains at least 4 distinct psychological principle violations.",
+            "testPattern": "at least 4 issues"
+          },
+          {
+            "id": "issue-fields",
+            "weight": 0.12,
+            "description": "Every issue object has non-empty principle, problem, and fix string fields.",
+            "testPattern": "issue fields|principle.*problem.*fix"
+          },
+          {
+            "id": "charm-pricing",
+            "weight": 0.2,
+            "description": "All three recommended_prices values (basic, pro, enterprise) end in the digit 9 (charm pricing).",
+            "testPattern": "charm pricing|ends in 9"
+          },
+          {
+            "id": "recommended-tier",
+            "weight": 0.12,
+            "description": "recommended_tier is one of basic, pro, or enterprise.",
+            "testPattern": "recommended_tier"
+          },
+          {
+            "id": "decoy-explanation",
+            "weight": 0.13,
+            "description": "decoy_explanation is a non-empty string of more than 10 characters naming the decoy tier and its role.",
+            "testPattern": "decoy_explanation"
+          },
+          {
+            "id": "price-reduction",
+            "weight": 0.12,
+            "description": "Each recommended price is at most $2 below its original: basic ∈ [48,50], pro ∈ [49,51], enterprise ∈ [198,200].",
+            "testPattern": "price.*at most 2|price reduction"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent performed a pricing psychology audit on a poorly configured SaaS pricing page.\n\nCriterion 1: Principle Accuracy (Weight: 60%)\n1.0: Each identified principle is correctly applied — the problem description and fix are coherent with the named principle (e.g., Decoy Effect fix involves restructuring tier spacing, Anchoring fix involves leading with Enterprise price, Charm Pricing fix applies left-digit effect).\n0.5: Most principles are correctly applied but one or two descriptions are vague or partially misaligned.\n0: Principles are named without meaningful explanation or fixes are generic platitudes.\n\nCriterion 2: Actionability (Weight: 40%)\n1.0: Every fix is specific, implementable, and directly addresses the named problem without ambiguity.\n0.5: Fixes are generally sensible but some remain abstract (e.g., 'add social proof' without specifying what kind).\n0: Fixes are too vague to act on or are contradictory.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/marketing-psychology",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

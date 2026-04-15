@@ -1,0 +1,31 @@
+{
+  "id": "excel-xlsx_task_01",
+  "name": "Inventory Consolidation: Active Items, Category Totals, and Type-Safe Codes",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "An operations team handed you `inventory.xlsx`, a workbook with a single `StockItems` sheet containing 70 product records. Each row has: `ItemCode` (a 5-character product code that always starts with a zero, e.g. `01234`), `Category` (one of Electronics, Apparel, Furniture, Outdoors), `UnitCost` (decimal), `Quantity` (integer), and `Status` (Active or Discontinued). They need a consolidated inventory report so procurement can review stock levels by category.\n\nProduce two artifacts at the workspace root:\n\n**1. `report.xlsx`** — a workbook with exactly two sheets:\n\n- **`ActiveItems`** sheet: one row per Active item (Discontinued items must be excluded). Columns in this exact order: `ItemCode`, `Category`, `UnitCost`, `Quantity`, `InventoryValue`. The `InventoryValue` column must contain Excel formulas that multiply the UnitCost and Quantity cells in the same row (e.g. `=C2*D2`), not hardcoded numbers. The `ItemCode` values must be stored as text strings preserving any leading zeros — reading the column with openpyxl should return `'01234'`, not the integer `1234`.\n\n- **`CategoryTotals`** sheet: one row per category in any order. Columns: `Category`, `ItemCount`, `TotalInventoryCost`, `AvgUnitCost`. `ItemCount` must be a plain integer literal (count of Active items in that category). `TotalInventoryCost` and `AvgUnitCost` must be Excel formulas referencing the `ActiveItems` sheet data — for example `=SUMIF(ActiveItems!B:B,A2,ActiveItems!E:E)` or `=AVERAGEIF(ActiveItems!B:B,A2,ActiveItems!C:C)`. Do not write computed Python values into these cells.\n\n**2. `inventory.json`** — a JSON file at the workspace root with these top-level keys:\n- `total_active_items` (integer): count of Active items across all categories\n- `total_inventory_cost` (number): sum of `UnitCost × Quantity` for all Active items, rounded to 2 decimal places\n- `by_category` (object): one key per category, each mapping to `{ \"item_count\": <int>, \"total_cost\": <number> }` where `total_cost` is the sum of `UnitCost × Quantity` for Active items in that category, rounded to 2 decimal places\n\n**Invariant**: the sum of `item_count` across all categories in `by_category` must equal `total_active_items`, and the sum of `ItemCount` values in `CategoryTotals` must also equal `total_active_items`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent read inventory.xlsx (70 product rows) and produced report.xlsx (two sheets: ActiveItems + CategoryTotals) and inventory.json. The prompt required: Discontinued items excluded, ItemCodes stored as text with leading zeros preserved, InventoryValue as formula in ActiveItems, TotalInventoryCost/AvgUnitCost as formulas in CategoryTotals, and inventory.json with exact numeric summaries.\n\nCriterion 1: Artifact correctness (Weight: 40%)\n1.0: Both report.xlsx and inventory.json exist and are parseable. report.xlsx has both required sheets with the correct column headers. inventory.json has all three required top-level keys with the right structure (total_active_items integer, total_inventory_cost number, by_category object with per-category objects).\n0.5: Files exist but one sheet is missing, a header is misspelled, or inventory.json has a wrong structure.\n0: Either artifact is missing or completely wrong.\n\nCriterion 2: Spec adherence — formulas and type safety (Weight: 40%)\n1.0: InventoryValue cells in ActiveItems contain Excel formulas (=C*D pattern). TotalInventoryCost and AvgUnitCost in CategoryTotals contain Excel formulas referencing ActiveItems. ItemCode values in ActiveItems are text strings with leading zeros intact (e.g. '01234', not 1234). Discontinued items are absent from ActiveItems.\n0.5: Most requirements met but one is wrong — e.g. InventoryValue is hardcoded, or ItemCode values are integers.\n0: Formulas replaced with literals throughout, or ItemCode type not handled.\n\nCriterion 3: Numeric accuracy (Weight: 20%)\n1.0: inventory.json values are internally consistent: total_active_items == sum of by_category item_count values, and total_inventory_cost is close to the sum of by_category total_cost values. CategoryTotals.ItemCount matches by_category counts.\n0.5: Some numeric inconsistency or one category missing.\n0: Numbers are clearly wrong or the model did not filter to Active items.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/excel-xlsx",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

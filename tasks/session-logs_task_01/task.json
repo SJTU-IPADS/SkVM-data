@@ -1,0 +1,97 @@
+{
+  "id": "session-logs_task_01",
+  "name": "Generate and Analyze Session Logs",
+  "category": "agent_behavior",
+  "gradingType": "hybrid",
+  "prompt": "I have some conversation session data that I need analyzed. First create a sample JSONL session file `session_data.jsonl` with at least 30 messages simulating a realistic conversation. Each line should be a JSON object with: type (\"message\"), timestamp (ISO 8601, spanning a 2-hour window), message.role (\"user\"|\"assistant\"|\"toolResult\"), message.content (array with objects having type:\"text\" and text field), and for assistant messages include message.usage.cost.total (random number between 0.001 and 0.05). Then analyze this file and produce `session_report.json` with:\n1. total_messages (number)\n2. user_messages (number)\n3. assistant_messages (number)\n4. duration_minutes (number - time span from first to last message)\n5. total_cost (number - sum of all cost values)\n6. avg_cost_per_response (number)\n7. first_timestamp (string)\n8. last_timestamp (string)",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "session-logs_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "jsonl-exists",
+            "weight": 0.1,
+            "description": "session_data.jsonl exists as a readable file in the working directory.",
+            "testPattern": "session_data.jsonl > file exists"
+          },
+          {
+            "id": "jsonl-lines",
+            "weight": 0.1,
+            "description": "session_data.jsonl has at least 30 non-empty lines.",
+            "testPattern": "at least 30 lines"
+          },
+          {
+            "id": "jsonl-valid",
+            "weight": 0.1,
+            "description": "Every line in session_data.jsonl parses as valid JSON without throwing.",
+            "testPattern": "each line is valid JSON"
+          },
+          {
+            "id": "jsonl-fields",
+            "weight": 0.1,
+            "description": "Every message object has type, timestamp, and message fields, with message.role being 'user', 'assistant', or 'toolResult'.",
+            "testPattern": "required fields"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.05,
+            "description": "session_report.json exists as a readable file in the working directory.",
+            "testPattern": "session_report.json > file exists"
+          },
+          {
+            "id": "report-fields",
+            "weight": 0.1,
+            "description": "session_report.json has all 8 required fields: total_messages, user_messages, assistant_messages, duration_minutes, total_cost, avg_cost_per_response, first_timestamp, and last_timestamp.",
+            "testPattern": "all required fields"
+          },
+          {
+            "id": "report-counts",
+            "weight": 0.15,
+            "description": "total_messages is at least 30, user_messages and assistant_messages are both positive, and their sum does not exceed total_messages.",
+            "testPattern": "message counts are consistent"
+          },
+          {
+            "id": "report-duration",
+            "weight": 0.1,
+            "description": "duration_minutes is a positive number greater than 0.",
+            "testPattern": "duration_minutes is positive"
+          },
+          {
+            "id": "report-cost",
+            "weight": 0.1,
+            "description": "total_cost and avg_cost_per_response are both positive numbers greater than 0.",
+            "testPattern": "cost values are positive and consistent"
+          },
+          {
+            "id": "report-timestamps",
+            "weight": 0.1,
+            "description": "first_timestamp and last_timestamp are valid ISO 8601 date strings, with first_timestamp no later than last_timestamp.",
+            "testPattern": "timestamps are valid ISO"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a JSONL session log file and produced a JSON analysis report.\n\nCriterion 1: JSONL Quality (Weight: 40%)\n1.0: JSONL file exists with 30+ lines, each line is valid JSON with type, timestamp, message.role, message.content fields. Timestamps span a realistic window. Content is varied and realistic.\n0.5: File exists with most lines valid but some formatting issues or missing fields.\n0: File missing or mostly invalid.\n\nCriterion 2: Report Accuracy (Weight: 60%)\n1.0: All 8 fields present and mathematically consistent. total_messages matches line count. user + assistant <= total. duration_minutes matches timestamp range. total_cost and avg_cost are consistent.\n0.5: Most fields present but 1-2 calculation errors.\n0: Report missing or major errors.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/session-logs",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "easy"
+}

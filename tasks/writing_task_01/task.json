@@ -1,0 +1,96 @@
+{
+  "id": "writing_task_01",
+  "name": "Write a Professional Email and Blog Post Introduction",
+  "category": "writing",
+  "gradingType": "hybrid",
+  "prompt": "Complete two writing tasks and save the results to files.\n\nTask A: Write a professional email and save it to email.txt.\n\nContext: You are the engineering lead at a software company. Write an email to the product team announcing that the v2.0 release has been delayed by two weeks — from March 15 to March 29 — due to a critical security vulnerability discovered during QA testing. The email must:\n- Have a subject line on the first line in the format: Subject: <subject>\n- Be 100-150 words in the body\n- Clearly state the new date (March 29)\n- Mention the reason (security vulnerability found in QA)\n- End with a clear next step (a team sync meeting scheduled for Monday at 10am)\n- Use active voice throughout\n- Be professional but warm in tone\n\nTask B: Write a blog post introduction and save it to blog_intro.txt.\n\nTopic: \"Why Remote Teams Outperform Office Teams at Deep Work\"\nRequirements:\n- 80-120 words\n- Open with a hook (a surprising fact, bold claim, or question)\n- Include at least one specific statistic or data point (you may cite a real or plausible source)\n- End with a clear thesis sentence stating what the post will argue\n- No subheadings — flowing prose only",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "writing_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "email-exists",
+            "weight": 0.08,
+            "description": "email.txt exists in the working directory.",
+            "testPattern": "email.txt > file exists"
+          },
+          {
+            "id": "blog-exists",
+            "weight": 0.08,
+            "description": "blog_intro.txt exists in the working directory.",
+            "testPattern": "blog_intro.txt > file exists"
+          },
+          {
+            "id": "email-subject",
+            "weight": 0.12,
+            "description": "email.txt starts with a Subject: line as the first non-empty line.",
+            "testPattern": "email has Subject: line"
+          },
+          {
+            "id": "email-date",
+            "weight": 0.12,
+            "description": "email.txt mentions the new release date \"March 29\" as the rescheduled date.",
+            "testPattern": "email contains March 29"
+          },
+          {
+            "id": "email-reason",
+            "weight": 0.1,
+            "description": "email.txt mentions \"security\" or \"vulnerability\" as the reason for the delay.",
+            "testPattern": "email mentions security|vulnerability"
+          },
+          {
+            "id": "email-word-count",
+            "weight": 0.1,
+            "description": "email.txt body (excluding Subject line) is between 80 and 200 words.",
+            "testPattern": "email body is 100-150 words"
+          },
+          {
+            "id": "blog-word-count",
+            "weight": 0.12,
+            "description": "blog_intro.txt word count is between 60 and 150 words.",
+            "testPattern": "blog is within 80-120 words"
+          },
+          {
+            "id": "blog-no-subheads",
+            "weight": 0.1,
+            "description": "blog_intro.txt contains no ## markdown subheadings (prose only, no section headers).",
+            "testPattern": "blog has no ## subheadings"
+          },
+          {
+            "id": "email-next-step",
+            "weight": 0.1,
+            "description": "email.txt mentions the next step: Monday, 10am, or sync meeting reference.",
+            "testPattern": "email mentions Monday|10am|sync"
+          },
+          {
+            "id": "blog-not-empty",
+            "weight": 0.08,
+            "description": "blog_intro.txt is non-empty prose with at least 50 words and mentions remote, office, or team.",
+            "testPattern": "blog intro is non-empty prose with at least 50 words|blog mentions remote work or office in context"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent wrote a professional email and a blog post introduction.\n\nCriterion 1: Email Quality (Weight: 50%)\n1.0: Email has a clear subject line, states March 29 as the new date, explains the security vulnerability reason, ends with the Monday 10am sync call, and is professional yet warm. Active voice used throughout.\n0.5: Email covers the key facts but tone is stiff, passive voice appears, or the next step is vague.\n0: Email is missing, wrong date, or missing the key reason.\n\nCriterion 2: Blog Introduction Quality (Weight: 50%)\n1.0: Opening hook is engaging and surprising, includes a specific statistic, thesis sentence clearly states the argument. Prose flows naturally without subheadings. Word count is within 80-120.\n0.5: Introduction is present but hook is weak, statistic is generic, or thesis is unclear.\n0: Introduction is missing or does not follow the structure.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/writing",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

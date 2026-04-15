@@ -1,0 +1,108 @@
+{
+  "id": "keyword-research_task_01",
+  "name": "Keyword Research Report for a SaaS Project Management Tool",
+  "category": "seo",
+  "gradingType": "hybrid",
+  "prompt": "Conduct a keyword research analysis for a SaaS project management tool targeting small businesses (1-50 employees) in the US. The domain is new (low authority). No SEO tool API is available — use your knowledge to estimate metrics.\n\nProduce two output files:\n\n1. keywords.json — A JSON array of at least 15 keyword objects. Each object must have:\n   - \"keyword\": string\n   - \"intent\": one of \"informational\", \"navigational\", \"commercial\", \"transactional\"\n   - \"difficulty\": integer 1-100\n   - \"volume_estimate\": string, one of \"low\" (under 1K/mo), \"medium\" (1K-10K/mo), \"high\" (over 10K/mo)\n   - \"opportunity_score\": number 0.0-10.0 (higher = better ROI for a new low-authority site)\n   - \"geo_potential\": boolean (true if likely to trigger AI answer boxes)\n\n2. keyword_report.json — A summary object with:\n   - \"topic\": \"project management software for small businesses\"\n   - \"total_keywords\": integer matching the array length in keywords.json\n   - \"quick_wins\": array of keyword strings with difficulty <= 30 and intent commercial or transactional\n   - \"top_geo_keywords\": array of keyword strings where geo_potential is true\n   - \"intent_breakdown\": object with counts for each intent type (informational, navigational, commercial, transactional)\n   - \"recommendation\": string (1-2 sentences summarizing the strategy)\n\nWrite both files to the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "keyword-research_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "kw-exists",
+            "weight": 0.05,
+            "description": "keywords.json file is present in the workspace.",
+            "testPattern": "keywords.json > file exists"
+          },
+          {
+            "id": "kw-count",
+            "weight": 0.1,
+            "description": "keywords.json is a JSON array with at least 15 keyword entries.",
+            "testPattern": "at least 15 entries"
+          },
+          {
+            "id": "kw-fields",
+            "weight": 0.1,
+            "description": "Every keyword entry has the fields keyword, intent, difficulty, volume_estimate, opportunity_score, and geo_potential.",
+            "testPattern": "each entry has required fields"
+          },
+          {
+            "id": "kw-intent",
+            "weight": 0.1,
+            "description": "Every keyword's intent is one of: informational, navigational, commercial, or transactional.",
+            "testPattern": "intent values are valid"
+          },
+          {
+            "id": "kw-difficulty",
+            "weight": 0.1,
+            "description": "Every keyword's difficulty is an integer between 1 and 100 inclusive.",
+            "testPattern": "difficulty is an integer between"
+          },
+          {
+            "id": "kw-volume",
+            "weight": 0.08,
+            "description": "Every keyword's volume_estimate is one of: low, medium, or high.",
+            "testPattern": "volume_estimate is one of"
+          },
+          {
+            "id": "kw-opportunity",
+            "weight": 0.07,
+            "description": "Every keyword's opportunity_score is a number between 0.0 and 10.0 inclusive.",
+            "testPattern": "opportunity_score is a number"
+          },
+          {
+            "id": "kw-geo",
+            "weight": 0.05,
+            "description": "Every keyword's geo_potential field is a boolean value.",
+            "testPattern": "geo_potential is boolean"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.05,
+            "description": "keyword_report.json file is present in the workspace.",
+            "testPattern": "keyword_report.json > file exists"
+          },
+          {
+            "id": "report-fields",
+            "weight": 0.1,
+            "description": "keyword_report.json contains the keys topic, total_keywords, quick_wins, top_geo_keywords, intent_breakdown, and recommendation.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "report-total",
+            "weight": 0.1,
+            "description": "keyword_report.json total_keywords equals the actual length of the keywords.json array.",
+            "testPattern": "total_keywords matches"
+          },
+          {
+            "id": "report-intent-breakdown",
+            "weight": 0.1,
+            "description": "keyword_report.json intent_breakdown contains all four keys: informational, navigational, commercial, and transactional.",
+            "testPattern": "intent_breakdown has all four"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a keyword research report with intent classification, difficulty scores, and opportunity analysis for a new SaaS project management tool.\n\nCriterion 1: Keyword Quality and Relevance (Weight: 60%)\n1.0: Keywords are genuinely relevant to project management for small businesses; difficulty scores reflect realistic competition (well-known head terms score 50+, long-tail terms score under 40); quick_wins are plausibly low-difficulty.\n0.5: Keywords are broadly relevant but difficulty scores are uniform or unrealistic.\n0: Keywords are off-topic or all fields contain placeholder/identical values.\n\nCriterion 2: Strategy Recommendation (Weight: 40%)\n1.0: The recommendation field gives a concrete, actionable strategy tailored to a new low-authority domain — e.g., focus on long-tail informational and low-difficulty commercial terms first.\n0.5: Recommendation is generic but not wrong.\n0: Recommendation is missing, empty, or irrelevant.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/keyword-research",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

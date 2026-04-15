@@ -1,0 +1,108 @@
+{
+  "id": "project-planner_task_02",
+  "name": "Write a Bug Report and Feature Request for a CLI Tool",
+  "category": "project_planning",
+  "gradingType": "hybrid",
+  "prompt": "Create two GitHub issue drafts (as local files) for a CLI tool called \"batchconv\" — a command-line file format converter.\n\nBug Report: Users report that when converting PNG files larger than 10MB, the tool crashes with an unhandled exception: `MemoryError: unable to allocate buffer`. The crash only happens when using the --quality=100 flag. Other quality settings work fine.\n\nCreate bug_report.json with this exact structure:\n{\n  \"type\": \"bug\",\n  \"title\": \"Bug: <concise title referencing PNG, 10MB, and MemoryError>\",\n  \"labels\": [\"bug\"],\n  \"body\": {\n    \"description\": \"<1-2 sentences describing the bug>\",\n    \"steps_to_reproduce\": [\"<step 1>\", \"<step 2>\", \"<step 3>\"],\n    \"expected\": \"<expected behavior>\",\n    \"actual\": \"<actual behavior including the exact error: MemoryError: unable to allocate buffer>\",\n    \"affected_flag\": \"--quality=100\",\n    \"file_size_threshold\": \"10MB\"\n  }\n}\n\nFeature Request: A user wants a --dry-run flag that lists which files would be converted and their estimated output sizes without actually writing any files.\n\nCreate feature_request.json with this exact structure:\n{\n  \"type\": \"feature\",\n  \"title\": \"<action-oriented title for the --dry-run feature>\",\n  \"labels\": [\"enhancement\"],\n  \"body\": {\n    \"summary\": \"<1-2 sentences describing the feature>\",\n    \"acceptance_criteria\": [\"<criterion 1>\", \"<criterion 2>\", \"<criterion 3>\"],\n    \"flag_name\": \"--dry-run\"\n  }\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "project-planner_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "bug-exists",
+            "weight": 0.06,
+            "description": "bug_report.json exists in the working directory.",
+            "testPattern": "bug_report.json > file exists"
+          },
+          {
+            "id": "bug-fields",
+            "weight": 0.08,
+            "description": "bug_report.json contains all four required top-level fields: type, title, labels, and body.",
+            "testPattern": "required top-level fields type.*title.*labels.*body"
+          },
+          {
+            "id": "bug-type-labels",
+            "weight": 0.08,
+            "description": "bug_report.json type field equals 'bug' and labels array contains the string 'bug'.",
+            "testPattern": "type is bug.*labels contains bug"
+          },
+          {
+            "id": "bug-title",
+            "weight": 0.1,
+            "description": "bug_report.json title starts with 'Bug:' and references MemoryError, 10MB, PNG, or memory (case-insensitive).",
+            "testPattern": "title starts with Bug"
+          },
+          {
+            "id": "bug-body-fields",
+            "weight": 0.08,
+            "description": "bug_report.json body contains description, steps_to_reproduce, expected, and actual fields.",
+            "testPattern": "description.*steps_to_reproduce.*expected.*actual"
+          },
+          {
+            "id": "bug-steps",
+            "weight": 0.08,
+            "description": "bug_report.json body.steps_to_reproduce is an array with at least 2 step strings.",
+            "testPattern": "array of at least 2 steps"
+          },
+          {
+            "id": "bug-memoryerror",
+            "weight": 0.1,
+            "description": "bug_report.json body.actual contains the exact string 'MemoryError'.",
+            "testPattern": "MemoryError"
+          },
+          {
+            "id": "bug-flag-threshold",
+            "weight": 0.1,
+            "description": "bug_report.json body.affected_flag equals '--quality=100' and body.file_size_threshold equals '10MB'.",
+            "testPattern": "quality=100.*10MB|affected_flag.*file_size"
+          },
+          {
+            "id": "feature-exists",
+            "weight": 0.05,
+            "description": "feature_request.json exists in the working directory.",
+            "testPattern": "feature_request.json > file exists"
+          },
+          {
+            "id": "feature-fields",
+            "weight": 0.07,
+            "description": "feature_request.json type equals 'feature', has a labels array containing 'enhancement', and has type, title, labels, and body fields.",
+            "testPattern": "feature.*enhancement|type is feature"
+          },
+          {
+            "id": "feature-flag",
+            "weight": 0.1,
+            "description": "feature_request.json body.flag_name equals the exact string '--dry-run'.",
+            "testPattern": "dry-run|flag_name is"
+          },
+          {
+            "id": "feature-criteria",
+            "weight": 0.1,
+            "description": "feature_request.json body.acceptance_criteria is an array with at least 3 items.",
+            "testPattern": "acceptance_criteria.*at least 3|array of at least 3"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent created a bug report and feature request for a CLI tool.\n\nCriterion 1: Bug Report Clarity (Weight: 50%)\n1.0: The bug report clearly identifies the reproduction conditions (PNG files >10MB + --quality=100 flag), includes realistic step-by-step reproduction instructions that someone could follow, and the expected vs actual behavior is clearly differentiated. The title is concise and informative.\n0.5: Most fields are filled but steps to reproduce are vague or the title doesn't mention the key reproduction condition.\n0: Bug report is incomplete, missing key fields, or doesn't reference the actual error.\n\nCriterion 2: Feature Request Precision (Weight: 50%)\n1.0: The feature request summary clearly explains the --dry-run use case, acceptance criteria are testable and specific (e.g., 'When --dry-run is passed, no files are written to disk', 'Output lists each file with its estimated output size in KB/MB'), and the flag name is correct.\n0.5: Feature request exists but acceptance criteria are vague or the summary doesn't explain the value of --dry-run.\n0: Feature request is missing acceptance criteria or doesn't reference the --dry-run flag.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/project-planner",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

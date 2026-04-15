@@ -1,0 +1,102 @@
+{
+  "id": "content-gap-analysis_task_02",
+  "name": "Content Format Gap Analysis with Audience Journey Mapping",
+  "category": "seo_analysis",
+  "gradingType": "hybrid",
+  "prompt": "Perform a content format gap analysis for a B2B accounting software company. Analyze the format distribution data below and produce a structured gap report saved to `format_gap_report.json`.\n\n**My Site** (accountpro.example.com):\n- Blog posts: 45\n- How-to guides: 8\n- Case studies: 2\n- Comparison pages: 1\n- Templates: 0\n- Video tutorials: 0\n- Webinars: 3\n- Whitepapers: 1\n- Calculators/Tools: 0\n\n**Industry Average** (based on top 10 competitors):\n- Blog posts: 38\n- How-to guides: 22\n- Case studies: 14\n- Comparison pages: 8\n- Templates: 18\n- Video tutorials: 12\n- Webinars: 6\n- Whitepapers: 9\n- Calculators/Tools: 5\n\nSave to `format_gap_report.json` with exactly this structure:\n\n```json\n{\n  \"site\": \"accountpro.example.com\",\n  \"format_analysis\": [\n    {\n      \"format\": \"string\",\n      \"my_count\": <integer>,\n      \"industry_avg\": <integer>,\n      \"gap\": <integer — industry_avg minus my_count, negative means we exceed average>,\n      \"gap_pct\": <float — gap / industry_avg * 100, rounded to 1 decimal, or null if industry_avg is 0>,\n      \"status\": \"above_average\" | \"at_average\" | \"below_average\" | \"missing\"\n    }\n  ],\n  \"critical_gaps\": [\"string (format names where gap >= 10)\"],\n  \"missing_formats\": [\"string (format names where my_count = 0)\"],\n  \"strengths\": [\"string (format names where my_count > industry_avg)\"],\n  \"top_priority_recommendation\": \"string (single most impactful format to invest in and why)\",\n  \"audience_journey_gaps\": {\n    \"awareness\": [\"string (formats missing that help with awareness)\"],\n    \"consideration\": [\"string (formats missing that help with consideration)\"],\n    \"decision\": [\"string (formats missing that help with decision)\"\n    ]\n  }\n}\n```\n\nProcess all 9 formats exactly as listed. Status rules: missing = my_count is 0; below_average = 0 < my_count < industry_avg; at_average = my_count == industry_avg; above_average = my_count > industry_avg. critical_gaps must include all formats where (industry_avg - my_count) >= 10.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "content-gap-analysis_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "format_gap_report.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "format_gap_report.json is valid JSON with all required top-level fields: site, format_analysis, critical_gaps, missing_formats, strengths, top_priority_recommendation, and audience_journey_gaps.",
+            "testPattern": "valid JSON with required"
+          },
+          {
+            "id": "site-name",
+            "weight": 0.05,
+            "description": "The site field equals exactly \"accountpro.example.com\".",
+            "testPattern": "site is accountpro"
+          },
+          {
+            "id": "format-count",
+            "weight": 0.1,
+            "description": "format_analysis contains exactly 9 entries, one for each of the 9 content formats in the input.",
+            "testPattern": "format_analysis has exactly 9"
+          },
+          {
+            "id": "format-fields",
+            "weight": 0.1,
+            "description": "Every format_analysis entry has all required fields: format, my_count, industry_avg, gap, gap_pct, and a valid status (above_average/at_average/below_average/missing).",
+            "testPattern": "each format entry has format"
+          },
+          {
+            "id": "blog-above-avg",
+            "weight": 0.15,
+            "description": "The blog posts entry has status \"above_average\" and a negative gap value, reflecting 45 actual vs 38 industry average.",
+            "testPattern": "blog posts are marked above_average"
+          },
+          {
+            "id": "missing-formats",
+            "weight": 0.15,
+            "description": "missing_formats includes templates, video tutorials, and calculators/tools (all three formats with my_count of 0).",
+            "testPattern": "missing formats include templates"
+          },
+          {
+            "id": "critical-gaps",
+            "weight": 0.15,
+            "description": "critical_gaps lists at least 3 formats where the gap (industry_avg minus my_count) is 10 or greater, including templates.",
+            "testPattern": "critical_gaps includes formats"
+          },
+          {
+            "id": "strengths",
+            "weight": 0.05,
+            "description": "strengths array includes blog posts as a format where the site exceeds the industry average.",
+            "testPattern": "strengths includes blog posts"
+          },
+          {
+            "id": "journey-gaps",
+            "weight": 0.1,
+            "description": "audience_journey_gaps has three keys—awareness, consideration, and decision—each containing an array.",
+            "testPattern": "audience_journey_gaps has awareness"
+          },
+          {
+            "id": "recommendation",
+            "weight": 0.05,
+            "description": "top_priority_recommendation is a non-empty string of at least 20 characters explaining the single highest-priority format to invest in.",
+            "testPattern": "top_priority_recommendation is a non-empty"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed content format gaps for an accounting software company.\n\nCriterion 1: Analysis Accuracy (Weight: 60%)\n1.0: All 9 formats correctly analyzed with accurate gap calculations, status labels correctly applied (templates/video/calculators are 'missing', case_studies/comparisons/how-to guides are 'below_average', blog posts are 'above_average'), critical_gaps correctly lists formats with gap >= 10.\n0.5: Most calculations are correct but 1-2 formats have wrong status or gap calculation.\n0: Calculations are significantly wrong or formats are missing.\n\nCriterion 2: Strategic Insight (Weight: 40%)\n1.0: top_priority_recommendation is well-reasoned and specific (templates or calculators for accounting software make strategic sense), audience_journey_gaps correctly maps formats to funnel stages (whitepapers/webinars for consideration, case studies/comparisons for decision).\n0.5: Recommendation exists but the rationale is weak or not specific to accounting software.\n0: Recommendation is missing or completely generic.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/content-gap-analysis",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

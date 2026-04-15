@@ -1,0 +1,31 @@
+{
+  "id": "risk-management-specialist_task_02",
+  "name": "FMEA with Residual Risk and Benefit-Risk Analysis for Device Components",
+  "category": "risk_management",
+  "gradingType": "hybrid",
+  "prompt": "Your team has completed initial risk controls on 8 medical device components and needs a full FMEA analysis covering the initial assessment, post-control residual risk, and benefit-risk determination. The data is in `fmea_inventory.csv` with columns:\n\n`component_id`, `component`, `failure_mode`, `severity`, `occurrence`, `detectability`, `after_severity`, `after_occurrence`, `after_detectability`\n\nAll scores are **numeric integers on a 1–10 scale** (not ISO 14971 qualitative labels). Compute RPN as the arithmetic product of the three numeric scores.\n\n**RPN action classification thresholds (exact strings required):**\n- RPN ≥ 200 → `Immediate`\n- 100 ≤ RPN < 200 → `High Priority`\n- 50 ≤ RPN < 100 → `Monitor`\n- RPN < 50 → `Acceptable`\n\n**Benefit-risk analysis trigger:** any component whose residual RPN (from `after_*` columns) is ≥ 100 (i.e., residual_action is `Immediate` or `High Priority`) requires a benefit-risk analysis.\n\nProduce two artifacts at the workspace root:\n\n**Artifact 1 — `fmea_report.json`:**\n```json\n{\n  \"total_components\": <integer>,\n  \"components\": [\n    {\n      \"component_id\": \"C-001\",\n      \"component\": \"Power Supply Unit\",\n      \"failure_mode\": \"...\",\n      \"severity\": 9,\n      \"occurrence\": 3,\n      \"detectability\": 4,\n      \"initial_rpn\": 108,\n      \"initial_action\": \"High Priority\",\n      \"after_severity\": 9,\n      \"after_occurrence\": 2,\n      \"after_detectability\": 3,\n      \"residual_rpn\": 54,\n      \"residual_action\": \"Monitor\",\n      \"benefit_risk_required\": false\n    },\n    ...\n  ],\n  \"initial_summary\": {\n    \"highest_rpn\": <integer>,\n    \"highest_rpn_component\": \"<component name>\",\n    \"immediate_action_count\": <integer>,\n    \"by_action\": {\"Immediate\": <int>, \"High Priority\": <int>, \"Monitor\": <int>, \"Acceptable\": <int>}\n  },\n  \"residual_summary\": {\n    \"by_action\": {\"Immediate\": <int>, \"High Priority\": <int>, \"Monitor\": <int>, \"Acceptable\": <int>},\n    \"benefit_risk_required_count\": <integer>,\n    \"benefit_risk_component_ids\": [\"C-XXX\", ...]\n  }\n}\n```\n\n**Artifact 2 — `residual_risk_report.md`:**\nA markdown report covering:\n- Initial risk assessment summary (highest RPN, action distribution).\n- Component-level table or list showing initial RPN → residual RPN transition for each component.\n- Residual risk summary with counts by action category.\n- A benefit-risk analysis section that names each component requiring benefit-risk justification and states the clinical rationale for accepting the residual risk.\n\n**Invariants you must preserve:**\n- `total_components` equals the sum of all `initial_summary.by_action` counts (Immediate + High Priority + Monitor + Acceptable).\n- `benefit_risk_required_count` equals the number of components whose `residual_action` is `Immediate` or `High Priority`.\n- `benefit_risk_component_ids` lists exactly those component IDs, with no omissions and no extras.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was given an 8-component FMEA inventory CSV with numeric S/O/D scores (1-10) for both initial and after-control states. It was asked to compute RPN = S×O×D (numeric product, not ISO qualitative matrix), classify actions by threshold, identify residual risks, and produce fmea_report.json + residual_risk_report.md.\n\nCriterion 1: RPN calculation accuracy (Weight: 40%)\n1.0: All 8 initial_rpn values and all 8 residual_rpn values are the correct arithmetic products (S×O×D). Action classifications use the exact threshold strings (Immediate/High Priority/Monitor/Acceptable). The highest_rpn is correctly identified as 210 (Battery Pack). benefit_risk_required flags are correct — a component with residual_rpn ≥ 100 must be flagged true.\n0.5: Most RPNs correct but 1–2 have multiplication errors or wrong action threshold applied. OR benefit_risk flags are inconsistent with residual RPN values.\n0: Multiple RPN values are wrong (likely the agent applied qualitative ISO matrix instead of numeric multiplication), or fmea_report.json is missing.\n\nCriterion 2: Multi-step report coherence (Weight: 40%)\n1.0: fmea_report.json contains all required sections (initial_summary, residual_summary with benefit_risk_component_ids). The count invariant holds (total_components = sum of by_action counts). residual_risk_report.md covers all three stages (initial, residual, benefit-risk) and names the specific component(s) requiring benefit-risk analysis. The markdown benefit-risk section provides clinical justification for accepting the residual risk.\n0.5: JSON is present and mostly correct but residual_summary is missing or malformed, OR the markdown report covers only 2 of the 3 required stages.\n0: fmea_report.json is missing residual fields, or residual_risk_report.md is absent.\n\nCriterion 3: Specification adherence (Weight: 20%)\n1.0: Exact action string vocabulary is used throughout (Immediate, High Priority, Monitor, Acceptable — no variants like High/Medium/Low). benefit_risk_required_count and benefit_risk_component_ids are consistent with each other and with per-component benefit_risk_required flags. The report reads like a real FMEA deliverable.\n0.5: Minor string variants or one inconsistency between the per-component flags and the summary counts.\n0: Action strings are wrong vocabulary (ISO qualitative labels) or summary counts are completely inconsistent.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/risk-management-specialist",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

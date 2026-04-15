@@ -1,0 +1,84 @@
+{
+  "id": "data-analyst_task_01",
+  "name": "CSV Sales Analysis with Summary Statistics",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "You have been given a CSV file at `input/sales.csv` with the following columns: `date`, `product`, `category`, `quantity`, `unit_price`, `region`.\n\nThe file contains these exact rows (write them to `input/sales.csv` first):\n```\ndate,product,category,quantity,unit_price,region\n2024-01-05,Widget A,Electronics,10,25.00,North\n2024-01-10,Widget B,Electronics,5,40.00,South\n2024-01-15,Gadget X,Hardware,8,15.00,North\n2024-01-20,Gadget Y,Hardware,12,20.00,East\n2024-02-03,Widget A,Electronics,7,25.00,East\n2024-02-14,Gadget X,Hardware,3,15.00,South\n2024-02-20,Widget C,Electronics,20,10.00,West\n2024-03-01,Gadget Y,Hardware,6,20.00,North\n2024-03-15,Widget B,Electronics,9,40.00,West\n2024-03-25,Widget C,Electronics,15,10.00,South\n```\n\nPerform the following analysis and write results to `output/analysis.json`:\n1. Total revenue for each category (revenue = quantity * unit_price)\n2. Total revenue for each region\n3. The product with the highest total revenue\n4. Overall total revenue across all rows\n\nThe output JSON must have exactly these top-level keys: `category_revenue`, `region_revenue`, `top_product`, `total_revenue`.\n- `category_revenue`: object mapping category name to total revenue (number)\n- `region_revenue`: object mapping region name to total revenue (number)\n- `top_product`: string with the product name\n- `total_revenue`: number",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "data-analyst_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "output/analysis.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "output/analysis.json can be parsed as valid JSON without throwing.",
+            "testPattern": "valid JSON format"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "output/analysis.json has all four required top-level keys: category_revenue, region_revenue, top_product, and total_revenue.",
+            "testPattern": "has required top-level keys"
+          },
+          {
+            "id": "category-keys",
+            "weight": 0.1,
+            "description": "category_revenue is an object containing both \"Electronics\" and \"Hardware\" keys.",
+            "testPattern": "category_revenue is an object"
+          },
+          {
+            "id": "category-values",
+            "weight": 0.25,
+            "description": "category_revenue.Electronics equals 1335 and category_revenue.Hardware equals 525 (computed from the CSV data).",
+            "testPattern": "category_revenue values are correct"
+          },
+          {
+            "id": "region-values",
+            "weight": 0.25,
+            "description": "All four region_revenue values are correct: North=490, South=395, East=415, West=560.",
+            "testPattern": "region_revenue values are correct"
+          },
+          {
+            "id": "total-revenue",
+            "weight": 0.1,
+            "description": "total_revenue equals exactly 1860 (sum of all row revenues).",
+            "testPattern": "total_revenue is correct"
+          },
+          {
+            "id": "top-product",
+            "weight": 0.1,
+            "description": "top_product equals exactly \"Widget B\", which has the highest total revenue of 560.",
+            "testPattern": "top_product is Widget B"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed a CSV file and produced analysis.json with sales statistics.\n\nCriterion 1: Correctness of computation (Weight: 60%)\n1.0: All revenue figures are mathematically correct, matching expected values exactly.\n0.5: Some values are correct but one or two minor errors exist.\n0: Most values are wrong or missing.\n\nCriterion 2: Output structure and clarity (Weight: 40%)\n1.0: JSON is well-formed, all required keys present, values are appropriate types.\n0.5: JSON is valid but some keys are missing or types are wrong.\n0: Output is malformed or missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/data-analyst",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

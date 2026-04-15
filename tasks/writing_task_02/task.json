@@ -1,0 +1,96 @@
+{
+  "id": "writing_task_02",
+  "name": "Summarize a Document and Synthesize a Daily Digest",
+  "category": "writing",
+  "gradingType": "hybrid",
+  "prompt": "Complete two writing tasks and save the results to files.\n\nTask A: Summarize the following document and save to summary.txt.\n\nDocument to summarize:\n---\nTitle: Q1 2026 Engineering Performance Report\n\nThis quarter the engineering team shipped 14 features, resolved 87 bugs, and reduced average page load time from 4.2 seconds to 1.8 seconds — a 57% improvement. The team grew from 12 to 15 engineers. On-call incident volume dropped by 34% compared to Q4 2025, totaling 23 incidents (down from 35). Customer satisfaction scores for technical support rose from 3.8 to 4.4 out of 5. Two major initiatives are planned for Q2: a database migration to PostgreSQL 16 and a rollout of automated end-to-end testing. The migration is scheduled for April 20 and carries medium risk; the testing rollout begins May 1 with low risk.\n---\n\nSummary requirements:\n- Use the 3-paragraph structure: overview, details, implications\n- Preserve all key numbers (14 features, 87 bugs, 57%, 34%, 23 incidents, etc.)\n- Keep to approximately 30% of the original length (target: 60-80 words)\n- Lead with the main conclusion\n\nTask B: Synthesize the following three update items into a daily digest and save to digest.txt.\n\nItems:\n1. [ENGINEERING] Database migration to PostgreSQL 16 scheduled for April 20. Risk: medium. Owner: Platform team.\n2. [PRODUCT] Mobile app v3.2 enters beta testing on April 14. 50 external testers invited.\n3. [HR] Benefits enrollment deadline is April 18. All employees must complete by 5pm EST.\n\nDigest requirements:\n- Group items by theme with a short header per group (use plain text headers, not markdown ##)\n- Highlight the April 18 deadline as urgent\n- Use bullet points for each item\n- 60-100 words total\n- Save one digest entry per line group: header line, then bullet lines",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "writing_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "summary-exists",
+            "weight": 0.08,
+            "description": "summary.txt exists in the working directory.",
+            "testPattern": "summary.txt > file exists"
+          },
+          {
+            "id": "digest-exists",
+            "weight": 0.08,
+            "description": "digest.txt exists in the working directory.",
+            "testPattern": "digest.txt > file exists"
+          },
+          {
+            "id": "summary-word-count",
+            "weight": 0.1,
+            "description": "summary.txt word count is between 40 and 120 words (targeting ~30% of source length).",
+            "testPattern": "summary is within 60-80 words"
+          },
+          {
+            "id": "summary-key-numbers",
+            "weight": 0.15,
+            "description": "summary.txt contains key numbers: 14 features, 87 bugs, 57% (load improvement), 34% (incident reduction), and 23 incidents.",
+            "testPattern": "summary preserves key numbers"
+          },
+          {
+            "id": "summary-paragraphs",
+            "weight": 0.1,
+            "description": "summary.txt has between 2 and 4 paragraphs separated by blank lines.",
+            "testPattern": "summary has 3 paragraphs"
+          },
+          {
+            "id": "digest-word-count",
+            "weight": 0.08,
+            "description": "digest.txt word count is between 40 and 150 words.",
+            "testPattern": "digest word count is within 60-100 words"
+          },
+          {
+            "id": "digest-april-18",
+            "weight": 0.12,
+            "description": "digest.txt mentions \"April 18\" and marks it as urgent, deadline, or action required.",
+            "testPattern": "April 18.*urgent|digest highlights April 18"
+          },
+          {
+            "id": "digest-three-items",
+            "weight": 0.12,
+            "description": "digest.txt contains all three items (database migration, mobile beta, benefits enrollment) and at least 3 bullet lines.",
+            "testPattern": "digest has at least 3 bullet|digest contains all three items"
+          },
+          {
+            "id": "digest-no-markdown",
+            "weight": 0.08,
+            "description": "digest.txt uses plain text section headers, not ## markdown syntax.",
+            "testPattern": "no ## markdown subheadings"
+          },
+          {
+            "id": "summary-conclusion",
+            "weight": 0.09,
+            "description": "summary.txt first paragraph contains a performance-related conclusion keyword (engineer, ship, feature, performance, or quarter).",
+            "testPattern": "summary first paragraph leads with main conclusion"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent summarized a report and synthesized a daily digest.\n\nCriterion 1: Summary Quality (Weight: 50%)\n1.0: Summary leads with main conclusion, uses 3-paragraph structure, preserves all key numbers (14 features, 87 bugs, 57%, 34%, 23 incidents, 4.4/5), is approximately 60-80 words, and does not rearrange facts.\n0.5: Summary is present and mostly accurate but omits some numbers or structure is not 3 paragraphs.\n0: Summary is missing or fundamentally misrepresents the source document.\n\nCriterion 2: Digest Clarity (Weight: 50%)\n1.0: Digest groups all 3 items under headers, April 18 deadline is clearly marked as urgent, bullet points used, total is within 60-100 words.\n0.5: Digest covers all items but grouping or urgency signal is weak.\n0: Digest is missing or items are not organized.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/writing",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

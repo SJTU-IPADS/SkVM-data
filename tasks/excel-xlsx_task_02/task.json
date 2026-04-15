@@ -1,0 +1,31 @@
+{
+  "id": "excel-xlsx_task_02",
+  "name": "Sales Commission Payroll: Mixed-Format Dates, Tiered Rates, Quarterly Breakdown",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "A payroll team handed you `sales.xlsx`, a workbook with a single `Transactions` sheet containing 80 sales records for 2025. Columns: `TransactionID` (string), `Salesperson` (one of Alice Chen, Bob Martinez, Carol Singh, David Lee, Eva Turner), `SaleDate`, `Amount`.\n\nTwo data quality issues are present that your pipeline must handle:\n\n1. **Mixed date formats**: `SaleDate` cells contain either an Excel serial date integer (e.g. `45678`) OR an ISO string (e.g. `2025-03-15`). Excel serial dates use the 1900 epoch — the epoch offset is `date(1899, 12, 30)` (accounting for Excel's 1900 leap-day quirk). You must correctly parse both formats to determine the quarter each transaction falls in.\n\n2. **Mixed amount formats**: `Amount` cells contain either a plain number (e.g. `1234.56`) or a formatted string (e.g. `$1,234.56`). Strip the `$` and commas before converting to a number.\n\n**Commission rule** (applied per individual transaction, not to the aggregate):\n- If the transaction `Amount` is **≥ 1000**: commission rate is **8%**.\n- If the transaction `Amount` is **< 1000**: commission rate is **5%**.\n\nRound each per-transaction commission to 2 decimal places before summing.\n\nProduce two artifacts at the workspace root:\n\n**1. `commissions.xlsx`** — a workbook with a `PayrollSummary` sheet. Columns in order: `Salesperson`, `SalesCount`, `TotalSales`, `Commission`. One data row per salesperson (5 rows total), sorted alphabetically by salesperson name. After the 5 salesperson rows, add a **Totals row** with the label `Total` in the Salesperson column and Excel `SUM` formulas (not hardcoded numbers) for the `SalesCount`, `TotalSales`, and `Commission` columns.\n\n**2. `report.json`** — a JSON file with these top-level keys:\n- `total_transactions` (integer): total number of rows in the Transactions sheet\n- `total_sales` (number): sum of all transaction amounts, rounded to 2 decimal places\n- `total_commission` (number): sum of all per-transaction commissions, rounded to 2 decimal places\n- `quarterly_breakdown` (object): keys `Q1 2025`, `Q2 2025`, `Q3 2025`, `Q4 2025`, each mapping to `{ \"transaction_count\": <int>, \"sales\": <number>, \"commission\": <number> }`. Quarters map to: Q1 = Jan–Mar, Q2 = Apr–Jun, Q3 = Jul–Sep, Q4 = Oct–Dec.\n- `by_salesperson` (object): one key per salesperson mapping to `{ \"sales_count\": <int>, \"total_sales\": <number>, \"commission\": <number> }`\n\n**Invariants**: `sum of quarterly_breakdown.transaction_count` must equal `total_transactions`. The `by_salesperson` commissions must be consistent with the `Commission` column in `commissions.xlsx`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent processed sales.xlsx (80 transactions, mixed date formats, mixed amount formats) and produced commissions.xlsx (PayrollSummary with 5 salesperson rows + Totals row using SUM formulas) and report.json (with quarterly_breakdown, by_salesperson, and totals). Commission rate: 8% per transaction for amount >= 1000, 5% for amount < 1000.\n\nCriterion 1: Artifact structure (Weight: 40%)\n1.0: commissions.xlsx exists with a PayrollSummary sheet containing the 4 required columns and 5 salesperson rows plus a Totals row. report.json exists and has all 5 required top-level keys (total_transactions, total_sales, total_commission, quarterly_breakdown, by_salesperson). quarterly_breakdown has all 4 quarter keys.\n0.5: Files exist but structure is incomplete — e.g. Totals row missing, quarterly_breakdown missing some quarters, or by_salesperson missing some names.\n0: A required artifact is missing or completely malformed.\n\nCriterion 2: Data handling correctness (Weight: 40%)\n1.0: SaleDate is correctly parsed for both formats: Excel serial integers (using epoch date(1899, 12, 30)) and ISO strings. Amount is correctly parsed for both formats: plain numbers and '$X,XXX.XX' strings. Commission applied per transaction at the correct rate threshold (>= 1000 → 8%, else 5%). Totals row in commissions.xlsx uses SUM formulas, not hardcoded numbers.\n0.5: One of the parsing steps fails — e.g. only ISO dates parsed and serial dates treated as 0 or skipped, or amount strings not cleaned, or commission rate applied to total instead of per-transaction.\n0: Multiple parsing steps fail or commission logic is entirely wrong.\n\nCriterion 3: Cross-artifact consistency (Weight: 20%)\n1.0: sum(quarterly_breakdown.transaction_count) == total_transactions. by_salesperson commissions are numerically consistent with commissions.xlsx Commission column. All numeric values are rounded to 2 decimal places.\n0.5: Minor inconsistency — one quarter's count is off or rounding is inconsistent.\n0: Cross-artifact invariants broken in multiple places.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/excel-xlsx",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

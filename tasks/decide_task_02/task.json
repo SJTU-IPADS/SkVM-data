@@ -1,0 +1,90 @@
+{
+  "id": "decide_task_02",
+  "name": "Evaluate Reusability of a Stored Decision Rule",
+  "category": "decision_management",
+  "gradingType": "hybrid",
+  "prompt": "You are given an existing decision memory file at `input/memory.md` and a new decision scenario. Create the input file first:\n\nCreate `input/memory.md` with this content:\n```\n## Decision Rules\n- When building a public-facing API with high concurrency requirements, use PostgreSQL.\n- When the project has fewer than 5 users and no concurrency needs, SQLite is preferred.\n- Vendor selection for cloud providers requires human confirmation.\n\n## Confirmed Defaults\n- Internal tools with <10 users: SQLite\n- High-traffic services (>1000 req/s): PostgreSQL\n```\n\nNew scenario: A team of 8 developers needs a database for a staging environment used for integration tests. It will have concurrent writes from a CI/CD pipeline running up to 20 parallel jobs.\n\nAnalyze whether any stored rule applies to this new scenario and produce `output/decision_evaluation.json` with exactly these keys:\n- `scenario_summary`: string, one sentence describing the new scenario\n- `matching_rules`: array of strings, the exact text of any stored rules that partially or fully apply\n- `rule_reusable`: boolean, true only if a stored rule matches closely enough to apply autonomously\n- `reuse_reason`: string, explanation of why the rule is or is not reusable\n- `recommended_action`: string, one of: `\"reuse_rule\"`, `\"ask_human\"`, or `\"create_new_rule\"`\n- `confidence`: number between 0 and 1",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "decide_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "output/decision_evaluation.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "output/decision_evaluation.json can be parsed as valid JSON without throwing.",
+            "testPattern": "valid JSON format"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.15,
+            "description": "output/decision_evaluation.json has all six required keys: scenario_summary, matching_rules, rule_reusable, reuse_reason, recommended_action, and confidence.",
+            "testPattern": "has all required keys"
+          },
+          {
+            "id": "scenario-summary",
+            "weight": 0.1,
+            "description": "scenario_summary is a non-empty string longer than 10 characters describing the new scenario.",
+            "testPattern": "scenario_summary is a non-empty string"
+          },
+          {
+            "id": "matching-rules",
+            "weight": 0.15,
+            "description": "matching_rules is an array (may contain strings representing matched stored rules or be empty).",
+            "testPattern": "matching_rules is an array"
+          },
+          {
+            "id": "rule-reusable",
+            "weight": 0.1,
+            "description": "rule_reusable is a boolean value (true or false).",
+            "testPattern": "rule_reusable is a boolean"
+          },
+          {
+            "id": "recommended-action",
+            "weight": 0.2,
+            "description": "recommended_action is one of exactly three valid strings: \"reuse_rule\", \"ask_human\", or \"create_new_rule\".",
+            "testPattern": "recommended_action is one of the valid options"
+          },
+          {
+            "id": "confidence-range",
+            "weight": 0.1,
+            "description": "confidence is a number between 0 and 1 inclusive.",
+            "testPattern": "confidence is between 0 and 1"
+          },
+          {
+            "id": "reuse-reason",
+            "weight": 0.1,
+            "description": "reuse_reason is a non-empty string longer than 10 characters explaining the reusability decision.",
+            "testPattern": "reuse_reason is a non-empty string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent evaluated whether a stored decision rule applies to a new database selection scenario involving CI/CD concurrency.\n\nCriterion 1: Reasoning correctness (Weight: 70%)\n1.0: Correctly identifies that the high-concurrency rule partially applies, concludes that PostgreSQL is likely correct due to concurrent writes, and sets recommended_action to ask_human or create_new_rule (not a blind reuse since team size is 8, not a classic high-traffic scenario).\n0.5: Partially correct reasoning but misidentifies which rules apply or draws wrong conclusion.\n0: Completely wrong analysis or blindly reuses an inapplicable rule.\n\nCriterion 2: Output structure completeness (Weight: 30%)\n1.0: All keys present with correct types, confidence is a valid float, recommended_action is one of the three valid options.\n0.5: Most fields present but some type errors or invalid values.\n0: Missing fields or malformed output.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/decide",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,90 @@
+{
+  "id": "meeting-minutes_task_02",
+  "name": "Generate Meeting Agenda with Time Allocation",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "Generate a structured meeting agenda and a follow-up email for the following scenario, saving both to files.\n\nScenario: A 60-minute sprint retrospective for Team Falcon. Date: 2026-04-15, 2:00 PM – 3:00 PM. Attendees: 6 people (product manager, scrum master, 3 engineers, 1 designer). Topics to cover: (1) review what went well, (2) identify what to improve, (3) agree on 3 action items for the next sprint, (4) team shout-outs/recognition. The scrum master facilitates.\n\nTask 1: Save the agenda to agenda.json with this exact structure:\n{\n  \"title\": \"<meeting title>\",\n  \"date\": \"2026-04-15\",\n  \"start_time\": \"14:00\",\n  \"end_time\": \"15:00\",\n  \"facilitator\": \"<role>\",\n  \"total_minutes\": 60,\n  \"items\": [\n    {\"order\": <1..N>, \"topic\": \"<topic>\", \"duration_minutes\": <number>, \"owner\": \"<role>\"}\n  ]\n}\nRequirements: items must cover all 4 topics above, duration_minutes values must sum to exactly 60, each item must have order starting at 1.\n\nTask 2: Save a follow-up email template to followup_email.txt. The email must contain:\n- Subject line starting with 'Subject:'\n- A greeting line\n- A paragraph referencing the retrospective and its date\n- A placeholder section labeled 'ACTION ITEMS:' listing at least 3 placeholder action item lines\n- A closing line",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "meeting-minutes_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "agenda-exists",
+            "weight": 0.08,
+            "description": "agenda.json file is present in the working directory.",
+            "testPattern": "agenda.json.*exists|agenda file exists"
+          },
+          {
+            "id": "email-exists",
+            "weight": 0.08,
+            "description": "followup_email.txt file is present in the working directory.",
+            "testPattern": "followup_email.txt.*exists|email file exists"
+          },
+          {
+            "id": "agenda-fields",
+            "weight": 0.1,
+            "description": "agenda.json contains all required top-level fields: title, date, start_time, end_time, facilitator, total_minutes, and items.",
+            "testPattern": "agenda fields|title.*date.*start"
+          },
+          {
+            "id": "total-minutes",
+            "weight": 0.12,
+            "description": "agenda.json total_minutes field is exactly 60 and date/start_time/end_time match the sprint retrospective schedule.",
+            "testPattern": "total_minutes.*60|60 minutes"
+          },
+          {
+            "id": "duration-sum",
+            "weight": 0.15,
+            "description": "Sum of all item duration_minutes values equals exactly 60.",
+            "testPattern": "duration.*sum.*60|durations sum"
+          },
+          {
+            "id": "agenda-items-count",
+            "weight": 0.12,
+            "description": "agenda.json items array has at least 4 entries covering all required retrospective topics.",
+            "testPattern": "agenda items|at least 4 items"
+          },
+          {
+            "id": "item-fields",
+            "weight": 0.1,
+            "description": "Each agenda item has numeric order, non-empty topic string, positive duration_minutes, and an owner field.",
+            "testPattern": "item fields|order.*topic.*duration"
+          },
+          {
+            "id": "email-subject",
+            "weight": 0.1,
+            "description": "followup_email.txt contains a line starting with \"Subject:\".",
+            "testPattern": "subject line|Subject:"
+          },
+          {
+            "id": "email-action-items",
+            "weight": 0.15,
+            "description": "followup_email.txt contains an \"ACTION ITEMS\" section label and references the retrospective date 2026-04-15.",
+            "testPattern": "ACTION ITEMS|action items section"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a sprint retrospective agenda and follow-up email template.\n\nCriterion 1: Agenda Practicality (Weight: 60%)\n1.0: Time allocations are sensible for a retrospective (e.g., went-well and improve sections get more time than shout-outs), topics are labeled naturally, owners are sensible role assignments, and the agenda would function as a real facilitation guide.\n0.5: Agenda is structurally correct but time allocations feel arbitrary or topic labels are too vague.\n0: Agenda is missing key topics or has nonsensical time allocations.\n\nCriterion 2: Follow-up Email Tone (Weight: 40%)\n1.0: Email is professional, concise, references the specific meeting context (retrospective, Team Falcon), and clearly prompts recipients to review action items. Placeholders are clearly marked and useful.\n0.5: Email is functional but generic or misses the retrospective context.\n0: Email is missing, too informal, or placeholders are absent.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/meeting-minutes",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

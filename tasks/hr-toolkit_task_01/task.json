@@ -1,0 +1,96 @@
+{
+  "id": "hr-toolkit_task_01",
+  "name": "Generate a Job Description and Interview Plan for a Software Engineer Role",
+  "category": "hr_recruitment",
+  "gradingType": "hybrid",
+  "prompt": "You are an HR professional preparing to hire a mid-level backend engineer. Complete the following two steps and save all results to JSON files.\n\nStep 1: Create a job description and save it to job_description.json with exactly these fields:\n- title: \"Senior Backend Engineer\"\n- department: \"Engineering\"\n- level: \"Mid-Senior\"\n- location: \"Remote (US)\"\n- summary: a 2-4 sentence description of the role\n- responsibilities: an array of at least 5 specific responsibilities\n- requirements: an object with two keys:\n  - required: array of at least 5 must-have qualifications\n  - preferred: array of at least 3 nice-to-have qualifications\n- compensation: an object with keys: min_salary (integer), max_salary (integer), currency (\"USD\"), includes_equity (boolean)\n- tech_stack: an array of at least 4 technology names relevant to backend engineering\n\nStep 2: Create an interview plan and save it to interview_plan.json with exactly these fields:\n- role: \"Senior Backend Engineer\"\n- stages: an array of exactly 4 interview stages. Each stage must have:\n  - stage_number: integer (1 through 4)\n  - name: string (e.g. \"Phone Screen\", \"Technical Assessment\", etc.)\n  - duration_minutes: integer\n  - format: \"async\" or \"live\"\n  - focus_areas: array of at least 2 strings describing what is evaluated\n  - interviewers: array of at least 1 role title (e.g. \"Recruiter\", \"Engineering Manager\")\n- evaluation_criteria: an array of at least 3 scoring dimensions, each with name (string) and weight (number). All weights must sum to exactly 1.0.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "hr-toolkit_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "jd-exists",
+            "weight": 0.08,
+            "description": "The file job_description.json exists in the working directory.",
+            "testPattern": "job_description.json > file exists"
+          },
+          {
+            "id": "jd-required-fields",
+            "weight": 0.1,
+            "description": "job_description.json has title 'Senior Backend Engineer', department, level, location, and summary (>20 chars).",
+            "testPattern": "has title, department, level, location"
+          },
+          {
+            "id": "jd-responsibilities",
+            "weight": 0.1,
+            "description": "responsibilities is an array with at least 5 string entries.",
+            "testPattern": "responsibilities array has at least 5 items"
+          },
+          {
+            "id": "jd-requirements",
+            "weight": 0.1,
+            "description": "requirements has both 'required' (>=5 entries) and 'preferred' (>=3 entries) arrays.",
+            "testPattern": "requirements has required and preferred"
+          },
+          {
+            "id": "jd-compensation",
+            "weight": 0.08,
+            "description": "compensation has positive integer min_salary and max_salary, currency 'USD', and max > min.",
+            "testPattern": "compensation has min_salary.*max_salary"
+          },
+          {
+            "id": "jd-tech-stack",
+            "weight": 0.08,
+            "description": "tech_stack is an array of at least 4 technology name strings.",
+            "testPattern": "tech_stack.*at least 4"
+          },
+          {
+            "id": "plan-exists",
+            "weight": 0.08,
+            "description": "The file interview_plan.json exists in the working directory.",
+            "testPattern": "interview_plan.json > file exists"
+          },
+          {
+            "id": "plan-stages",
+            "weight": 0.12,
+            "description": "interview_plan.json stages array has exactly 4 stages with stage_numbers 1 through 4.",
+            "testPattern": "stages array.*4 stages|exactly 4 interview stages"
+          },
+          {
+            "id": "plan-stage-fields",
+            "weight": 0.12,
+            "description": "Each stage has stage_number, name, duration_minutes (>0), format ('async' or 'live'), focus_areas (>=2), and interviewers fields.",
+            "testPattern": "each stage has stage_number.*name.*duration|stage.*format.*focus_areas"
+          },
+          {
+            "id": "plan-weights",
+            "weight": 0.14,
+            "description": "evaluation_criteria has >=3 dimensions each with name and weight, and all weights sum to 1.0 (within 0.01 tolerance).",
+            "testPattern": "evaluation_criteria weights sum to 1"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to generate a structured job description and interview plan for a backend engineering role.\n\nCriterion 1: Content Relevance (Weight: 50%)\n1.0: Responsibilities, requirements, and tech_stack are realistic for a senior backend engineer; interview stages are logical and well-sequenced; evaluation criteria are meaningful.\n0.5: Content is generic but plausible; some stages or requirements lack specificity.\n0: Content is off-topic, nonsensical, or copied from an unrelated domain.\n\nCriterion 2: Structural Completeness (Weight: 50%)\n1.0: All required fields are present, types are correct, evaluation_criteria weights sum to exactly 1.0, compensation has min/max that are reasonable numbers.\n0.5: Most fields present but one or two are missing or slightly malformed.\n0: Files are missing or structurally broken.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/hr-toolkit",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

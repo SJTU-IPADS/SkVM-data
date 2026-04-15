@@ -1,0 +1,32 @@
+{
+  "id": "data-analysis_task_01",
+  "name": "Reconcile Messy Retail Orders and Produce a Q3 Decision Brief",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "A marketing team handed you `orders.csv`, a 180-row retail order table for Q3 2025 with pending, returned, duplicate, out-of-window, and dirty rows mixed in. They need a data-driven Q3 revenue briefing so they can decide which region to target for the next campaign. Produce two artifacts at the workspace root:\n\n**1. `analysis.json`** — a JSON report with these top-level keys:\n- `input_rows` (integer): number of rows in the input CSV, before any filtering\n- `accepted` (integer): number of valid Q3 2025 orders after all exclusions\n- `rejected` (integer): number of rows excluded for any reason\n- `rejection_reasons` (object): integer counts per reason. Include exactly these keys: `bad_date`, `bad_amount`, `pending`, `returned`, `out_of_window`, `duplicate`\n- `monthly_revenue` (object): map month strings `2025-07`, `2025-08`, `2025-09` to the total revenue in that month (numeric, 2 decimal places)\n- `top_region` (object): `{ \"name\": <region>, \"count\": <int>, \"revenue\": <numeric> }` for the region with the highest accepted revenue\n- `customer_count` (integer): count of distinct `customer_id` values across accepted rows\n- `q3_revenue_total` (numeric, 2 decimal places): sum of amounts across all accepted rows\n\n**2. `decision_brief.md`** — a stakeholder-facing markdown brief. It MUST contain markdown headers for exactly these five sections (in any order): `Answer`, `Evidence`, `Confidence`, `Caveats`, `Next Action`. Content rules:\n- Every percentage must be presented with its raw count on the same or adjacent line — e.g. `62% (74 of 120)` — never a bare percentage.\n- The `Confidence` section must express uncertainty as a range, interval, or explicit caveat keyword (`range`, `approximately`, `uncertainty`, `CI`, `n=`, `small sample`, …). A bare point estimate is not enough.\n- The `Caveats` section must name at least three distinct rejection categories from the analysis by name (e.g. `returned`, `duplicate`, `bad_date`).\n\n**Validity rules.** A row is a valid Q3 2025 order only if all of these hold:\n(a) `created_at` parses as a date in the range 2025-07-01 00:00:00 through 2025-09-30 23:59:59 inclusive;\n(b) `amount` is a non-negative numeric value (not an empty string, not `TBD`, not `n/a`);\n(c) `status` equals the string `Completed`;\n(d) `return_flag` is `false` (string) or empty;\n(e) it is the FIRST row in the CSV with its `order_id` — later rows sharing an existing `order_id` are duplicates and must be rejected even if otherwise valid.\n\n**Reject-reason priority.** Apply the following order when a row matches more than one category; record only the first matching reason:\n`bad_date` > `bad_amount` > `pending` > `returned` > `out_of_window` > `duplicate`.\n\n**Invariants.** `accepted + rejected == input_rows`. `sum(monthly_revenue.values()) == q3_revenue_total` (to within 2 decimal places). All currency is in dollars; round totals to 2 decimals.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent reconciled a messy retail CSV (orders.csv, 180 rows) and produced analysis.json + decision_brief.md. The prompt pinned down validity rules (status, date window, numeric amount, first-occurrence dedup by order_id) and a rejection-priority order.\n\nCriterion 1: Analysis JSON quality (Weight: 40%)\n1.0: analysis.json exists with the correct top-level schema, integer counts, rejection_reasons covering all six categories, monthly_revenue for the three Q3 months, and top_region object carrying name + count + revenue. Counts satisfy accepted + rejected == input_rows. The agent treated the row-priority rule consistently (first matching reason wins).\n0.5: JSON exists but has missing categories, inconsistent counts, or a violated invariant.\n0: Missing JSON, wrong schema, or unparseable.\n\nCriterion 2: Decision brief discipline (Weight: 40%)\n1.0: decision_brief.md has all five required markdown sections (Answer, Evidence, Confidence, Caveats, Next Action). Every percentage is accompanied by its raw count on the same or adjacent line. The Confidence section expresses uncertainty as a range, interval, or explicit caveat — not a bare number. The Caveats section names at least three rejection categories. The brief reads like a real stakeholder memo, not a filler paragraph.\n0.5: Most structure present but percentages missing counts OR Confidence is a bare point estimate OR Caveats is thin.\n0: Missing brief or brief ignores the structural requirements entirely.\n\nCriterion 3: Spec adherence under ambiguity (Weight: 20%)\n1.0: The agent correctly handled all the tricky cases: first-occurrence dedup by order_id, the rejection-priority order, exclusion of Q2 rows as out_of_window, exclusion of non-numeric amounts, exclusion of unparseable dates. The numeric outputs (q3_revenue_total, monthly_revenue, top_region) are internally consistent.\n0.5: Most cases handled but at least one category or invariant was misapplied.\n0: The agent ignored the spec or classified rejections inconsistently.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/data-analysis",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "hard"
+}

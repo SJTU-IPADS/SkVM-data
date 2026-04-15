@@ -1,0 +1,102 @@
+{
+  "id": "python-coding_task_01",
+  "name": "Write a Python CSV Data Processor Script",
+  "category": "python_coding",
+  "gradingType": "hybrid",
+  "prompt": "Write a Python script called process_sales.py that reads a CSV file, computes statistics, and writes results to a JSON file.\n\nThe script must:\n1. Read from sales_data.csv — you must also create this file with exactly the following content:\n```\ndate,product,quantity,unit_price\n2025-01-05,Widget A,10,25.99\n2025-01-07,Widget B,5,49.99\n2025-01-10,Widget A,8,25.99\n2025-01-12,Widget C,3,99.99\n2025-01-15,Widget B,12,49.99\n2025-01-20,Widget A,6,25.99\n```\n2. Compute the following statistics:\n   - total_revenue: sum of (quantity * unit_price) for all rows, rounded to 2 decimal places\n   - total_units_sold: sum of all quantity values\n   - unique_products: number of distinct product names\n   - best_selling_product: product name with the highest total quantity sold\n   - revenue_by_product: dict mapping each product name to its total revenue (rounded to 2 decimal places)\n3. Write results to results.json with exactly these fields: total_revenue, total_units_sold, unique_products, best_selling_product, revenue_by_product\n4. Print a one-line summary to stdout: `Summary: {total_units_sold} units sold, total revenue ${total_revenue}`\n5. Use only Python standard library (no pandas, no numpy)\n6. Follow proper script structure with a main() function and `if __name__ == '__main__'` guard\n\nAfter writing process_sales.py and sales_data.csv, execute process_sales.py to produce results.json.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "python-coding_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "results-exists",
+            "weight": 0.06,
+            "description": "results.json exists in the working directory.",
+            "testPattern": "results.json > file exists"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.08,
+            "description": "results.json contains all five required fields: total_revenue, total_units_sold, unique_products, best_selling_product, and revenue_by_product.",
+            "testPattern": "all required fields"
+          },
+          {
+            "id": "units-sold",
+            "weight": 0.14,
+            "description": "results.json total_units_sold equals the integer 44 (10+8+6=24 Widget A, 5+12=17 Widget B, 3 Widget C).",
+            "testPattern": "total_units_sold is 44"
+          },
+          {
+            "id": "total-revenue",
+            "weight": 0.14,
+            "description": "results.json total_revenue equals 1773.56 (623.76 + 849.83 + 299.97).",
+            "testPattern": "total_revenue is 1773"
+          },
+          {
+            "id": "unique-products",
+            "weight": 0.1,
+            "description": "results.json unique_products equals the integer 3.",
+            "testPattern": "unique_products is 3"
+          },
+          {
+            "id": "best-selling",
+            "weight": 0.12,
+            "description": "results.json best_selling_product equals the exact string 'Widget A' (24 units, highest total quantity).",
+            "testPattern": "best_selling_product is Widget A"
+          },
+          {
+            "id": "revenue-keys",
+            "weight": 0.08,
+            "description": "results.json revenue_by_product contains keys for 'Widget A', 'Widget B', and 'Widget C'.",
+            "testPattern": "revenue_by_product has entries"
+          },
+          {
+            "id": "revenue-values",
+            "weight": 0.12,
+            "description": "results.json revenue_by_product values are exactly Widget A=623.76, Widget B=849.83, Widget C=299.97.",
+            "testPattern": "revenue_by_product values are correct"
+          },
+          {
+            "id": "script-exists",
+            "weight": 0.04,
+            "description": "process_sales.py exists in the working directory.",
+            "testPattern": "process_sales.py > script file exists"
+          },
+          {
+            "id": "main-function",
+            "weight": 0.06,
+            "description": "process_sales.py source contains 'def main(' and uses an '__name__ == __main__' guard.",
+            "testPattern": "main\\(\\) function"
+          },
+          {
+            "id": "no-third-party",
+            "weight": 0.06,
+            "description": "process_sales.py does not import pandas or numpy (uses only the Python standard library).",
+            "testPattern": "not import pandas or numpy|does not import pandas"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent wrote a Python CSV data processor script.\n\nCriterion 1: Code Quality (Weight: 60%)\n1.0: The script has a clean main() function structure, uses the csv module correctly, has proper error handling for file operations, uses f-strings for formatting, and is readable without unnecessary complexity. Variable names are descriptive.\n0.5: Script works but has minor style issues — no main() guard, missing error handling, or unnecessarily verbose code.\n0: Script is incorrect, doesn't run, or uses forbidden libraries.\n\nCriterion 2: Output Completeness (Weight: 40%)\n1.0: results.json exists with all required fields, and stdout contains the expected summary line format. The computations are correct for the provided CSV data.\n0.5: results.json exists but is missing some fields or has formatting inconsistencies.\n0: results.json is not produced or is malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/python-coding",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

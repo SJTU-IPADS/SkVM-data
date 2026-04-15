@@ -1,0 +1,96 @@
+{
+  "id": "coding-lead_task_01",
+  "name": "Implement a Simple Task Queue Module",
+  "category": "software_engineering",
+  "gradingType": "hybrid",
+  "prompt": "Implement a task queue module in Python. This is a straightforward coding task — complete it directly.\n\nCreate a file named `task_queue.py` that implements a `TaskQueue` class with the following interface:\n\n- `__init__(self, max_size: int)` — initialize with a maximum capacity\n- `enqueue(self, task: dict) -> bool` — add a task dict to the queue; return True if added, False if queue is full\n- `dequeue(self) -> dict | None` — remove and return the next task (FIFO order); return None if empty\n- `peek(self) -> dict | None` — return the next task without removing it; return None if empty\n- `size(self) -> int` — return current number of tasks in queue\n- `is_full(self) -> bool` — return True if queue is at max capacity\n- `is_empty(self) -> bool` — return True if queue has no tasks\n- `clear(self) -> None` — remove all tasks from the queue\n\nThen create a file named `queue_test_results.json` by writing a Python script `run_tests.py` that instantiates `TaskQueue(max_size=3)`, runs these exact operations in order, and records results:\n\n1. `enqueue({\"id\": 1, \"name\": \"task_a\"})` — record return value\n2. `enqueue({\"id\": 2, \"name\": \"task_b\"})` — record return value\n3. `enqueue({\"id\": 3, \"name\": \"task_c\"})` — record return value\n4. `enqueue({\"id\": 4, \"name\": \"task_d\"})` — record return value (queue is full)\n5. `size()` — record return value\n6. `is_full()` — record return value\n7. `peek()` — record return value\n8. `dequeue()` — record return value\n9. `size()` after dequeue — record return value\n10. `clear()` then `is_empty()` — record is_empty return value\n\nSave results to `queue_test_results.json`:\n```json\n{\n  \"enqueue_1\": true,\n  \"enqueue_2\": true,\n  \"enqueue_3\": true,\n  \"enqueue_4_full\": false,\n  \"size_after_3_enqueues\": 3,\n  \"is_full\": true,\n  \"peek_result\": {\"id\": 1, \"name\": \"task_a\"},\n  \"dequeue_result\": {\"id\": 1, \"name\": \"task_a\"},\n  \"size_after_dequeue\": 2,\n  \"is_empty_after_clear\": true\n}\n```\n\nExecute `run_tests.py` using `python3 run_tests.py` to produce the JSON file.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "coding-lead_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "source-files",
+            "weight": 0.05,
+            "description": "Both task_queue.py and run_tests.py are present in the working directory.",
+            "testPattern": "task_queue.py file exists|run_tests.py file exists"
+          },
+          {
+            "id": "class-defined",
+            "weight": 0.1,
+            "description": "task_queue.py contains a 'class TaskQueue' declaration.",
+            "testPattern": "TaskQueue class is defined"
+          },
+          {
+            "id": "methods-present",
+            "weight": 0.1,
+            "description": "task_queue.py defines all 8 required methods: enqueue, dequeue, peek, size, is_full, is_empty, and clear.",
+            "testPattern": "all 8 required methods"
+          },
+          {
+            "id": "results-exist",
+            "weight": 0.05,
+            "description": "queue_test_results.json file is present in the working directory.",
+            "testPattern": "queue_test_results.json.*file exists"
+          },
+          {
+            "id": "fields-present",
+            "weight": 0.1,
+            "description": "queue_test_results.json contains all 10 required fields: enqueue_1 through enqueue_4_full, size_after_3_enqueues, is_full, peek_result, dequeue_result, size_after_dequeue, is_empty_after_clear.",
+            "testPattern": "valid JSON with all required fields"
+          },
+          {
+            "id": "enqueue-true",
+            "weight": 0.15,
+            "description": "enqueue_1, enqueue_2, and enqueue_3 are all true, reflecting successful insertions into a queue with max_size=3.",
+            "testPattern": "first three enqueues return true"
+          },
+          {
+            "id": "enqueue-full",
+            "weight": 0.1,
+            "description": "enqueue_4_full is false, reflecting that the queue rejects a fourth item when at max_size=3.",
+            "testPattern": "fourth enqueue returns false"
+          },
+          {
+            "id": "size-correct",
+            "weight": 0.1,
+            "description": "size_after_3_enqueues is 3 and size_after_dequeue is 2.",
+            "testPattern": "size after 3 enqueues|size decrements"
+          },
+          {
+            "id": "fifo-order",
+            "weight": 0.2,
+            "description": "peek_result and dequeue_result both equal {id: 1, name: 'task_a'}, confirming FIFO ordering.",
+            "testPattern": "peek returns first|dequeue returns first"
+          },
+          {
+            "id": "clear-works",
+            "weight": 0.05,
+            "description": "is_empty_after_clear is true, confirming clear() removes all tasks.",
+            "testPattern": "is_empty returns true after clear"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent implemented a TaskQueue class with FIFO semantics and capacity enforcement.\n\nCriterion 1: Implementation Correctness (Weight: 70%)\n1.0: task_queue.py implements all 8 methods correctly, FIFO ordering works, max_size enforcement works, all test results in queue_test_results.json are correct.\n0.5: Most methods work but one or two have bugs (e.g., LIFO instead of FIFO, off-by-one in capacity check).\n0: Implementation is missing or fundamentally broken.\n\nCriterion 2: Code Quality (Weight: 30%)\n1.0: Code is clean, uses appropriate Python idioms (collections.deque or list), has type hints, methods have docstrings or clear naming.\n0.5: Code works but lacks type hints or has minor quality issues.\n0: Code is difficult to understand or uses poor practices.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/coding-lead",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

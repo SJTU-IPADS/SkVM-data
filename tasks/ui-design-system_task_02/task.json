@@ -1,0 +1,31 @@
+{
+  "id": "ui-design-system_task_02",
+  "name": "Generate a Multi-Section CSS Token File: Type Scale, Spacing Grid, Fluid Typography, and Breakpoints",
+  "category": "design_systems",
+  "gradingType": "hybrid",
+  "prompt": "The engineering team at Crestline SaaS needs a single CSS custom properties file for their new design system. You have the full specification in `design-spec.md`.\n\nProduce a file named `tokens.css` at the workspace root. It must contain a single `:root {}` block with all custom properties in this order:\n\n**Section 1: Font size scale**\n\nGenerate a 9-step typographic scale using base 16px and a 1.25 ratio (Major Third). The step names and exponents are: `xs` (n=-2), `sm` (n=-1), `base` (n=0), `lg` (n=1), `xl` (n=2), `2xl` (n=3), `3xl` (n=4), `4xl` (n=5), `5xl` (n=6). Each value is `16 × 1.25^n`, rounded to the **nearest integer** (not floor, not ceil). Property names use `--font-size-<step>` and values include the `px` unit (e.g. `--font-size-xs: 10px`).\n\n**Section 2: Spacing scale**\n\nGenerate 10 spacing steps using an **8-point grid**: step N has value `N × 8px`. Property names: `--space-1` through `--space-10`. Values must be exact multiples of 8 with a `px` unit (e.g. `--space-1: 8px`, `--space-4: 32px`, `--space-10: 80px`). Do not use arbitrary values like 6px, 10px, or 12px.\n\n**Section 3: Fluid typography**\n\nFor each of the following 4 entries, generate a CSS `clamp()` expression using a 320px–1280px viewport range. The formula: `preferred_vw = (max_px - min_px) / (1280 - 320) × 100`, `preferred_rem_intercept = min_px/16 - preferred_vw × 320 / (100 × 16)`. The clamp form is `clamp(<min_px/16>rem, <intercept>rem + <vw>vw, <max_px/16>rem)` with all rem values rounded to 4 decimal places.\n\n| Property | min_px | max_px |\n|---|---|---|\n| `--fluid-h1` | 32 | 64 |\n| `--fluid-h2` | 28 | 48 |\n| `--fluid-h3` | 24 | 36 |\n| `--fluid-body` | 16 | 18 |\n\n**Section 4: Breakpoints**\n\nAdd these 5 breakpoint tokens as **plain integers** (no `px` unit — the values are used as JavaScript numbers for media query math):\n- `--bp-sm: 480`\n- `--bp-md: 640`\n- `--bp-lg: 768`\n- `--bp-xl: 1024`\n- `--bp-2xl: 1280`\n\nThe final `tokens.css` must contain no duplicate property names and no CSS rules outside the single `:root {}` block.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent produced tokens.css containing four sections of CSS custom properties: a 9-step type scale, 10-step 8-point spacing scale, 4 fluid typography clamp() expressions, and 5 breakpoint tokens.\n\nCriterion 1: Structural correctness (Weight: 40%)\n1.0: tokens.css has a single :root {} block with all four property groups. Font size tokens use --font-size-<step> naming with px values. Spacing tokens use --space-N naming with 8-multiple px values. Fluid tokens use --fluid-h1/h2/h3/body naming with valid clamp() syntax. Breakpoint tokens use --bp-<name> naming with plain integers (no px).\n0.5: Most sections present but one naming convention is off, or breakpoints have px units, or spacing uses non-8-multiple values.\n0: tokens.css missing or has fewer than 2 of the 4 required sections.\n\nCriterion 2: Numerical accuracy (Weight: 40%)\n1.0: Type scale values match nearest-integer rounding: xs=10, sm=13, base=16, lg=20, xl=25, 2xl=31, 3xl=39, 4xl=49, 5xl=61. Fluid clamp min/max rem values are correct (e.g. h1=clamp(2.0rem,...,4.0rem)). The vw coefficients are correct to 4 decimal places (e.g. h1=3.3333vw, h2=2.0833vw). Breakpoints match the spec exactly.\n0.5: Mostly correct but one type-scale step uses floor rounding (4xl=48 instead of 49) or fluid vw coefficients have rounding errors, or one breakpoint value is wrong.\n0: Significant numerical errors throughout — type scale wrong, fluid values don't match the formula.\n\nCriterion 3: Format discipline (Weight: 20%)\n1.0: The file has exactly one :root {} block. Properties are grouped in the four required sections in order. No duplicate property names. Breakpoint values are plain integers (not strings with px). The file looks like production design system output.\n0.5: Minor format deviations — sections out of order, one or two duplicates, or extra comments that don't harm validity.\n0: Multiple :root blocks, pervasive duplicates, or the file fails to parse as valid CSS.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ui-design-system",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

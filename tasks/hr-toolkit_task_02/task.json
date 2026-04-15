@@ -1,0 +1,102 @@
+{
+  "id": "hr-toolkit_task_02",
+  "name": "Create an Employee Onboarding Checklist and Offboarding Summary",
+  "category": "hr_operations",
+  "gradingType": "hybrid",
+  "prompt": "You are an HR specialist managing both onboarding and offboarding for employees. Complete both steps below and save results to JSON files.\n\nStep 1: Generate an onboarding checklist for a new hire and save it to onboarding_checklist.json with exactly these fields:\n- employee: an object with name (\"Sarah Kim\"), title (\"Product Manager\"), department (\"Product\"), start_date (\"2024-03-01\"), manager (\"David Park\")\n- phases: an array of exactly 3 phases (\"Day 1\", \"Week 1\", \"Month 1\"). Each phase must have:\n  - phase: the phase name string\n  - tasks: an array of at least 4 task objects. Each task has: task (string), owner (\"HR\", \"Manager\", or \"IT\"), required (boolean), completed (boolean, default false)\n- total_tasks: the total number of tasks across all 3 phases (integer, must be accurate)\n- required_tasks: the count of tasks where required is true (integer, must be accurate)\n\nStep 2: Generate an offboarding summary for a departing employee and save it to offboarding_summary.json with exactly these fields:\n- employee: an object with name (\"James Torres\"), title (\"Senior Developer\"), department (\"Engineering\"), last_day (\"2024-03-15\"), reason (\"voluntary_resignation\")\n- checklist: an array of at least 6 offboarding action items, each with: action (string), owner (\"HR\", \"Manager\", \"IT\", or \"Finance\"), deadline (\"last_day\", \"1_week_before\", or \"day_after\"), completed (boolean, default false)\n- knowledge_transfer: an object with topics (array of at least 3 strings), estimated_hours (integer), assigned_to (string)\n- exit_interview: an object with scheduled (boolean), date (string or null), format (\"in_person\", \"video\", or \"survey\")",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "hr-toolkit_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "onboard-exists",
+            "weight": 0.08,
+            "description": "The file onboarding_checklist.json exists in the working directory.",
+            "testPattern": "onboarding_checklist.json > file exists"
+          },
+          {
+            "id": "onboard-employee",
+            "weight": 0.08,
+            "description": "onboarding employee.name is 'Sarah Kim', title is 'Product Manager', department is 'Product'.",
+            "testPattern": "employee.*Sarah Kim|onboarding employee fields"
+          },
+          {
+            "id": "onboard-phases",
+            "weight": 0.1,
+            "description": "phases array has exactly 3 entries with phase names 'Day 1', 'Week 1', and 'Month 1'.",
+            "testPattern": "exactly 3 phases"
+          },
+          {
+            "id": "onboard-tasks",
+            "weight": 0.1,
+            "description": "Each of the 3 phases has at least 4 task objects in its tasks array.",
+            "testPattern": "each phase.*at least 4 tasks"
+          },
+          {
+            "id": "onboard-counts",
+            "weight": 0.12,
+            "description": "total_tasks equals the actual count of all tasks across phases, and required_tasks equals the count where required=true.",
+            "testPattern": "total_tasks.*accurate|required_tasks.*accurate"
+          },
+          {
+            "id": "onboard-task-fields",
+            "weight": 0.08,
+            "description": "Each task has: task (string), owner (one of HR/Manager/IT), required (boolean), completed (boolean).",
+            "testPattern": "task.*owner.*required.*completed"
+          },
+          {
+            "id": "offboard-exists",
+            "weight": 0.08,
+            "description": "The file offboarding_summary.json exists in the working directory.",
+            "testPattern": "offboarding_summary.json > file exists"
+          },
+          {
+            "id": "offboard-employee",
+            "weight": 0.08,
+            "description": "offboarding employee.name is 'James Torres', department is 'Engineering', reason is 'voluntary_resignation'.",
+            "testPattern": "employee.*James Torres|offboarding employee"
+          },
+          {
+            "id": "offboard-checklist",
+            "weight": 0.12,
+            "description": "checklist array has at least 6 entries each with action, valid owner, valid deadline, and boolean completed.",
+            "testPattern": "checklist.*at least 6|offboarding action items"
+          },
+          {
+            "id": "offboard-knowledge",
+            "weight": 0.08,
+            "description": "knowledge_transfer has topics array (>=3 strings), numeric estimated_hours >0, and assigned_to string.",
+            "testPattern": "knowledge_transfer.*topics"
+          },
+          {
+            "id": "offboard-exit",
+            "weight": 0.08,
+            "description": "exit_interview has scheduled (boolean), date, and format one of 'in_person', 'video', or 'survey'.",
+            "testPattern": "exit_interview.*scheduled|exit_interview.*format"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to generate structured onboarding and offboarding HR documents.\n\nCriterion 1: Content Appropriateness (Weight: 50%)\n1.0: Onboarding tasks cover realistic Day 1 / Week 1 / Month 1 activities appropriate for a Product Manager; offboarding checklist includes practical items like access revocation, equipment return, and knowledge transfer.\n0.5: Tasks exist but are too generic or miss obvious HR checklist items for the roles.\n0: Tasks are irrelevant, empty, or copy-pasted without customization.\n\nCriterion 2: Data Integrity (Weight: 50%)\n1.0: total_tasks and required_tasks in onboarding are arithmetically correct; all arrays meet minimum length; owner values use only the allowed strings; deadline values are valid.\n0.5: Minor counting errors in total_tasks or required_tasks but structure is otherwise correct.\n0: Counts are wrong by a large margin or files are structurally invalid.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/hr-toolkit",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

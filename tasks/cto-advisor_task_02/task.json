@@ -1,0 +1,96 @@
+{
+  "id": "cto-advisor_task_02",
+  "name": "Build vs Buy Analysis for a Notification Service",
+  "category": "technical_leadership",
+  "gradingType": "hybrid",
+  "prompt": "You are helping a CTO decide whether to build or buy a notification service (email + push + SMS) for a growing B2B SaaS platform with 50,000 users and projections to reach 200,000 in 2 years. The team has 8 backend engineers.\n\nEvaluate these 3 options:\n\nOption A — Build in-house: Full control, integrates perfectly with existing auth. Estimated build: 45 engineering days. Annual maintenance: 15 engineering days/year. Infrastructure cost: $800/month.\n\nOption B — Vendor: SendGrid/Twilio combo. Monthly cost: $1,200 at current scale, estimated $3,500 at 200K users. Integration effort: 5 engineering days. Annual maintenance: 3 engineering days/year.\n\nOption C — Open source self-hosted (Novu): Monthly infrastructure: $400. Integration effort: 12 engineering days. Annual maintenance: 8 engineering days/year.\n\nAssume engineering day cost = $800.\n\nProduce a file called build_vs_buy_analysis.json with exactly this structure:\n- \"decision_context\": object with keys \"current_users\" (number: 50000), \"projected_users\" (number: 200000), \"team_size\" (number: 8), \"engineering_day_cost_usd\" (number: 800)\n- \"options\": array of exactly 3 objects, each with keys: \"name\" (string), \"initial_cost_usd\" (number — engineering days × $800 + 0 for vendor), \"annual_infra_cost_usd\" (number — monthly × 12), \"annual_maintenance_cost_usd\" (number — maintenance days × $800), \"three_year_tco_usd\" (number — initial + 3 × (annual_infra + annual_maintenance)), \"integration_effort_days\" (number), \"vendor_dependency_risk\" (string: \"none\", \"low\", \"medium\", or \"high\")\n- \"scores\": array of 3 objects matching options, each with keys \"name\" (string) and \"weighted_score\" (number 0-10, to 1 decimal)\n- \"recommendation\": string — the name of the option with the highest weighted_score\n- \"rationale\": string (50-150 words)\n\nVerify your math:\n- Option A 3-year TCO: (45×800) + 3×((800×12) + (15×800)) = 36000 + 3×(9600+12000) = 36000 + 64800 = $100,800\n- Option B 3-year TCO: 0 + 3×((1200×12) + (3×800)) = 0 + 3×(14400+2400) = $50,400 (use current scale for annual infra)\n- Option C 3-year TCO: (12×800) + 3×((400×12) + (8×800)) = 9600 + 3×(4800+6400) = 9600 + 33600 = $43,200",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "cto-advisor_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "build_vs_buy_analysis.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.07,
+            "description": "build_vs_buy_analysis.json is valid JSON with all required top-level keys: decision_context, options, scores, recommendation, and rationale.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "context-values",
+            "weight": 0.08,
+            "description": "decision_context has correct values: current_users=50000, projected_users=200000, team_size=8, and engineering_day_cost_usd=800.",
+            "testPattern": "correct values"
+          },
+          {
+            "id": "options-fields",
+            "weight": 0.1,
+            "description": "options is an array of exactly 3 objects, each with name, initial_cost_usd, annual_infra_cost_usd, annual_maintenance_cost_usd, three_year_tco_usd, integration_effort_days, and a valid vendor_dependency_risk.",
+            "testPattern": "exactly 3 entries with required fields"
+          },
+          {
+            "id": "option-a-tco",
+            "weight": 0.15,
+            "description": "The Build/in-house option has a three_year_tco_usd within 5% of $100,800 (between $95,760 and $105,840).",
+            "testPattern": "Option A.*100.*800|Build.*100"
+          },
+          {
+            "id": "option-b-tco",
+            "weight": 0.15,
+            "description": "The Vendor/SendGrid option has a three_year_tco_usd within 5% of $50,400 (between $47,880 and $52,920).",
+            "testPattern": "Option B.*50.*400|Vendor.*50"
+          },
+          {
+            "id": "option-c-tco",
+            "weight": 0.15,
+            "description": "The open-source/Novu option has a three_year_tco_usd within 5% of $43,200 (between $41,040 and $45,360).",
+            "testPattern": "Option C.*43.*200|Open source.*43"
+          },
+          {
+            "id": "scores",
+            "weight": 0.1,
+            "description": "scores is an array of 3 objects each with a name and a weighted_score number between 0 and 10.",
+            "testPattern": "3 entries with weighted_score"
+          },
+          {
+            "id": "recommendation",
+            "weight": 0.08,
+            "description": "recommendation is a string matching the name of the option with the highest weighted_score.",
+            "testPattern": "highest weighted_score"
+          },
+          {
+            "id": "rationale",
+            "weight": 0.07,
+            "description": "rationale is a string whose word count is between 50 and 150.",
+            "testPattern": "50-150 words"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed a build vs buy decision for a notification service with 3 concrete options and had to compute 3-year TCOs.\n\nCriterion 1: Financial Calculation Accuracy (Weight: 60%)\n1.0: 3-year TCO values match the expected calculations (Option A: ~$100,800, Option B: ~$50,400, Option C: ~$43,200). Option names are correctly identified. Vendor dependency risks are logically assigned (build=none, vendor=medium/high, open-source=low/medium).\n0.5: TCO calculations have minor errors (within 10%) but the overall order of options is correct.\n0: TCO calculations are significantly wrong or missing.\n\nCriterion 2: Decision Quality (Weight: 40%)\n1.0: The recommendation is logically defensible given the TCO analysis. The rationale addresses the build vs buy trade-off beyond just cost (e.g., vendor lock-in, team capacity, maintenance burden). The recommendation is consistent with the highest weighted_score.\n0.5: Recommendation exists but rationale is weak or ignores non-cost factors.\n0: No recommendation or rationale provided.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/cto-advisor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "medium"
+}

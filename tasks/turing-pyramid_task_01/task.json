@@ -1,0 +1,96 @@
+{
+  "id": "turing-pyramid_task_01",
+  "name": "Compute Turing-Exp Tension Values for a Set of Agent Needs",
+  "category": "agent_systems",
+  "gradingType": "hybrid",
+  "prompt": "You are implementing a tension calculation engine for an agent motivation system. Write a Python 3 script named `tension_calc.py` that implements the Turing-exp tension formula and applies it to a fixed set of needs.\n\nThe tension formula is:\n  tension = dep² + importance × max(0, dep - crisis_threshold)²\n\nwhere `dep = 3.0 - satisfaction` (deprivation) and `crisis_threshold = 1.0`.\n\nCompute tension for the following 5 needs and save the results to `tension_results.json`:\n\n| need        | importance | satisfaction |\n|-------------|------------|--------------|\n| security    | 10         | 2.5          |\n| connection  | 5          | 1.5          |\n| expression  | 1          | 0.5          |\n| coherence   | 8          | 2.0          |\n| competence  | 4          | 3.0          |\n\nThe output file `tension_results.json` must be a JSON object with this structure:\n```json\n{\n  \"crisis_threshold\": 1.0,\n  \"needs\": {\n    \"security\": {\"importance\": 10, \"satisfaction\": 2.5, \"dep\": 0.5, \"tension\": <value>},\n    \"connection\": {\"importance\": 5, \"satisfaction\": 1.5, \"dep\": 1.5, \"tension\": <value>},\n    \"expression\": {\"importance\": 1, \"satisfaction\": 0.5, \"dep\": 2.5, \"tension\": <value>},\n    \"coherence\": {\"importance\": 8, \"satisfaction\": 2.0, \"dep\": 1.0, \"tension\": <value>},\n    \"competence\": {\"importance\": 4, \"satisfaction\": 3.0, \"dep\": 0.0, \"tension\": <value>}\n  }\n}\n```\n\nAll tension values must be rounded to 4 decimal places. Also save the name of the need with the highest tension to `highest_tension.txt` (just the name, no trailing newline required).\n\nRequired output files: `tension_calc.py`, `tension_results.json`, `highest_tension.txt`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "turing-pyramid_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.06,
+            "description": "tension_calc.py exists in the working directory.",
+            "testPattern": "tension_calc.py > file exists|tension_calc exists"
+          },
+          {
+            "id": "results-exists",
+            "weight": 0.08,
+            "description": "tension_results.json exists in the working directory.",
+            "testPattern": "tension_results.json > file exists|tension_results exists"
+          },
+          {
+            "id": "results-structure",
+            "weight": 0.1,
+            "description": "tension_results.json has both crisis_threshold and needs top-level fields.",
+            "testPattern": "has crisis_threshold and needs|structure"
+          },
+          {
+            "id": "security-tension",
+            "weight": 0.12,
+            "description": "security tension value is 0.25 (dep=0.5, below crisis threshold so no importance multiplier).",
+            "testPattern": "security tension.*0\\.25|security.*0\\.25"
+          },
+          {
+            "id": "connection-tension",
+            "weight": 0.12,
+            "description": "connection tension value is 3.5 (dep=1.5, above threshold: 2.25 + 5×0.25).",
+            "testPattern": "connection tension.*3\\.5|connection.*3\\.5"
+          },
+          {
+            "id": "expression-tension",
+            "weight": 0.12,
+            "description": "expression tension value is 8.5 (dep=2.5, crisis: 6.25 + 1×2.25).",
+            "testPattern": "expression tension.*8\\.5|expression.*8\\.5"
+          },
+          {
+            "id": "coherence-tension",
+            "weight": 0.12,
+            "description": "coherence tension value is 1.0 (dep=1.0, exactly at threshold so no crisis multiplier).",
+            "testPattern": "coherence tension.*1\\.0|coherence.*1\\.0"
+          },
+          {
+            "id": "competence-tension",
+            "weight": 0.1,
+            "description": "competence tension value is 0.0 (dep=0.0, fully satisfied with no deprivation).",
+            "testPattern": "competence tension.*0\\.0|competence.*0\\.0"
+          },
+          {
+            "id": "highest-tension-file",
+            "weight": 0.08,
+            "description": "highest_tension.txt exists in the working directory.",
+            "testPattern": "highest_tension.txt > file exists|highest_tension exists"
+          },
+          {
+            "id": "highest-is-expression",
+            "weight": 0.1,
+            "description": "highest_tension.txt contains exactly \"expression\", the need with the highest computed tension of 8.5.",
+            "testPattern": "highest tension is 'expression'"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to implement a tension formula and compute results for 5 agent needs.\n\nCriterion 1: Mathematical Accuracy (Weight: 70%)\n1.0: All tension values are computed correctly using the formula. Security=0.25, Connection=2.25+5×0.25=3.5, Expression=6.25+1×2.25=8.5, Coherence=1.0+8×0.0=1.0, Competence=0.0. Highest tension is 'expression'.\n0.5: Most values are correct but one or two have rounding or formula errors.\n0: Values are all wrong or missing.\n\nCriterion 2: Output Structure (Weight: 30%)\n1.0: tension_results.json has the exact nested structure with all required fields. highest_tension.txt contains 'expression'.\n0.5: Structure is mostly correct but some nested fields are missing or misnamed.\n0: Files are missing or JSON is malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/turing-pyramid",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

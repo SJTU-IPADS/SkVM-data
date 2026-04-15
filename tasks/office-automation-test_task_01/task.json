@@ -1,0 +1,90 @@
+{
+  "id": "office-automation-test_task_01",
+  "name": "Generate a Daily Work Report as a Structured JSON File",
+  "category": "office-productivity",
+  "gradingType": "hybrid",
+  "prompt": "Generate a daily work report based on the information below and save it to daily_report.json.\n\nWork information for today:\n- Date: 2026-03-15\n- Completed tasks: (1) Reviewed pull request #42 for the payment module, found 3 security issues; (2) Updated API documentation for the user authentication endpoint; (3) Attended sprint planning meeting, estimated stories for next sprint\n- Pending items: Submit code review feedback for PR #43 by end of day tomorrow\n- Problem encountered: The staging environment was down for 2 hours in the afternoon, blocking integration testing\n- Tomorrow's plan: Fix the 3 security issues found in PR #42, complete integration tests once staging is restored\n\ndaily_report.json must have exactly this structure:\n{\n  \"date\": \"2026-03-15\",\n  \"completed\": [\n    { \"item\": \"<description>\", \"details\": \"<optional detail>\" }\n  ],\n  \"pending\": [\n    { \"item\": \"<description>\", \"deadline\": \"<deadline or null>\" }\n  ],\n  \"problems\": [\n    { \"description\": \"<problem>\", \"resolution\": \"<resolution or status>\" }\n  ],\n  \"tomorrow_plan\": [\n    \"<task 1>\",\n    \"<task 2>\"\n  ]\n}\n\nRequirements:\n- completed must have exactly 3 items\n- pending must have at least 1 item\n- problems must have at least 1 item\n- tomorrow_plan must have at least 2 items\n- The date field must be exactly \"2026-03-15\"\n- All string values must be in English",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "office-automation-test_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "report-exists",
+            "weight": 0.12,
+            "description": "daily_report.json file is present in the working directory.",
+            "testPattern": "daily_report.json > file exists"
+          },
+          {
+            "id": "report-valid-json",
+            "weight": 0.1,
+            "description": "daily_report.json parses as valid JSON without errors.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "date-field",
+            "weight": 0.12,
+            "description": "date field is exactly \"2026-03-15\".",
+            "testPattern": "date is 2026-03-15"
+          },
+          {
+            "id": "completed-count",
+            "weight": 0.15,
+            "description": "completed array contains exactly 3 items.",
+            "testPattern": "completed is an array with exactly 3 items"
+          },
+          {
+            "id": "completed-fields",
+            "weight": 0.12,
+            "description": "Each completed item has a non-empty item string field.",
+            "testPattern": "completed items have item field"
+          },
+          {
+            "id": "pending-count",
+            "weight": 0.1,
+            "description": "pending array has at least 1 entry with an item field.",
+            "testPattern": "at least 1 pending item"
+          },
+          {
+            "id": "problems-count",
+            "weight": 0.1,
+            "description": "problems array has at least 1 entry with a description field.",
+            "testPattern": "at least 1 problem"
+          },
+          {
+            "id": "tomorrow-count",
+            "weight": 0.1,
+            "description": "tomorrow_plan array contains at least 2 non-empty strings.",
+            "testPattern": "at least 2 tomorrow_plan"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.09,
+            "description": "Top-level object has all 5 required keys: date, completed, pending, problems, and tomorrow_plan.",
+            "testPattern": "required top-level keys"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to convert work notes into a structured daily report JSON.\n\nCriterion 1: Content Accuracy (Weight: 60%)\n1.0: All 3 completed items reflect the actual work done (PR #42 security review, API docs, sprint planning), the staging environment problem is captured, and tomorrow's plan mentions the security fixes and integration tests.\n0.5: Most items are captured but one completed task is missing or the problem description is too vague.\n0: Report is missing key content from the work notes.\n\nCriterion 2: Professionalism (Weight: 40%)\n1.0: All descriptions are concise and professional, deadlines are specific where mentioned, resolution status for the staging issue is informative.\n0.5: Descriptions are present but some are too brief or unprofessional.\n0: Content is placeholder text or lacks meaningful information.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/office-automation-test",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

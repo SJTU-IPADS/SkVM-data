@@ -1,0 +1,96 @@
+{
+  "id": "growth-tracker_task_02",
+  "name": "Compute Goal Progress and Efficiency Report from Tracking Data",
+  "category": "data_management",
+  "gradingType": "hybrid",
+  "prompt": "You are given a quantified self tracking scenario. Complete the following steps and save results to the specified files.\n\nStep 1: Create a file called session_data.json with the following content exactly:\n{\n  \"session_id\": \"sess-20240220\",\n  \"date\": \"2024-02-20\",\n  \"tasks\": [\n    {\"id\": \"T01\", \"type\": \"coding\", \"completed\": true, \"quality\": 9.0, \"iterations\": 1},\n    {\"id\": \"T02\", \"type\": \"debugging\", \"completed\": true, \"quality\": 7.5, \"iterations\": 3},\n    {\"id\": \"T03\", \"type\": \"coding\", \"completed\": false, \"quality\": 0, \"iterations\": 2},\n    {\"id\": \"T04\", \"type\": \"documentation\", \"completed\": true, \"quality\": 8.5, \"iterations\": 1},\n    {\"id\": \"T05\", \"type\": \"design\", \"completed\": true, \"quality\": 8.0, \"iterations\": 2}\n  ],\n  \"goals\": [\n    {\"name\": \"Improve code quality\", \"target_quality\": 8.5, \"unit\": \"score\"},\n    {\"name\": \"Reduce iterations\", \"target_avg_iterations\": 1.5, \"unit\": \"count\"}\n  ]\n}\n\nStep 2: Analyze session_data.json and produce efficiency_report.json with exactly these fields:\n- total_tasks: total number of tasks (integer)\n- completed_tasks: number of completed tasks (integer)\n- failed_tasks: number of incomplete tasks (integer)\n- completion_rate: percentage of completed tasks, rounded to 1 decimal (number)\n- avg_quality: average quality score of completed tasks only, rounded to 2 decimal places (number)\n- avg_iterations: average iterations across ALL tasks, rounded to 2 decimal places (number)\n- first_try_count: number of tasks completed with exactly 1 iteration (integer)\n- first_try_rate: percentage of all tasks completed on first try, rounded to 1 decimal (number)\n- goal_quality_met: true if avg_quality of completed tasks >= 8.5, false otherwise (boolean)\n- goal_iterations_met: true if avg_iterations across all tasks <= 1.5, false otherwise (boolean)\n- type_breakdown: object mapping each task type to count of that type\n\nAll calculations must be derived from the data in session_data.json.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "growth-tracker_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "session-exists",
+            "weight": 0.08,
+            "description": "The file session_data.json exists in the working directory.",
+            "testPattern": "session_data.json > file exists"
+          },
+          {
+            "id": "session-structure",
+            "weight": 0.08,
+            "description": "session_data.json has all four required fields: session_id, date, tasks, goals.",
+            "testPattern": "has session_id, date, tasks, goals"
+          },
+          {
+            "id": "session-tasks",
+            "weight": 0.08,
+            "description": "session_data.json tasks array has exactly 5 entries, each with id, type, completed, quality, iterations.",
+            "testPattern": "tasks array has 5 entries"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.08,
+            "description": "The file efficiency_report.json exists in the working directory.",
+            "testPattern": "efficiency_report.json > file exists"
+          },
+          {
+            "id": "report-fields",
+            "weight": 0.1,
+            "description": "efficiency_report.json has all 11 required fields including total_tasks, completion_rate, avg_quality, goal flags, and type_breakdown.",
+            "testPattern": "has all 11 required fields"
+          },
+          {
+            "id": "report-totals",
+            "weight": 0.12,
+            "description": "total_tasks is 5, completed_tasks is 4, and failed_tasks is 1.",
+            "testPattern": "total_tasks is 5.*completed_tasks is 4|total_tasks.*completed_tasks"
+          },
+          {
+            "id": "completion-rate",
+            "weight": 0.1,
+            "description": "completion_rate is 80.0 (4 completed out of 5 total).",
+            "testPattern": "completion_rate is 80"
+          },
+          {
+            "id": "avg-quality",
+            "weight": 0.12,
+            "description": "avg_quality is 8.25 (average of 9.0, 7.5, 8.5, 8.0 for the 4 completed tasks).",
+            "testPattern": "avg_quality is 8.25"
+          },
+          {
+            "id": "avg-iterations",
+            "weight": 0.12,
+            "description": "avg_iterations is 1.8 (sum 1+3+2+1+2=9 divided by 5 all tasks).",
+            "testPattern": "avg_iterations is 1.8"
+          },
+          {
+            "id": "goal-flags",
+            "weight": 0.12,
+            "description": "goal_quality_met is false (8.25 < 8.5) and goal_iterations_met is false (1.8 > 1.5).",
+            "testPattern": "goal_quality_met is false|goal_iterations_met is false"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a session data file and compute an efficiency report with specific derived metrics.\n\nCriterion 1: Calculation Correctness (Weight: 70%)\n1.0: All computed values are mathematically correct: completion_rate=80.0, avg_quality=8.25, avg_iterations=1.8, first_try_rate=40.0, goal_quality_met=false, goal_iterations_met=false.\n0.5: Most values are correct but one or two have rounding errors or minor mistakes.\n0: Multiple values are wrong or the report is missing key fields.\n\nCriterion 2: Report Completeness (Weight: 30%)\n1.0: All 11 required fields are present with correct types, type_breakdown covers all 4 task types.\n0.5: Most fields present but one is missing or has wrong type.\n0: Report is missing or structurally broken.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/growth-tracker",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

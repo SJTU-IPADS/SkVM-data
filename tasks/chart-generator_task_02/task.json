@@ -1,0 +1,102 @@
+{
+  "id": "chart-generator_task_02",
+  "name": "Generate ASCII Sparkline and Summary Statistics",
+  "category": "data_visualization",
+  "gradingType": "hybrid",
+  "prompt": "You have monthly active user counts for a product over 12 months:\n45000, 47200, 51000, 49500, 53800, 58200, 61000, 59400, 64500, 68000, 72300, 78100\n\nComplete the following tasks:\n\n1. Create a file called sparkline_output.txt containing a single line with a Unicode sparkline (using block characters ▁▂▃▄▅▆▇█) representing the 12 monthly values. The sparkline must be exactly 12 characters long.\n\n2. Create a file called trend_stats.json with exactly these fields:\n   - \"data\": array of the 12 integer values in order\n   - \"min\": 45000\n   - \"max\": 78100\n   - \"mean\": the arithmetic mean rounded to 2 decimal places (exact: 59000.0)\n   - \"total\": 708000\n   - \"growth_pct\": the percentage growth from first to last value, rounded to 2 decimal places (exact: 73.56)\n   - \"trend\": \"increasing\", \"decreasing\", or \"flat\" — based on whether the last value is higher, lower, or equal to the first\n\n3. Write and execute a Python script called compute_stats.py that reads the data array from trend_stats.json, verifies the mean and total match the expected values (print \"PASS\" if correct, \"FAIL\" otherwise), and writes its output to stats_check.txt.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "chart-generator_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "sparkline-exists",
+            "weight": 0.06,
+            "description": "sparkline_output.txt file is present in the working directory.",
+            "testPattern": "sparkline_output.txt > file exists"
+          },
+          {
+            "id": "sparkline-length",
+            "weight": 0.1,
+            "description": "sparkline_output.txt contains exactly 12 Unicode code points when trimmed.",
+            "testPattern": "exactly 12 characters"
+          },
+          {
+            "id": "sparkline-chars",
+            "weight": 0.09,
+            "description": "sparkline_output.txt is composed entirely of Unicode block characters (▁▂▃▄▅▆▇█, U+2581–U+2588).",
+            "testPattern": "unicode block characters"
+          },
+          {
+            "id": "stats-exists",
+            "weight": 0.06,
+            "description": "trend_stats.json file is present in the working directory.",
+            "testPattern": "trend_stats.json > file exists"
+          },
+          {
+            "id": "stats-keys",
+            "weight": 0.07,
+            "description": "trend_stats.json contains all 7 required keys: data, min, max, mean, total, growth_pct, trend.",
+            "testPattern": "all required keys"
+          },
+          {
+            "id": "data-order",
+            "weight": 0.08,
+            "description": "trend_stats.json data array has 12 values in the original order, starting with 45000 and ending with 78100.",
+            "testPattern": "12 values in correct order"
+          },
+          {
+            "id": "min-max",
+            "weight": 0.08,
+            "description": "trend_stats.json has min=45000 and max=78100.",
+            "testPattern": "min and max are correct"
+          },
+          {
+            "id": "total-correct",
+            "weight": 0.12,
+            "description": "trend_stats.json has total=708000 (sum of all 12 monthly values).",
+            "testPattern": "total is correct"
+          },
+          {
+            "id": "mean-correct",
+            "weight": 0.12,
+            "description": "trend_stats.json has mean=59000.0 (arithmetic mean of the 12 values).",
+            "testPattern": "mean is correct"
+          },
+          {
+            "id": "growth-pct",
+            "weight": 0.12,
+            "description": "trend_stats.json has growth_pct=73.56 (percentage growth from 45000 to 78100, rounded to 2 decimal places).",
+            "testPattern": "growth_pct is correct"
+          },
+          {
+            "id": "stats-check-pass",
+            "weight": 0.1,
+            "description": "stats_check.txt contains the string 'PASS', indicating compute_stats.py verified mean and total correctly.",
+            "testPattern": "contains PASS"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a Unicode sparkline, a trend statistics JSON, and a Python verification script.\n\nCriterion 1: Numeric Accuracy (Weight: 70%)\n1.0: All computed values (mean=59000.0, total=708000, growth_pct=73.56) are exactly correct and the trend is correctly identified as increasing.\n0.5: Most values are correct but 1-2 rounding or calculation errors.\n0: Multiple values are wrong.\n\nCriterion 2: Sparkline Quality (Weight: 30%)\n1.0: sparkline_output.txt contains exactly 12 Unicode block characters that visually represent the upward trend (last characters taller than first).\n0.5: Sparkline exists but is the wrong length or uses wrong characters.\n0: File is missing or has non-block characters.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/chart-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "keyword-research_task_02",
+  "name": "Topic Cluster Plan for a Home Fitness Blog",
+  "category": "seo",
+  "gradingType": "hybrid",
+  "prompt": "Create a topic cluster plan for a home fitness blog targeting beginners in the US. The blog has no domain authority yet. No external SEO tools — use your knowledge to estimate metrics.\n\nProduce the file cluster_plan.json with this exact structure:\n\n- \"niche\": \"home fitness for beginners\"\n- \"clusters\": an array of exactly 3 topic cluster objects. Each cluster object must have:\n  - \"pillar_keyword\": string (the main/broad keyword for this cluster)\n  - \"pillar_intent\": one of \"informational\", \"commercial\", \"transactional\"\n  - \"pillar_difficulty\": integer 1-100\n  - \"cluster_keywords\": array of at least 4 objects each with:\n    - \"keyword\": string\n    - \"intent\": one of \"informational\", \"navigational\", \"commercial\", \"transactional\"\n    - \"difficulty\": integer 1-100\n    - \"content_type\": string describing the content format (e.g. \"how-to guide\", \"listicle\", \"comparison\", \"tutorial\")\n\n- \"content_calendar\": an array of exactly 6 objects representing a 6-week publishing schedule. Each object must have:\n  - \"week\": integer 1-6\n  - \"keyword\": string (from any of the clusters above)\n  - \"content_type\": string\n  - \"priority\": one of \"high\", \"medium\", \"low\"\n\nWrite the file to the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "keyword-research_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "plan-exists",
+            "weight": 0.05,
+            "description": "cluster_plan.json file is present in the workspace.",
+            "testPattern": "cluster_plan.json > file exists"
+          },
+          {
+            "id": "plan-fields",
+            "weight": 0.08,
+            "description": "cluster_plan.json contains the top-level keys niche, clusters, and content_calendar.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "niche-correct",
+            "weight": 0.07,
+            "description": "cluster_plan.json niche field is exactly \"home fitness for beginners\".",
+            "testPattern": "niche field is correct"
+          },
+          {
+            "id": "clusters-count",
+            "weight": 0.1,
+            "description": "The clusters array contains exactly 3 entries.",
+            "testPattern": "array of exactly 3 entries"
+          },
+          {
+            "id": "cluster-fields",
+            "weight": 0.15,
+            "description": "Every cluster has pillar_keyword (string), pillar_intent (valid enum), pillar_difficulty (integer 1-100), and cluster_keywords (array).",
+            "testPattern": "each cluster has required fields"
+          },
+          {
+            "id": "cluster-kw-count",
+            "weight": 0.1,
+            "description": "Every cluster's cluster_keywords array has at least 4 entries.",
+            "testPattern": "at least 4 cluster_keywords"
+          },
+          {
+            "id": "cluster-kw-fields",
+            "weight": 0.15,
+            "description": "Every cluster_keyword entry has keyword, intent (valid enum), difficulty (integer 1-100), and content_type.",
+            "testPattern": "each cluster_keyword entry has"
+          },
+          {
+            "id": "calendar-count",
+            "weight": 0.1,
+            "description": "The content_calendar array contains exactly 6 entries.",
+            "testPattern": "array of exactly 6 entries"
+          },
+          {
+            "id": "calendar-fields",
+            "weight": 0.1,
+            "description": "Every calendar entry has week, keyword, content_type, and a valid priority (high, medium, or low).",
+            "testPattern": "week, keyword, content_type, and priority"
+          },
+          {
+            "id": "calendar-weeks",
+            "weight": 0.1,
+            "description": "Calendar week numbers are exactly [1, 2, 3, 4, 5, 6] with no duplicates or gaps.",
+            "testPattern": "week numbers cover 1 through 6"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a topic cluster plan for a home fitness blog with 3 clusters and a 6-week content calendar.\n\nCriterion 1: Cluster Relevance and Strategy (Weight: 60%)\n1.0: The 3 pillar keywords cover meaningfully distinct aspects of home fitness for beginners (e.g., workouts, equipment, nutrition); cluster keywords logically support each pillar; difficulty scores are realistic (broad pillar terms higher, long-tail cluster terms lower).\n0.5: Clusters exist and are broadly relevant but pillar/cluster relationships are loose or difficulty values are uniform.\n0: Clusters are off-topic, empty, or not differentiated.\n\nCriterion 2: Content Calendar Quality (Weight: 40%)\n1.0: Calendar schedules quick-win low-difficulty keywords early (weeks 1-2 marked high priority), progressively tackles harder content, covers all 6 weeks with varied content types.\n0.5: Calendar has 6 entries but priority ordering is arbitrary or all weeks have the same priority.\n0: Calendar is missing, has fewer than 6 entries, or keywords don't relate to the clusters.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/keyword-research",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

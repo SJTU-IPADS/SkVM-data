@@ -1,0 +1,96 @@
+{
+  "id": "quality-manager-qmr_task_01",
+  "name": "Build Quality KPI Dashboard from Performance Data",
+  "category": "quality_management",
+  "gradingType": "hybrid",
+  "prompt": "You are a Quality Manager preparing a monthly quality KPI report. Analyze the following raw data and produce two output files.\n\nRaw data for Q3 (July-September):\n- Total units produced: 12,400\n- Units passing first time: 11,718\n- Total nonconformances raised: 87\n- Customer complaints received: 9\n- Open CAPAs at month end: 14\n- CAPAs due for closure this period: 18\n- CAPAs closed on time: 16\n- Internal audit findings opened: 22\n- Internal audit findings closed on time: 19\n- Repeat audit findings: 3\n\nStep 1: Calculate KPIs and save to kpi_report.json.\n\nCalculate these KPIs using the exact formulas:\n- first_pass_yield: (units passing first time / total units produced) * 100, rounded to 2 decimal places\n- nonconformance_rate: (nonconformances / total units produced) * 100, rounded to 4 decimal places\n- capa_closure_rate: (on-time closures / due closures) * 100, rounded to 2 decimal places\n- complaint_rate: (complaints / total units produced) * 100, rounded to 4 decimal places\n- audit_finding_closure_rate: (findings closed on time / total findings opened) * 100, rounded to 2 decimal places\n- repeat_finding_rate: (repeat findings / total findings opened) * 100, rounded to 2 decimal places\n\nFor each KPI also include: value (calculated number), target (use standard targets: first_pass_yield >95%, nonconformance_rate <1%, capa_closure_rate >90%, complaint_rate <0.1%, audit_finding_closure_rate >90%, repeat_finding_rate <10%), and status (\"Meeting\" if at or above target, \"Below\" if under target, \"Critical\" if below 80% of target).\n\nSave as: { \"period\": \"Q3\", \"kpis\": { \"first_pass_yield\": { \"value\": ..., \"target\": \"...\", \"status\": \"...\" }, ... } }\n\nStep 2: Identify KPIs that need action and save recommendations to kpi_actions.json.\n\nFor each KPI that is Below or Critical status, provide a recommended action (1-2 sentences). Save as: { \"period\": \"Q3\", \"actions_required\": [ { \"kpi\": \"...\", \"status\": \"...\", \"value\": ..., \"recommendation\": \"...\" }, ... ] }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "quality-manager-qmr_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "kpi-report-exists",
+            "weight": 0.08,
+            "description": "kpi_report.json exists in the working directory.",
+            "testPattern": "kpi_report.json.*exists|file exists.*kpi_report"
+          },
+          {
+            "id": "kpi-structure",
+            "weight": 0.07,
+            "description": "kpi_report.json is valid JSON with a kpis field that is an object.",
+            "testPattern": "kpis.*object|has period and kpis"
+          },
+          {
+            "id": "first-pass-yield",
+            "weight": 0.15,
+            "description": "kpi_report.json kpis.first_pass_yield.value is approximately 94.50 (±0.1), computed as 11718/12400 * 100.",
+            "testPattern": "first_pass_yield.*94|94.*first_pass"
+          },
+          {
+            "id": "nonconformance-rate",
+            "weight": 0.12,
+            "description": "kpi_report.json kpis.nonconformance_rate.value is approximately 0.7016 (±0.02), computed as 87/12400 * 100.",
+            "testPattern": "nonconformance_rate|nonconformance.*0.70"
+          },
+          {
+            "id": "capa-closure-rate",
+            "weight": 0.12,
+            "description": "kpi_report.json kpis.capa_closure_rate.value is approximately 88.89 (±0.1), computed as 16/18 * 100.",
+            "testPattern": "capa_closure_rate.*88|88.*capa"
+          },
+          {
+            "id": "complaint-rate",
+            "weight": 0.1,
+            "description": "kpi_report.json kpis.complaint_rate.value is approximately 0.0726 (±0.005), computed as 9/12400 * 100.",
+            "testPattern": "complaint_rate|complaint.*0.07"
+          },
+          {
+            "id": "audit-closure-rate",
+            "weight": 0.1,
+            "description": "kpi_report.json kpis.audit_finding_closure_rate.value is approximately 86.36 (±0.1), computed as 19/22 * 100.",
+            "testPattern": "audit_finding_closure_rate|audit.*86"
+          },
+          {
+            "id": "repeat-finding-rate",
+            "weight": 0.1,
+            "description": "kpi_report.json kpis.repeat_finding_rate.value is approximately 13.64 (±0.1), computed as 3/22 * 100.",
+            "testPattern": "repeat_finding_rate|repeat.*13"
+          },
+          {
+            "id": "actions-exists",
+            "weight": 0.08,
+            "description": "kpi_actions.json exists in the working directory.",
+            "testPattern": "kpi_actions.json.*exists|file exists.*kpi_actions"
+          },
+          {
+            "id": "actions-content",
+            "weight": 0.08,
+            "description": "kpi_actions.json contains an actions_required array with at least 1 entry, each entry having kpi and recommendation string fields.",
+            "testPattern": "actions_required.*array|has underperforming"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent calculated quality KPIs from raw production data and identified actions for underperforming indicators.\n\nCriterion 1: Calculation Accuracy (Weight: 70%)\n1.0: All 6 KPI values are mathematically correct (first_pass_yield=94.50%, nonconformance_rate=0.7016%, capa_closure_rate=88.89%, complaint_rate=0.0726%, audit_finding_closure_rate=86.36%, repeat_finding_rate=13.64%). Status assignments correctly reflect whether each KPI meets its target.\n0.5: At least 4 of 6 values are correct or minor rounding differences only.\n0: Fewer than 3 correct values or formulas are systematically wrong.\n\nCriterion 2: Action Recommendations Quality (Weight: 30%)\n1.0: Actions file correctly identifies the underperforming KPIs and provides specific, actionable recommendations relevant to the type of KPI (e.g., CAPA process improvement for low closure rate).\n0.5: Actions file exists and identifies most underperforming KPIs but recommendations are generic.\n0: Actions file is missing or identifies no underperforming KPIs.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/quality-manager-qmr",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

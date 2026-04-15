@@ -1,0 +1,90 @@
+{
+  "id": "document-skills_task_01",
+  "name": "Create a Well-Formed SKILL.md for a CSV Validator",
+  "category": "documentation",
+  "gradingType": "hybrid",
+  "prompt": "Create a skill file for a CSV data validation tool. You must produce a single file: skills/validate-csv/SKILL.md\n\nThe file must meet all of these requirements:\n1. YAML frontmatter delimited by --- lines at the top with fields: name (must be exactly 'validate-csv'), description (at least 50 characters, following the pattern '[What it does] + [When to use it] + [Key capabilities]'), and disable-model-invocation set to true.\n2. An H1 heading matching the skill purpose.\n3. A section titled '## Inputs' listing what the skill needs.\n4. A section titled '## Output' describing what is produced.\n5. A section titled '## Process' with at least 3 numbered steps describing how the validation works.\n6. The file must be under 300 lines.\n7. The frontmatter name field must not contain spaces, underscores, or capital letters (kebab-case only).\n\nCreate the directory skills/validate-csv/ and write the SKILL.md file there.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "document-skills_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "The file skills/validate-csv/SKILL.md exists at the required path.",
+            "testPattern": "SKILL.md.*exists|file exists"
+          },
+          {
+            "id": "frontmatter-present",
+            "weight": 0.12,
+            "description": "The file starts with --- and has a closing --- delimiter forming valid YAML frontmatter.",
+            "testPattern": "frontmatter.*---.*delimiters|YAML frontmatter"
+          },
+          {
+            "id": "name-field",
+            "weight": 0.12,
+            "description": "The frontmatter name field is exactly 'validate-csv' (kebab-case, no spaces or capitals).",
+            "testPattern": "name.*validate-csv|frontmatter name"
+          },
+          {
+            "id": "description-length",
+            "weight": 0.1,
+            "description": "The frontmatter description field is a string of at least 50 characters.",
+            "testPattern": "description has at least 50 characters"
+          },
+          {
+            "id": "disable-invocation",
+            "weight": 0.1,
+            "description": "The frontmatter contains disable-model-invocation: true.",
+            "testPattern": "disable-model-invocation.*true"
+          },
+          {
+            "id": "inputs-section",
+            "weight": 0.12,
+            "description": "The file contains a ## Inputs section heading.",
+            "testPattern": "Inputs section|## Inputs"
+          },
+          {
+            "id": "output-section",
+            "weight": 0.1,
+            "description": "The file contains a ## Output section heading.",
+            "testPattern": "Output section|## Output"
+          },
+          {
+            "id": "process-section",
+            "weight": 0.12,
+            "description": "The file contains a ## Process section heading.",
+            "testPattern": "Process section|## Process"
+          },
+          {
+            "id": "process-steps",
+            "weight": 0.12,
+            "description": "The ## Process section contains at least 3 numbered steps (lines matching \\d+. pattern).",
+            "testPattern": "at least 3.*steps|numbered steps"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a well-structured SKILL.md for a CSV validation skill.\n\nCriterion 1: Skill Usefulness and Clarity (Weight: 60%)\n1.0: The description clearly explains what the skill does, when to invoke it, and key capabilities. The Process section has specific, actionable steps (not vague summaries). The skill reads as something a real user would find helpful.\n0.5: Description or process is somewhat vague but structure is correct.\n0: Content is minimal, copied from the prompt verbatim, or not useful.\n\nCriterion 2: Structure Completeness (Weight: 40%)\n1.0: All required sections are present and well-organized; frontmatter is valid YAML with correct field values.\n0.5: Most sections present but one is thin or missing.\n0: Multiple sections missing or frontmatter is malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/document-skills",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

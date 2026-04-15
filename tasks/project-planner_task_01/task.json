@@ -1,0 +1,114 @@
+{
+  "id": "project-planner_task_01",
+  "name": "Write a Feature Proposal Document for Dark Mode Support",
+  "category": "project_planning",
+  "gradingType": "hybrid",
+  "prompt": "Write a feature proposal document for adding dark mode support to a web application and save it to proposal.md.\n\nFeature description: Add a dark mode theme toggle to the \"NoteKeeper\" web app. Users should be able to switch between light and dark themes. The preference should persist across sessions using localStorage.\n\nRequirements for proposal.md:\n- Must be a Markdown file\n- Must begin with a level-1 heading: `# Dark Mode Support`\n- Must contain a `## Summary` section with 1-3 paragraphs describing the feature\n- Must contain a `## Motivation` section explaining why this is needed now\n- Must contain a `## Design` section covering both user experience AND technical approach\n- Must contain a `## Phases` section with exactly 3 phases. Each phase must be a level-3 heading (`### Phase N: <name>`) and include a brief description and a checklist (at least 2 items using `- [ ]` format)\n- Must contain an `## Acceptance Criteria` section with at least 4 testable criteria as a numbered list\n- Must contain an `## Open Questions` section (may be empty or list 1-2 questions)\n- Must contain a `## Status` section with either `Draft` or `Ready`\n\nAlso save a machine-readable summary to proposal_meta.json:\n{\n  \"title\": \"Dark Mode Support\",\n  \"feature\": \"dark-mode\",\n  \"status\": \"<Draft or Ready>\",\n  \"phase_count\": 3,\n  \"phases\": [\n    {\"number\": 1, \"name\": \"<phase name>\"},\n    {\"number\": 2, \"name\": \"<phase name>\"},\n    {\"number\": 3, \"name\": \"<phase name>\"}\n  ]\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "project-planner_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "md-exists",
+            "weight": 0.05,
+            "description": "proposal.md exists in the working directory.",
+            "testPattern": "proposal.md > file exists"
+          },
+          {
+            "id": "h1-heading",
+            "weight": 0.08,
+            "description": "proposal.md starts with the exact line '# Dark Mode Support' as its first non-whitespace content.",
+            "testPattern": "h1 heading Dark Mode Support"
+          },
+          {
+            "id": "summary-section",
+            "weight": 0.07,
+            "description": "proposal.md contains a '## Summary' section heading.",
+            "testPattern": "Summary section"
+          },
+          {
+            "id": "motivation-section",
+            "weight": 0.07,
+            "description": "proposal.md contains a '## Motivation' section heading.",
+            "testPattern": "Motivation section"
+          },
+          {
+            "id": "design-section",
+            "weight": 0.08,
+            "description": "proposal.md contains a '## Design' section heading.",
+            "testPattern": "Design section"
+          },
+          {
+            "id": "phases-headings",
+            "weight": 0.12,
+            "description": "proposal.md contains a '## Phases' section with exactly 3 '### Phase N' level-3 headings.",
+            "testPattern": "exactly 3 Phase headings"
+          },
+          {
+            "id": "checklist-items",
+            "weight": 0.1,
+            "description": "proposal.md contains at least 6 checkbox items formatted as '- [ ]' (at least 2 per phase).",
+            "testPattern": "checklist items"
+          },
+          {
+            "id": "acceptance-criteria",
+            "weight": 0.12,
+            "description": "proposal.md contains a '## Acceptance Criteria' section with at least 4 numbered list items matching '^\\d+\\. '.",
+            "testPattern": "Acceptance Criteria.*4 numbered|at least 4 numbered"
+          },
+          {
+            "id": "open-questions",
+            "weight": 0.06,
+            "description": "proposal.md contains an '## Open Questions' section heading.",
+            "testPattern": "Open Questions"
+          },
+          {
+            "id": "status-field",
+            "weight": 0.07,
+            "description": "proposal.md contains a '## Status' section whose content includes the word 'Draft' or 'Ready'.",
+            "testPattern": "Status.*Draft or Ready|Status section with Draft"
+          },
+          {
+            "id": "meta-exists",
+            "weight": 0.05,
+            "description": "proposal_meta.json exists in the working directory.",
+            "testPattern": "proposal_meta.json > file exists"
+          },
+          {
+            "id": "meta-fields",
+            "weight": 0.07,
+            "description": "proposal_meta.json contains all required fields: title, feature, status, phase_count, and phases.",
+            "testPattern": "required fields"
+          },
+          {
+            "id": "meta-phases",
+            "weight": 0.06,
+            "description": "proposal_meta.json phases array has exactly 3 entries, each with a number and a non-empty name string.",
+            "testPattern": "phases array has 3 entries"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent wrote a feature proposal for dark mode support in a web app.\n\nCriterion 1: Design Depth (Weight: 55%)\n1.0: The Design section covers both UX (how the toggle looks, where it lives in the UI, transition behavior) and technical implementation (CSS variables or class-based theming, localStorage persistence mechanism, specific code patterns). Phases are independently shippable milestones that make sense in sequence.\n0.5: Design section exists but covers only one dimension (UX or technical, not both), or phases are not independently shippable.\n0: Design section is missing or too vague to guide implementation.\n\nCriterion 2: Acceptance Criteria Quality (Weight: 45%)\n1.0: At least 4 acceptance criteria are testable and specific to dark mode (e.g., 'Given the user toggles dark mode, the background color changes to #1a1a1a', 'When the page reloads, the previously selected theme is restored'). Criteria are verifiable, not aspirational.\n0.5: Criteria exist but are vague or some are not testable (e.g., 'the app looks good in dark mode').\n0: Criteria section is missing or contains only aspirational statements.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/project-planner",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

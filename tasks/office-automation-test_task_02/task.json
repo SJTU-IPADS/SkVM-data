@@ -1,0 +1,96 @@
+{
+  "id": "office-automation-test_task_02",
+  "name": "Generate a Meeting Minutes JSON File",
+  "category": "office-productivity",
+  "gradingType": "hybrid",
+  "prompt": "Generate a structured meeting minutes file and save it to meeting_minutes.json.\n\nMeeting information:\n- Meeting topic: Q2 Product Roadmap Review\n- Date: 2026-04-08\n- Time: 14:00-15:30\n- Attendees: Sarah Chen (Product Manager), David Park (Engineering Lead), Maria Torres (Design Lead), James Wu (Data Analyst)\n- Key discussion points: (1) Mobile app v2.0 launch delayed from April 30 to May 15 due to payment integration issues; (2) New analytics dashboard feature approved for Q2, targeting June 30 delivery; (3) User research findings presented: 68% of users requested offline mode\n- Decisions made: (1) Delay mobile v2.0 launch to May 15; (2) Prioritize analytics dashboard for Q2; (3) Add offline mode to Q3 backlog\n- Action items: Sarah to update external roadmap by April 10; David to provide revised engineering estimate for offline mode by April 12; Maria to begin analytics dashboard wireframes by April 11\n\nmeeting_minutes.json must have exactly this structure:\n{\n  \"meeting_info\": {\n    \"topic\": \"Q2 Product Roadmap Review\",\n    \"date\": \"2026-04-08\",\n    \"duration_minutes\": 90,\n    \"attendees\": [{ \"name\": \"<name>\", \"role\": \"<role>\" }]\n  },\n  \"decisions\": [{ \"id\": \"D-1\", \"decision\": \"<text>\" }],\n  \"action_items\": [{ \"id\": \"A-1\", \"owner\": \"<name>\", \"task\": \"<task>\", \"due_date\": \"<YYYY-MM-DD>\" }],\n  \"summary\": \"<one paragraph summary>\"\n}\n\nRequirements: attendees must have exactly 4 entries; decisions must have exactly 3 entries with IDs D-1, D-2, D-3; action_items must have exactly 3 entries with IDs A-1, A-2, A-3; duration_minutes must be 90.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "office-automation-test_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "meeting_minutes.json file is present in the working directory.",
+            "testPattern": "meeting_minutes.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "meeting_minutes.json parses as valid JSON without errors.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "meeting-info",
+            "weight": 0.12,
+            "description": "meeting_info object contains topic, date, duration_minutes, and attendees fields.",
+            "testPattern": "meeting_info has required fields"
+          },
+          {
+            "id": "duration",
+            "weight": 0.1,
+            "description": "meeting_info.duration_minutes is exactly 90.",
+            "testPattern": "duration_minutes is 90"
+          },
+          {
+            "id": "attendees-count",
+            "weight": 0.12,
+            "description": "attendees array contains exactly 4 entries.",
+            "testPattern": "exactly 4 attendees"
+          },
+          {
+            "id": "attendee-fields",
+            "weight": 0.08,
+            "description": "Each attendee object has non-empty name and role string fields.",
+            "testPattern": "attendees have name and role"
+          },
+          {
+            "id": "decisions-count",
+            "weight": 0.13,
+            "description": "decisions array contains exactly 3 entries.",
+            "testPattern": "exactly 3 decisions"
+          },
+          {
+            "id": "decision-ids",
+            "weight": 0.1,
+            "description": "Decision IDs are exactly D-1, D-2, and D-3.",
+            "testPattern": "exactly 3 decisions with IDs D-1, D-2, D-3"
+          },
+          {
+            "id": "action-items-count",
+            "weight": 0.1,
+            "description": "action_items array contains exactly 3 entries with IDs A-1, A-2, and A-3.",
+            "testPattern": "exactly 3 action items"
+          },
+          {
+            "id": "action-due-dates",
+            "weight": 0.07,
+            "description": "Each action item has owner, task, and a due_date string in YYYY-MM-DD format.",
+            "testPattern": "action items have owner, task, and due_date fields"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce structured meeting minutes from raw notes.\n\nCriterion 1: Content Completeness (Weight: 60%)\n1.0: All 3 decisions reflect the actual meeting outcomes (May 15 delay, analytics dashboard approved, offline mode to Q3), all 3 action items have the correct owner and reasonable due dates matching the provided deadlines.\n0.5: Most decisions and action items are present but one is inaccurate or a due date is wrong.\n0: Decisions or action items are missing or do not match the provided meeting notes.\n\nCriterion 2: Summary Quality (Weight: 40%)\n1.0: The summary paragraph is coherent, captures the key outcomes (delay, new feature, user research finding, Q3 backlog item) in professional business language.\n0.5: Summary exists but omits major outcomes or reads as a list rather than a paragraph.\n0: Summary is missing or is a single generic sentence.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/office-automation-test",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

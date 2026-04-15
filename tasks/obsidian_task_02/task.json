@@ -1,0 +1,85 @@
+{
+  "id": "obsidian_task_02",
+  "name": "Analyze vault link graph and detect orphaned notes",
+  "category": "planning_productivity",
+  "gradingType": "hybrid",
+  "prompt": "A knowledge vault exists in the `vault/` folder (it will be set up for you). The vault contains markdown notes with [[wiki-links]], YAML frontmatter, and tags. Your task is to analyze the vault's link structure and produce two output files in the working directory:\n\n1. `graph.json` with the following structure:\n   - `nodes`: array of objects, each with `name` (filename without .md), `folder`, `tags` (from frontmatter, as array), `outgoingLinks` (array of note names this note links to via [[wiki-links]]), `incomingLinks` (array of note names that link to this note)\n   - `edges`: array of objects with `source` and `target` (note names)\n   - `stats`: object with `totalNotes`, `totalEdges`, `averageOutgoing` (rounded to 1 decimal), `averageIncoming` (rounded to 1 decimal)\n   - `orphans`: array of note names that have zero incoming AND zero outgoing links\n   - `deadLinks`: array of objects with `source` (note containing the link) and `target` (linked note name that does not exist as a file)\n\n2. `vault_health.md` — a markdown report with:\n   - `## Statistics` section showing total notes, edges, averages\n   - `## Most Connected` section listing the top 3 notes by total connections (incoming + outgoing)\n   - `## Orphaned Notes` section listing notes with no connections\n   - `## Dead Links` section listing broken [[wiki-links]] that point to non-existent notes\n   - `## Tag Distribution` section showing each unique tag and the count of notes using it\n\nWiki-links may use `[[note name]]` or `[[note name|display text]]` syntax — extract only the note name part. Match links case-insensitively to file names (without .md extension).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "obsidian_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "graph-exists",
+            "weight": 0.08,
+            "description": "graph.json file is present in the working directory.",
+            "testPattern": "graph.json exists"
+          },
+          {
+            "id": "nodes-correct",
+            "weight": 0.15,
+            "description": "graph.json nodes array has exactly 10 entries including web-redesign, api-migration, legacy-patterns, and 2025-03-15.",
+            "testPattern": "nodes"
+          },
+          {
+            "id": "edges-correct",
+            "weight": 0.15,
+            "description": "graph.json edges array has exactly 22 entries, all referencing existing node names as source and target.",
+            "testPattern": "edges"
+          },
+          {
+            "id": "stats-correct",
+            "weight": 0.12,
+            "description": "stats object has totalNotes=10, totalEdges=22, and numeric averageOutgoing and averageIncoming fields.",
+            "testPattern": "stats"
+          },
+          {
+            "id": "orphans-detected",
+            "weight": 0.15,
+            "description": "orphans array contains exactly 1 entry: \"legacy-patterns\" (the only node with zero incoming and outgoing links).",
+            "testPattern": "orphan"
+          },
+          {
+            "id": "dead-links-detected",
+            "weight": 0.15,
+            "description": "deadLinks array identifies all 3 non-existent targets: \"performance testing\", \"database optimization\", and \"react native navigation\".",
+            "testPattern": "dead.link"
+          },
+          {
+            "id": "health-report",
+            "weight": 0.1,
+            "description": "vault_health.md exists with sections Statistics, Most Connected, Orphaned Notes, Dead Links, and Tag Distribution.",
+            "testPattern": "vault_health.md"
+          },
+          {
+            "id": "aliased-links",
+            "weight": 0.1,
+            "description": "design-system node incomingLinks count is at least 4, confirming aliased [[note|display]] links are resolved correctly.",
+            "testPattern": "alias"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed an existing vault's link graph, computed statistics, and identified orphans and dead links.\n\nCriterion 1: Graph JSON Accuracy (Weight: 50%)\n1.0: graph.json has correct nodes with accurate outgoing/incoming link arrays, edges are correct, stats computations are accurate, orphans and dead links correctly identified. Aliased links ([[name|display]]) handled properly.\n0.5: Most data correct but some link counts wrong, or dead links / orphans partially missed.\n0: graph.json missing or fundamentally wrong.\n\nCriterion 2: Health Report Quality (Weight: 30%)\n1.0: vault_health.md has all 5 required sections, statistics match graph.json, top-3 connected notes are correct, tag distribution is accurate.\n0.5: Report exists but some sections missing or data inconsistent with graph.json.\n0: Report missing or minimal.\n\nCriterion 3: Edge Case Handling (Weight: 20%)\n1.0: Correctly handles aliased links, case-insensitive matching, and distinguishes dead links from real connections.\n0.5: Handles basic links but fails on aliases or case sensitivity.\n0: No edge case handling.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/obsidian",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "medium"
+}

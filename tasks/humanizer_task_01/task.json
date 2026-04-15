@@ -1,0 +1,31 @@
+{
+  "id": "humanizer_task_01",
+  "name": "Humanize a Telemedicine Blog Post: Curly Quotes, Negative Parallelisms, and AI Vocabulary",
+  "category": "writing_content",
+  "gradingType": "hybrid",
+  "prompt": "Your queue contains `draft.txt` — a four-paragraph blog post about telemedicine that was clearly written by an AI assistant. Your job is to rewrite it so it reads like a direct, confident human author wrote it. Write the full rewritten article to `output.txt` at the workspace root.\n\nFollow this exact protocol:\n\n**Smart/curly quotes** — the draft contains curly double-quotes (\u201c and \u201d) and curly apostrophes (\u2019), which are a signature artifact of copy-pasted ChatGPT output. Replace every curly double-quote with a straight double-quote (\") and every curly apostrophe with a straight single-quote ('). No curly quotes of any kind may remain in output.txt.\n\n**Negative parallelisms** — remove every \"Not only...but also\" construction by rewriting the sentence as a direct statement. The draft has two such constructions. Example: \"Not only does X help with Y, but it also does Z\" → \"X helps with Y and does Z\".\n\n**Banned AI vocabulary** — every occurrence of the following words must be replaced or restructured so that none remain (case-insensitive): groundbreaking, landscape, delve, delving, pivotal, multifaceted, undoubtedly, hallmark, cornerstone, foster, fostering, leverage.\n\n**Banned filler phrases** — remove or rewrite every occurrence of: \"it's important to note\" (including the curly-apostrophe variant), \"it is important to note\", \"furthermore,\" (as a sentence-starting connector), \"in order to\", \"due to the fact that\", \"cannot be overstated\", \"nothing short of\".\n\n**Chatbot artifacts** — remove any sentence containing: \"I hope\", \"Feel free\", \"As an AI\".\n\n**Copula avoidance** — replace every instance of \"serves as\" / \"serve as\" with a direct verb like \"is\" or \"are\", and replace \"boasts\" / \"boast\" with \"has\" / \"have\".\n\n**Structure invariants** — the output must have exactly 4 paragraphs (separated by blank lines), matching the input structure. Do not collapse paragraphs or add new ones. Do not introduce markdown formatting (bold, headers, bullet lists) — the input has none.\n\n**Length** — the output word count must stay between 80% and 120% of the input word count (the input has 260 words, so the target range is 208–312 words).\n\nPreserve all factual claims about telemedicine, remote monitoring, AI diagnostics, broadband access, and reimbursement models.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent rewrote a 4-paragraph telemedicine blog post. The prompt pinned a specific banned-token list, required curly quotes to be straightened, 'Not only...but also' constructions to be rewritten, chatbot artifacts removed, and structural invariants preserved (paragraph count, word count range 208-312, no markdown).\n\nCriterion 1: Naturalness of prose (Weight: 40%)\n1.0: The rewrite reads like a confident human writer. Sentences vary in length and structure, the tone is direct and factual, there is no AI cadence. The text does not feel like the original with a word-swap applied — the negative parallelisms have been restructured into genuine direct statements, not just stripped of 'Not only' and 'but also'.\n0.5: Mostly natural but 1-2 sentences still have an AI cadence or the former parallelisms were only partially restructured.\n0: The text still reads like AI output, or the language is stilted from over-aggressive removal.\n\nCriterion 2: Content preservation (Weight: 40%)\n1.0: All factual substance is preserved — telemedicine's impact on care access and doctor-patient relationships, remote monitoring and preventive care, AI diagnostics and clinical workflow challenges, broadband equity for rural access, reimbursement barriers, and telehealth program success traits.\n0.5: Most content preserved but one factual point is missing or distorted.\n0: Significant factual content was lost, or the agent produced generic paragraphs rather than preserving the original's specific claims.\n\nCriterion 3: Protocol discipline (Weight: 20%)\n1.0: A close reading finds zero curly quotes, zero 'Not only...but also' constructions, zero instances of any banned term or filler phrase, and the paragraph structure matches the input. The agent treated every constraint as a hard rule.\n0.5: One or two minor violations remain.\n0: Multiple violations remain or the agent ignored the protocol.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/humanizer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

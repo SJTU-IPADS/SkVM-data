@@ -1,0 +1,31 @@
+{
+  "id": "frontend-slides_task_02",
+  "name": "Build a Dark-Theme Conference Talk from talk_outline.json with Speaker Notes",
+  "category": "frontend_slides",
+  "gradingType": "hybrid",
+  "prompt": "You have `talk_outline.json`, a structured content outline for a 6-slide conference talk. Build a polished, self-contained dark-theme HTML presentation from it.\n\nProduce two files at the workspace root:\n\n**1. `talk.html`** — a single HTML5 file satisfying all of the following:\n\n**Self-contained (no external resources).** All CSS and JavaScript must be inline. Do not include any `<link rel=\"stylesheet\" href=\"http...\">` or `<script src=\"http...\">` tags — not even for fonts. Any font you use must come from the system font stack or a `@font-face` declaration with base64-encoded data.\n\n**Valid HTML5.** Must begin with `<!DOCTYPE html>`.\n\n**Dark theme.** The background color of the presentation must be genuinely dark: when parsed as RGB, all three channels must be ≤ 60 (e.g. `#0a0a0f` is fine; `#404040` — channels = 64 — is not).\n\n**Slide structure.** Exactly 6 `.slide` elements, each with the `id` from its corresponding entry in `talk_outline.json` (`slide-cover`, `slide-agenda`, `slide-today`, `slide-failures`, `slide-breakthrough`, `slide-cta`). Headings must be verbatim from the spec.\n\n**Viewport locking.** Each `.slide` must have `height: 100vh; height: 100dvh; overflow: hidden;` in the CSS so slides never scroll within themselves.\n\n**Speaker notes.** Each slide must contain the `speaker_note` text from talk_outline.json embedded as an HTML comment directly inside the `.slide` element, e.g.: `<!-- SPEAKER NOTE: Open with the bold claim ... -->`. All six notes must be present.\n\n**Navigation.** Implement both:\n- Keyboard: `ArrowRight` / `ArrowLeft` (or `Space`) advance/retreat slides.\n- Mouse wheel: scrolling down advances, scrolling up retreats.\n\n**Slide counter.** A visible element showing the current slide number out of total (e.g. `1 / 6`). It must update as slides change.\n\n**2. `talk_manifest.json`** — a JSON summary:\n```json\n{\n  \"slide_count\": 6,\n  \"slide_ids\": [\"slide-cover\", \"slide-agenda\", \"slide-today\", \"slide-failures\", \"slide-breakthrough\", \"slide-cta\"],\n  \"has_speaker_notes\": true,\n  \"output_file\": \"talk.html\"\n}\n```\n`slide_count` must equal the number of `.slide` elements you actually rendered — do not hardcode. `has_speaker_notes` must be `true` because you embedded the notes.\n\nDo not reference any internal tool path or skill directory in your output.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent read talk_outline.json and produced talk.html (a 6-slide dark-theme conference talk) and talk_manifest.json. The task pinned: no external CDN, dark background (all RGB channels ≤ 60), speaker notes as HTML comments, both keyboard and wheel navigation, a visible slide counter.\n\nCriterion 1: Dark theme quality and visual design (Weight: 40%)\n1.0: Background is genuinely dark and visually consistent, text is light-colored and readable, slide transitions are smooth, cover slide is visually distinct from content slides, CTA slide has a clear closing statement.\n0.5: Background is dark but contrast is poor or some slides have inconsistent color treatment.\n0: No dark theme or slides are unstyled default HTML.\n\nCriterion 2: Speaker notes fidelity and embedding (Weight: 40%)\n1.0: All six speaker notes from the outline appear as HTML comments inside their respective slides. The notes are complete and not truncated. They read as useful presenter guidance matching the outline content.\n0.5: At least 3 notes present but some are missing or placed outside the slide element.\n0: No speaker notes embedded as comments.\n\nCriterion 3: Navigation and counter (Weight: 20%)\n1.0: Both keyboard and mouse-wheel navigation are implemented. The counter updates correctly and shows 'N / 6' or equivalent. Slide transitions are animated (not instant page replacement).\n0.5: One navigation method works but the other is absent, or counter is static/missing.\n0: No navigation or counter implemented.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/frontend-slides",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "file-operations_task_01",
+  "name": "Create Python Project Structure",
+  "category": "file_operations",
+  "gradingType": "hybrid",
+  "prompt": "Create a complete Python project directory structure for a package called `datautils`. The root directory must be named `datautils-project` and contain exactly the following layout:\n\n```\ndatautils-project/\n├── src/\n│   └── datautils/\n│       └── __init__.py\n├── tests/\n│   └── __init__.py\n├── pyproject.toml\n└── README.md\n```\n\nFile contents must be:\n\n`src/datautils/__init__.py` — exactly one line: `__version__ = \"0.1.0\"`\n\n`tests/__init__.py` — empty file (zero bytes or blank)\n\n`pyproject.toml` — must contain a `[project]` section with:\n- `name = \"datautils\"`\n- `version = \"0.1.0\"`\n- `requires-python = \">=3.10\"`\nand a `[build-system]` section with `requires` and `build-backend` keys.\n\n`README.md` — must start with the line `# datautils` and include at least an `## Installation` and `## Usage` section heading.\n\nAfter creating all files, write a manifest to `datautils-project/manifest.json` listing all created files relative to `datautils-project/`, as a JSON array of strings sorted alphabetically, under the key `files`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "file-operations_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "project-root",
+            "weight": 0.08,
+            "description": "The directory datautils-project/ exists with src/datautils/ and tests/ subdirectories.",
+            "testPattern": "project root directory"
+          },
+          {
+            "id": "src-init",
+            "weight": 0.12,
+            "description": "The file datautils-project/src/datautils/__init__.py exists.",
+            "testPattern": "src.datautils.__init__"
+          },
+          {
+            "id": "version-string",
+            "weight": 0.12,
+            "description": "__init__.py contains exactly `__version__ = \"0.1.0\"` and pyproject.toml contains `version = \"0.1.0\"`.",
+            "testPattern": "version.*0.1.0|__version__"
+          },
+          {
+            "id": "tests-init",
+            "weight": 0.08,
+            "description": "The file datautils-project/tests/__init__.py exists.",
+            "testPattern": "tests.__init__"
+          },
+          {
+            "id": "pyproject-exists",
+            "weight": 0.1,
+            "description": "The file datautils-project/pyproject.toml exists.",
+            "testPattern": "pyproject.toml exists"
+          },
+          {
+            "id": "pyproject-name",
+            "weight": 0.1,
+            "description": "pyproject.toml contains `name = \"datautils\"` in the [project] section.",
+            "testPattern": "name.*datautils|project name"
+          },
+          {
+            "id": "pyproject-python",
+            "weight": 0.1,
+            "description": "pyproject.toml contains requires-python with a version constraint including 3.10.",
+            "testPattern": "requires-python|python version"
+          },
+          {
+            "id": "readme-headings",
+            "weight": 0.1,
+            "description": "README.md starts with '# datautils' and contains both '## Installation' and '## Usage' headings.",
+            "testPattern": "README.*heading|Installation.*Usage"
+          },
+          {
+            "id": "manifest-exists",
+            "weight": 0.1,
+            "description": "The file datautils-project/manifest.json exists with a top-level 'files' array.",
+            "testPattern": "manifest.json"
+          },
+          {
+            "id": "manifest-files",
+            "weight": 0.1,
+            "description": "manifest.json files array is sorted alphabetically and includes __init__.py, pyproject.toml, and README.",
+            "testPattern": "manifest.*files|files.*sorted"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to scaffold a Python project directory with specific file contents.\n\nCriterion 1: File Content Correctness (Weight: 60%)\n1.0: All files have the required content exactly as specified — __init__.py has the version string, pyproject.toml has all required keys, README.md has correct headings.\n0.5: Most content is correct but one file is missing a required key or heading.\n0: Files are missing or have entirely wrong content.\n\nCriterion 2: Structure Organization (Weight: 40%)\n1.0: Directory hierarchy is exactly as specified, manifest lists all files alphabetically.\n0.5: Most directories exist but one file is misplaced or manifest is incomplete.\n0: Structure does not match the specification.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/file-operations",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

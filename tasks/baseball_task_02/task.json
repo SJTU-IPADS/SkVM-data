@@ -1,0 +1,96 @@
+{
+  "id": "baseball_task_02",
+  "name": "Fetch MLB Team Schedule and Summarize to JSON",
+  "category": "sports_data",
+  "gradingType": "hybrid",
+  "prompt": "Use the MLB Stats API (no API key required, base URL: https://statsapi.mlb.com/api/v1) to fetch schedule data for the New York Yankees (team abbreviation: NYY, team ID: 147) for the week of September 15-21, 2025.\n\nSave the results to schedule_summary.json with exactly these fields:\n- team: 'New York Yankees' (string)\n- team_id: 147 (integer)\n- date_range: { start: '2025-09-15', end: '2025-09-21' } (object with string dates)\n- games: array of game objects, each containing:\n  - game_pk: MLB game ID (integer)\n  - date: date in 'YYYY-MM-DD' format (string)\n  - home_team: full team name (string)\n  - away_team: full team name (string)\n  - venue: ballpark name (string)\n  - status: game status string (e.g. 'Final', 'Scheduled')\n- total_games: count of games in the array (integer)\n- home_games: count of games where Yankees are the home team (integer)\n- away_games: count of games where Yankees are the away team (integer)\n\nFetch the schedule from the MLB Stats API schedule endpoint with the appropriate date range and team filter. Ensure total_games = home_games + away_games.",
+  "timeoutMs": 300000,
+  "maxSteps": 40,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "baseball_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.07,
+            "description": "schedule_summary.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "schedule_summary.json parses as valid JSON without throwing an error.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "top-level-fields",
+            "weight": 0.1,
+            "description": "schedule_summary.json contains all 7 required top-level fields: team, team_id, date_range, games, total_games, home_games, away_games.",
+            "testPattern": "all required top-level fields"
+          },
+          {
+            "id": "team-and-id",
+            "weight": 0.15,
+            "description": "team is exactly 'New York Yankees' and team_id is exactly 147.",
+            "testPattern": "team.*Yankees.*147|New York Yankees.*147"
+          },
+          {
+            "id": "date-range",
+            "weight": 0.15,
+            "description": "date_range object has start='2025-09-15' and end='2025-09-21' as string values.",
+            "testPattern": "date_range.*correct|2025-09-15"
+          },
+          {
+            "id": "games-array",
+            "weight": 0.08,
+            "description": "games is an array containing at least one game object.",
+            "testPattern": "games is an array"
+          },
+          {
+            "id": "game-fields",
+            "weight": 0.12,
+            "description": "Every game object contains all 6 required fields: game_pk, date, home_team, away_team, venue, and status.",
+            "testPattern": "game.*required fields|game_pk.*date.*home_team"
+          },
+          {
+            "id": "game-dates",
+            "weight": 0.08,
+            "description": "Every game's date string falls within the range 2025-09-15 to 2025-09-21 inclusive.",
+            "testPattern": "game dates.*within|2025-09-15.*2025-09-21"
+          },
+          {
+            "id": "totals-consistent",
+            "weight": 0.12,
+            "description": "total_games equals home_games plus away_games, and also equals the length of the games array.",
+            "testPattern": "total_games.*home_games.*away_games|equals.*plus"
+          },
+          {
+            "id": "game-pk-integers",
+            "weight": 0.08,
+            "description": "All game_pk values are positive integers (type number, greater than 0, and integer-valued).",
+            "testPattern": "game_pk.*positive|positive integers"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to fetch the Yankees' schedule for a specific week from the MLB Stats API and summarize it as a JSON file.\n\nCriterion 1: Data Accuracy (Weight: 60%)\n1.0: Games listed match real Yankees schedule for Sep 15-21, 2025; all game_pk values are valid MLB integers; home/away split is mathematically consistent.\n0.5: Schedule fetched but some games are missing or game details are incomplete.\n0: No real schedule data fetched or file is missing.\n\nCriterion 2: Structure Compliance (Weight: 40%)\n1.0: All required fields present with correct types; date_range object has start and end strings; total_games equals home_games + away_games.\n0.5: Most fields present but a few are missing or have wrong types.\n0: Structure is fundamentally wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/baseball",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

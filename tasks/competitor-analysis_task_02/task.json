@@ -1,0 +1,102 @@
+{
+  "id": "competitor-analysis_task_02",
+  "name": "Competitive Battlecard Generation",
+  "category": "seo_analysis",
+  "gradingType": "hybrid",
+  "prompt": "Create a competitive battlecard comparing two companies based on the data provided below. Save it to `battlecard.json`.\n\n**Our Product**: StreamlineHR\n- Category: HR Software\n- Price: $12/user/month\n- Key features: Time tracking, Payroll automation, Employee self-service, Mobile app, Slack integration\n- Customer count: 850\n- NPS score: 42\n- Support: 24/7 chat + email\n- Weaknesses: No performance review module, Limited reporting\n\n**Competitor**: WorkforceHub\n- Price: $18/user/month\n- Key features: Time tracking, Payroll automation, Performance reviews, Advanced reporting, API access, SSO\n- Customer count: 3,200\n- NPS score: 38\n- Support: Business hours only\n- Weaknesses: No Slack integration, Complex onboarding (avg 3 weeks)\n\nSave to `battlecard.json` with exactly this structure:\n```json\n{\n  \"our_product\": \"StreamlineHR\",\n  \"competitor\": \"WorkforceHub\",\n  \"price_comparison\": {\n    \"our_price_per_user\": 12,\n    \"competitor_price_per_user\": 18,\n    \"our_price_advantage_pct\": <float — how much cheaper we are as percentage, rounded to 1 decimal>\n  },\n  \"feature_comparison\": {\n    \"we_have_they_dont\": [\"string\"],\n    \"they_have_we_dont\": [\"string\"],\n    \"both_have\": [\"string\"]\n  },\n  \"our_advantages\": [\"string (at least 3)\"],\n  \"their_advantages\": [\"string (at least 3)\"],\n  \"win_themes\": [\"string (at least 2 — reasons to choose us over them)\"],\n  \"objection_handling\": [\n    {\n      \"objection\": \"string\",\n      \"response\": \"string\"\n    }\n  ],\n  \"nps_comparison\": {\n    \"ours\": 42,\n    \"theirs\": 38,\n    \"leader\": \"StreamlineHR\"\n  }\n}\n```\n\nCalculate `our_price_advantage_pct` as: ((competitor_price - our_price) / competitor_price * 100), rounded to 1 decimal place. That is (18-12)/18*100 = 33.3%. The `feature_comparison` must correctly categorize features from both products.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "competitor-analysis_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "battlecard.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.1,
+            "description": "battlecard.json contains all 9 required top-level fields: our_product, competitor, price_comparison, feature_comparison, our_advantages, their_advantages, win_themes, objection_handling, nps_comparison.",
+            "testPattern": "valid JSON with required"
+          },
+          {
+            "id": "product-names",
+            "weight": 0.05,
+            "description": "our_product is exactly 'StreamlineHR' and competitor is exactly 'WorkforceHub'.",
+            "testPattern": "product names are correct"
+          },
+          {
+            "id": "price-values",
+            "weight": 0.1,
+            "description": "price_comparison has our_price_per_user=12, competitor_price_per_user=18, and our_price_advantage_pct field.",
+            "testPattern": "price_comparison has correct prices"
+          },
+          {
+            "id": "price-advantage",
+            "weight": 0.2,
+            "description": "our_price_advantage_pct is within 0.5 of 33.3 (computed as (18-12)/18×100).",
+            "testPattern": "price advantage is approximately"
+          },
+          {
+            "id": "feature-cats",
+            "weight": 0.1,
+            "description": "feature_comparison has three non-empty arrays: we_have_they_dont, they_have_we_dont, and both_have.",
+            "testPattern": "feature_comparison has three categories"
+          },
+          {
+            "id": "slack-exclusive",
+            "weight": 0.15,
+            "description": "Slack integration appears in the we_have_they_dont array (it is a StreamlineHR-exclusive feature).",
+            "testPattern": "Slack integration appears"
+          },
+          {
+            "id": "advantages",
+            "weight": 0.05,
+            "description": "our_advantages is an array with at least 3 entries.",
+            "testPattern": "our_advantages has at least 3"
+          },
+          {
+            "id": "win-themes",
+            "weight": 0.05,
+            "description": "win_themes is an array with at least 2 entries.",
+            "testPattern": "win_themes has at least 2"
+          },
+          {
+            "id": "objection-fields",
+            "weight": 0.05,
+            "description": "objection_handling is a non-empty array where every entry has objection and response fields.",
+            "testPattern": "objection_handling is array"
+          },
+          {
+            "id": "nps-correct",
+            "weight": 0.1,
+            "description": "nps_comparison has ours=42, theirs=38, and leader='StreamlineHR'.",
+            "testPattern": "nps_comparison has correct values"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent created a competitive battlecard for a sales team.\n\nCriterion 1: Battlecard Usefulness (Weight: 60%)\n1.0: win_themes are compelling and grounded in real differentiators (price, NPS, Slack integration, fast onboarding), objection_handling addresses realistic sales objections with persuasive responses.\n0.5: win_themes or objection handling are generic and not specific to these products.\n0: Content is not useful as a sales tool.\n\nCriterion 2: Feature Categorization Accuracy (Weight: 40%)\n1.0: feature_comparison correctly separates features into the three categories with no misplacements. Slack integration is in we_have_they_dont; Performance reviews and SSO are in they_have_we_dont.\n0.5: Most features are correctly categorized but 1-2 are misplaced.\n0: Feature categorization is wrong or missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/competitor-analysis",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

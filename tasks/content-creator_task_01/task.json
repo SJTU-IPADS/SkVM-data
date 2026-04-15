@@ -1,0 +1,96 @@
+{
+  "id": "content-creator_task_01",
+  "name": "Route Writing Request and Produce Blog Post Draft",
+  "category": "content_creation",
+  "gradingType": "hybrid",
+  "prompt": "A user has requested: \"Write a blog post about the top 5 productivity tools for remote teams in 2026.\"\n\nIdentify the correct type of task (writing vs planning), then complete the writing task directly. Produce a draft blog post and save it to `blog_post.json` with exactly this structure:\n\n```json\n{\n  \"task_type\": \"writing\",\n  \"title\": \"string (the blog post title)\",\n  \"meta_description\": \"string (150-160 characters, SEO-optimized)\",\n  \"word_count\": <integer>,\n  \"sections\": [\n    {\n      \"heading\": \"string\",\n      \"content\": \"string\"\n    }\n  ],\n  \"tools_covered\": [\"string (exactly 5 tool names)\"],\n  \"target_keyword\": \"productivity tools for remote teams\",\n  \"cta\": \"string (call to action at end of post)\"\n}\n```\n\nRequirements:\n- `task_type` must be \"writing\" (not \"planning\")\n- Include exactly 5 tools in `tools_covered`\n- `sections` must have at least 7 entries (intro + 5 tool sections + conclusion minimum)\n- `word_count` must accurately reflect the total word count of all section content combined (count by splitting on whitespace)\n- `meta_description` must be between 100 and 200 characters\n- `target_keyword` must be exactly \"productivity tools for remote teams\"\n- Each tool section heading should mention the tool name",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "content-creator_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "blog_post.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.1,
+            "description": "blog_post.json is valid JSON containing all required top-level fields: task_type, title, meta_description, word_count, sections, tools_covered, target_keyword, and cta.",
+            "testPattern": "valid JSON with required"
+          },
+          {
+            "id": "task-type",
+            "weight": 0.1,
+            "description": "The task_type field equals exactly the string \"writing\" (not \"planning\" or any other value).",
+            "testPattern": "task_type is writing"
+          },
+          {
+            "id": "target-keyword",
+            "weight": 0.1,
+            "description": "The target_keyword field equals exactly the string \"productivity tools for remote teams\".",
+            "testPattern": "target_keyword is exactly"
+          },
+          {
+            "id": "tools-count",
+            "weight": 0.15,
+            "description": "tools_covered is an array containing exactly 5 non-empty tool name strings.",
+            "testPattern": "tools_covered has exactly 5"
+          },
+          {
+            "id": "sections-count",
+            "weight": 0.1,
+            "description": "The sections array contains at least 7 entries (intro, one per tool, and conclusion).",
+            "testPattern": "sections array has at least 7"
+          },
+          {
+            "id": "section-fields",
+            "weight": 0.1,
+            "description": "Every section object has non-empty string fields \"heading\" and \"content\".",
+            "testPattern": "each section has heading and content"
+          },
+          {
+            "id": "meta-desc-length",
+            "weight": 0.1,
+            "description": "meta_description is a string whose character length is between 100 and 200 inclusive.",
+            "testPattern": "meta_description is between"
+          },
+          {
+            "id": "word-count",
+            "weight": 0.15,
+            "description": "The word_count field is a positive integer with a value of at least 400.",
+            "testPattern": "word_count is at least 400"
+          },
+          {
+            "id": "cta-present",
+            "weight": 0.05,
+            "description": "The cta field is a non-empty string longer than 10 characters.",
+            "testPattern": "cta is a non-empty string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent produced a blog post draft about productivity tools for remote teams.\n\nCriterion 1: Content Quality (Weight: 60%)\n1.0: Blog post is coherent, well-structured, each tool has substantive description covering what it does and why it helps remote teams, sections flow naturally from intro to conclusion.\n0.5: Post exists but tool descriptions are superficial (one sentence each) or the structure is awkward.\n0: Content is placeholder text, repetitive, or off-topic.\n\nCriterion 2: SEO Optimization (Weight: 40%)\n1.0: Title naturally includes the target keyword, meta_description is compelling and within character limits, headings use relevant terms, CTA is specific and action-oriented.\n0.5: Some SEO elements are present but others are missing or poorly executed.\n0: No evidence of SEO consideration in the content.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/content-creator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

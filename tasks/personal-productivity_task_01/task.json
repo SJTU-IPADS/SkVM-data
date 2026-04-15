@@ -1,0 +1,90 @@
+{
+  "id": "personal-productivity_task_01",
+  "name": "Classify a Task List Using the Eisenhower Matrix and Output a JSON Plan",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "Apply the Eisenhower Matrix to classify the tasks below and produce an actionable plan. Save results to task_matrix.json.\n\nTask list:\n1. Fix production bug causing checkout failures (deadline: 2 hours from now)\n2. Prepare Q2 OKR review presentation (deadline: next Friday)\n3. Respond to a non-urgent Slack message from a colleague asking about lunch plans\n4. Write architectural design doc for the new microservices migration (important for team, no hard deadline)\n5. Review and approve 3 expense reports (manager is waiting, routine task)\n6. Learn a new testing framework (professional development, no deadline)\n7. Schedule dentist appointment (personal, been postponing for weeks)\n8. Update the team wiki with last sprint's retrospective notes (team expects it, no urgency)\n\ntask_matrix.json must have exactly this structure:\n{\n  \"quadrants\": {\n    \"do_now\": { \"label\": \"Urgent and Important\", \"tasks\": [<array of task numbers>] },\n    \"schedule\": { \"label\": \"Important, Not Urgent\", \"tasks\": [<array of task numbers>] },\n    \"delegate\": { \"label\": \"Urgent, Not Important\", \"tasks\": [<array of task numbers>] },\n    \"eliminate\": { \"label\": \"Not Urgent, Not Important\", \"tasks\": [<array of task numbers>] }\n  },\n  \"action_plan\": [\n    { \"task_number\": <int>, \"action\": \"do_now|schedule|delegate|eliminate\", \"rationale\": \"<one sentence>\", \"time_block\": \"<suggested time block or null>\" }\n  ],\n  \"energy_tip\": \"<one actionable tip for managing the top-priority task given limited energy>\"\n}\n\nRequirements: all 8 tasks must appear exactly once across all quadrants; task 1 must be in do_now; task 6 must be in schedule or eliminate; action_plan must have exactly 8 entries (one per task); each entry must have all 4 fields.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "personal-productivity_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "task_matrix.json file is present in the working directory.",
+            "testPattern": "task_matrix.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "task_matrix.json parses as valid JSON without errors.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "quadrants-fields",
+            "weight": 0.1,
+            "description": "quadrants object has all 4 required keys: do_now, schedule, delegate, and eliminate.",
+            "testPattern": "quadrants has 4 required keys"
+          },
+          {
+            "id": "all-tasks-covered",
+            "weight": 0.15,
+            "description": "All 8 task numbers (1–8) appear exactly once across all quadrant tasks arrays.",
+            "testPattern": "all 8 tasks appear exactly once"
+          },
+          {
+            "id": "task1-do-now",
+            "weight": 0.15,
+            "description": "Task number 1 (production bug fix) is placed in the do_now quadrant.",
+            "testPattern": "task 1 is in do_now"
+          },
+          {
+            "id": "action-plan-count",
+            "weight": 0.12,
+            "description": "action_plan array contains exactly 8 entries.",
+            "testPattern": "action_plan has exactly 8 entries"
+          },
+          {
+            "id": "action-plan-fields",
+            "weight": 0.12,
+            "description": "Each action_plan entry has task_number, action, rationale (non-empty string), and time_block fields.",
+            "testPattern": "each action_plan entry has task_number, action, rationale, and time_block fields"
+          },
+          {
+            "id": "valid-actions",
+            "weight": 0.1,
+            "description": "Every action value is one of: do_now, schedule, delegate, or eliminate.",
+            "testPattern": "action values are valid"
+          },
+          {
+            "id": "energy-tip",
+            "weight": 0.08,
+            "description": "energy_tip is a non-empty string of more than 10 characters.",
+            "testPattern": "energy_tip is a non-empty string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent classified 8 tasks using the Eisenhower Matrix and produced an action plan.\n\nCriterion 1: Classification Accuracy (Weight: 60%)\n1.0: Task 1 (production bug) in do_now, task 4 (arch doc) in schedule, task 3 (lunch Slack) in delegate or eliminate, task 6 (learn framework) in schedule or eliminate — all reasonable with clear rationale.\n0.5: At least 5 of 8 tasks are in the correct or defensible quadrant with brief rationale.\n0: Fewer than 4 tasks correctly classified or rationale is absent.\n\nCriterion 2: Action Plan Usefulness (Weight: 40%)\n1.0: time_block suggestions are specific and realistic (e.g., '2:00-2:30 PM today', 'Thursday morning 90 min block'), the energy_tip is actionable and specific to a high-cognitive-load task like debugging.\n0.5: time_block values present but generic (e.g., 'morning'), energy_tip is generic advice.\n0: time_block is null for all tasks or energy_tip is missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/personal-productivity",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

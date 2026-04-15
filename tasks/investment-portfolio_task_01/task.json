@@ -1,0 +1,96 @@
+{
+  "id": "investment-portfolio_task_01",
+  "name": "Build and Analyze a Three-Stock Portfolio",
+  "category": "finance",
+  "gradingType": "hybrid",
+  "prompt": "Build a local investment portfolio tracker and produce a summary analysis. Complete all steps using only file system tools and python3 — no internet access or API keys.\n\nSteps:\n1. Set the environment variable PORTFOLIO_DIR to ./portfolio_data before each command so all data is stored in that local folder.\n2. Add these three holdings:\n   - AAPL: 20 shares at $150.00 each\n   - MSFT: 10 shares at $280.00 each\n   - GOOGL: 5 shares at $120.00 each\n3. Update current prices: AAPL to $175.00, MSFT to $310.00, GOOGL to $140.00.\n4. Export the portfolio to CSV, saving the output as portfolio_export.csv.\n5. Write a file called portfolio_summary.json with exactly these fields:\n   - \"holdings\": array of objects each with \"ticker\" (string), \"shares\" (number), \"buy_price\" (number), \"current_price\" (number), \"cost_basis\" (number), \"current_value\" (number), \"pl\" (number)\n   - \"total_cost\": total amount invested (number)\n   - \"total_value\": current total value (number)\n   - \"total_pl\": overall profit/loss (number)\n\nExpected values: AAPL cost_basis=3000, current_value=3500, pl=500; MSFT cost_basis=2800, current_value=3100, pl=300; GOOGL cost_basis=600, current_value=700, pl=100. total_cost=6400, total_value=7300, total_pl=900.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "investment-portfolio_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "summary-exists",
+            "weight": 0.05,
+            "description": "portfolio_summary.json file is present in the workspace.",
+            "testPattern": "portfolio_summary.json > file exists"
+          },
+          {
+            "id": "summary-fields",
+            "weight": 0.08,
+            "description": "portfolio_summary.json contains the top-level keys holdings, total_cost, total_value, and total_pl.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "holdings-count",
+            "weight": 0.08,
+            "description": "The holdings array contains exactly 3 entries.",
+            "testPattern": "array of 3 entries"
+          },
+          {
+            "id": "holding-fields",
+            "weight": 0.09,
+            "description": "Every holding has the fields ticker, shares, buy_price, current_price, cost_basis, current_value, and pl.",
+            "testPattern": "each holding has required fields"
+          },
+          {
+            "id": "aapl-values",
+            "weight": 0.2,
+            "description": "AAPL holding has shares=20, cost_basis=3000, current_value=3500, and pl=500.",
+            "testPattern": "AAPL holding has correct values"
+          },
+          {
+            "id": "msft-values",
+            "weight": 0.15,
+            "description": "MSFT holding has cost_basis=2800, current_value=3100, and pl=300.",
+            "testPattern": "MSFT holding has correct values"
+          },
+          {
+            "id": "googl-values",
+            "weight": 0.15,
+            "description": "GOOGL holding has cost_basis=600, current_value=700, and pl=100.",
+            "testPattern": "GOOGL holding has correct values"
+          },
+          {
+            "id": "totals",
+            "weight": 0.1,
+            "description": "portfolio_summary.json total_cost=6400, total_value=7300, and total_pl=900.",
+            "testPattern": "portfolio totals are correct"
+          },
+          {
+            "id": "csv-exists",
+            "weight": 0.05,
+            "description": "portfolio_export.csv file is present in the workspace.",
+            "testPattern": "portfolio_export.csv > file exists"
+          },
+          {
+            "id": "csv-tickers",
+            "weight": 0.05,
+            "description": "portfolio_export.csv contains the strings AAPL, MSFT, and GOOGL.",
+            "testPattern": "CSV contains all three ticker symbols"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to build a portfolio tracker, add holdings, update prices, export CSV, and produce a summary JSON.\n\nCriterion 1: Data Accuracy (Weight: 60%)\n1.0: portfolio_summary.json has all holdings with correct numeric values matching the expected calculations.\n0.5: JSON present but some values are slightly off or a holding is missing.\n0: JSON is missing, malformed, or values are wildly incorrect.\n\nCriterion 2: CSV Export Quality (Weight: 40%)\n1.0: portfolio_export.csv contains rows for all three tickers with correct data in a readable CSV format.\n0.5: CSV exists but is incomplete or has formatting issues.\n0: CSV is missing or completely empty.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/investment-portfolio",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

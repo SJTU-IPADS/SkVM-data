@@ -1,0 +1,102 @@
+{
+  "id": "competitor-analysis_task_01",
+  "name": "Competitive SEO Analysis from Manual Data",
+  "category": "seo_analysis",
+  "gradingType": "hybrid",
+  "prompt": "Perform a competitive SEO analysis using the data provided below. Produce a structured report saved to `competitor_analysis.json`.\n\n**My Site**: techblog.example.com\n- Monthly organic traffic: 8,200 visits\n- Total ranking keywords: 340\n- Domain Authority: 28\n- Top content: \"Python for Beginners\" (1,200 visits/mo), \"Git Commands Cheatsheet\" (890 visits/mo)\n\n**Competitor 1**: devhints.example.com\n- Monthly organic traffic: 45,000 visits\n- Total ranking keywords: 1,850\n- Domain Authority: 52\n- Top content: \"JavaScript Cheatsheet\" (8,200 visits/mo), \"Regex Guide\" (5,400 visits/mo), \"Docker Commands\" (4,100 visits/mo)\n\n**Competitor 2**: codelearn.example.com\n- Monthly organic traffic: 22,000 visits\n- Total ranking keywords: 920\n- Domain Authority: 41\n- Top content: \"Python Tutorial\" (6,000 visits/mo), \"SQL Basics\" (3,200 visits/mo), \"CSS Flexbox Guide\" (2,800 visits/mo)\n\nSave to `competitor_analysis.json` with exactly this structure:\n```json\n{\n  \"my_site\": \"techblog.example.com\",\n  \"competitors\": [\n    {\n      \"domain\": \"string\",\n      \"traffic_gap\": <integer — competitor traffic minus my traffic>,\n      \"keyword_gap\": <integer — competitor keywords minus my keywords>,\n      \"da_gap\": <integer — competitor DA minus my DA>,\n      \"top_content_topics\": [\"string\"]\n    }\n  ],\n  \"traffic_leader\": \"string (domain with most traffic)\",\n  \"keyword_opportunities\": [\"string (at least 4 topic suggestions based on competitor gaps)\"],\n  \"strengths\": [\"string (at least 2 my site strengths)\"],\n  \"weaknesses\": [\"string (at least 2 my site weaknesses)\"],\n  \"action_plan\": {\n    \"immediate\": [\"string\"],\n    \"short_term\": [\"string\"],\n    \"long_term\": [\"string\"]\n  }\n}\n```\n\nCalculate exact numeric gaps from the data above. The traffic_leader must match the domain with the highest traffic.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "competitor-analysis_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "competitor_analysis.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.1,
+            "description": "competitor_analysis.json contains all 7 required top-level fields: my_site, competitors, traffic_leader, keyword_opportunities, strengths, weaknesses, action_plan.",
+            "testPattern": "valid JSON with required"
+          },
+          {
+            "id": "my-site",
+            "weight": 0.05,
+            "description": "my_site is exactly 'techblog.example.com'.",
+            "testPattern": "my_site is techblog"
+          },
+          {
+            "id": "competitors-count",
+            "weight": 0.05,
+            "description": "competitors is an array of exactly 2 entries.",
+            "testPattern": "competitors array has exactly 2"
+          },
+          {
+            "id": "competitor-fields",
+            "weight": 0.1,
+            "description": "Each competitor object has domain, traffic_gap, keyword_gap, da_gap, and top_content_topics array fields.",
+            "testPattern": "each competitor has domain"
+          },
+          {
+            "id": "devhints-traffic",
+            "weight": 0.15,
+            "description": "The devhints competitor has traffic_gap exactly 36800 (45000 minus 8200).",
+            "testPattern": "devhints competitor has correct traffic_gap"
+          },
+          {
+            "id": "devhints-keywords",
+            "weight": 0.15,
+            "description": "The devhints competitor has keyword_gap exactly 1510 (1850 minus 340).",
+            "testPattern": "devhints competitor has correct keyword_gap"
+          },
+          {
+            "id": "codelearn-traffic",
+            "weight": 0.15,
+            "description": "The codelearn competitor has traffic_gap exactly 13800 (22000 minus 8200).",
+            "testPattern": "codelearn competitor has correct traffic_gap"
+          },
+          {
+            "id": "traffic-leader",
+            "weight": 0.1,
+            "description": "traffic_leader contains 'devhints', identifying the competitor with the highest monthly organic traffic (45000).",
+            "testPattern": "traffic_leader is devhints"
+          },
+          {
+            "id": "opportunities",
+            "weight": 0.05,
+            "description": "keyword_opportunities is an array with at least 4 string entries.",
+            "testPattern": "keyword_opportunities has at least 4"
+          },
+          {
+            "id": "action-plan",
+            "weight": 0.05,
+            "description": "action_plan has immediate, short_term, and long_term arrays.",
+            "testPattern": "action_plan has immediate"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed competitor SEO data and produced a structured report.\n\nCriterion 1: Insight Quality (Weight: 60%)\n1.0: keyword_opportunities are specific, relevant, and derived from competitor top content topics (e.g., JavaScript, Regex, Docker, SQL, CSS Flexbox topics). Action plan items are concrete and prioritized correctly.\n0.5: Opportunities and action plan are generic or only loosely related to the competitor data.\n0: Opportunities are irrelevant or no analysis was performed.\n\nCriterion 2: Completeness (Weight: 40%)\n1.0: All sections populated with meaningful content. Strengths and weaknesses are grounded in the data (DA, traffic, keyword count differences).\n0.5: Some sections are superficial or incomplete.\n0: Multiple sections missing or contain placeholder text.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/competitor-analysis",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

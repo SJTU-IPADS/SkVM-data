@@ -1,0 +1,31 @@
+{
+  "id": "quality-documentation-manager_task_01",
+  "name": "Assign Document Numbers and Update the Master List",
+  "category": "quality_management",
+  "gradingType": "hybrid",
+  "prompt": "Your document control team has received a batch of seven new document requests (`document_requests.json`). You also have the current Document Master List (`master_list_current.json`) showing all controlled documents already in the system.\n\nYour job is to assign a document number to each request and then produce an updated master list. Write two files to the workspace root:\n\n**1. `assigned_numbers.json`** — the assignment record for this batch. It must contain a top-level `\"assignments\"` array with one entry per request. Each entry must have at minimum: `request_id`, `title`, `doc_type`, `category_code`, `number`, `revision`, `status`.\n\n**2. `updated_master_list.json`** — the full updated master list. Keep the same structure as the input (`company`, `system_version`, `last_updated`, `documents` array). The `documents` array must include **all 8 original entries** (unchanged) **plus** all 7 newly assigned documents. Every document record must include: `number`, `title`, `doc_type`, `category_code`, `revision`, `status`, `owner`.\n\n**Numbering format.** Every document number must match the pattern `PREFIX-CC-NNN` exactly:\n- `PREFIX` is the document type code: `SOP`, `WI`, `TF`, `SPEC`, `PLN`, `QM`\n- `CC` is a two-digit category code from the standard table below\n- `NNN` is a three-digit zero-padded sequence (001, 002, …)\n\n**Category code table:**\n| Code | Functional Area |\n|------|-----------------|\n| 01   | Quality Management |\n| 02   | Document Control |\n| 03   | Human Resources |\n| 04   | Design & Development |\n| 05   | Purchasing |\n| 06   | Production |\n| 07   | Quality Control |\n| 08   | CAPA |\n| 09   | Risk Management |\n| 10   | Regulatory Affairs |\n\n**Sequence rule.** For each `PREFIX`+`CC` combination, the next sequence number is one higher than the highest sequence already used in the master list for that combination. If no document in that `PREFIX`+`CC` group exists yet, start at 001. A document's number is permanent — a Superseded or Obsolete document still occupies its sequence slot and the next new document skips past it.\n\n**Status for new documents.** Newly assigned documents have not yet been reviewed or approved, so they must appear in `updated_master_list.json` with `status` set to `\"Draft\"`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent processed 7 document numbering requests against an existing 8-document master list and produced assigned_numbers.json and updated_master_list.json.\n\nCriterion 1: Numbering correctness (Weight: 40%)\n1.0: All 7 document numbers follow PREFIX-CC-NNN format with correct two-digit category codes matching each request's functional area (e.g., Quality Control=07, Risk Management=09, Production=06). Sequence numbers correctly continue from the highest existing sequence for each PREFIX+CC combination, including counting Superseded documents in the existing sequence. No two requests share a number; no new number collides with an existing master list number.\n0.5: Most numbers are correct but 1–2 have wrong category codes or incorrect sequence numbers.\n0: Numbers are systematically wrong (missing format, wrong prefix, or category codes consistently mis-mapped).\n\nCriterion 2: Master list integrity (Weight: 40%)\n1.0: updated_master_list.json contains all 15 documents (8 original + 7 new). All 8 original entries are present with original numbers unchanged. All 7 new entries appear with status Draft and all required fields (number, title, doc_type, category_code, revision, status, owner) populated.\n0.5: Master list exists but is missing some existing entries, some new entries, or newly assigned documents have a status other than Draft.\n0: updated_master_list.json is missing or contains fewer than 12 documents.\n\nCriterion 3: Protocol discipline (Weight: 20%)\n1.0: The agent correctly handled the sequencing traps: REQ-002 (Purchasing/05) is 05-003 not 05-001; REQ-005 (SPEC/04) is SPEC-04-003 not SPEC-04-002 because a Superseded document still holds its sequence; REQ-006 (Risk Management Plan) is PLN-09-001 not PLN-01-001 because the functional area is Risk Management (09), not Quality Management (01).\n0.5: One of these three traps was handled incorrectly.\n0: Two or more of these traps are wrong, indicating the agent misread the category table or ignored existing sequences.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/quality-documentation-manager",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

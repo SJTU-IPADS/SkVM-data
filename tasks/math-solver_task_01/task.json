@@ -1,0 +1,90 @@
+{
+  "id": "math-solver_task_01",
+  "name": "Step-by-Step Equation and Unit Conversion",
+  "category": "math",
+  "gradingType": "hybrid",
+  "prompt": "Solve the following math problems and save all results to math_results.json.\n\nProblem 1 — Quadratic equation: Solve 2x² - 7x + 3 = 0. Find both roots.\n\nProblem 2 — Unit conversion: Convert 150 kilometers per hour to meters per second. Round to 4 decimal places.\n\nProblem 3 — System of linear equations:\n  3x + 2y = 16\n  x - y = 1\nFind the values of x and y.\n\nSave to math_results.json with this exact structure:\n{\n  \"quadratic\": {\n    \"equation\": \"2x^2 - 7x + 3 = 0\",\n    \"roots\": [<number>, <number>],\n    \"steps\": [\"<step 1>\", \"<step 2>\", ...]\n  },\n  \"unit_conversion\": {\n    \"from\": \"150 km/h\",\n    \"to_unit\": \"m/s\",\n    \"result\": <number>,\n    \"steps\": [\"<step 1>\", \"<step 2>\", ...]\n  },\n  \"linear_system\": {\n    \"equations\": [\"3x + 2y = 16\", \"x - y = 1\"],\n    \"x\": <number>,\n    \"y\": <number>,\n    \"steps\": [\"<step 1>\", \"<step 2>\", ...]\n  }\n}\n\nRequirements: roots must be the exact rational or decimal values, result must be rounded to exactly 4 decimal places, x and y must be exact integers.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "math-solver_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.07,
+            "description": "math_results.json file is present in the workspace.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.07,
+            "description": "math_results.json is parseable JSON without throwing.",
+            "testPattern": "valid JSON|parseable"
+          },
+          {
+            "id": "quadratic-roots",
+            "weight": 0.2,
+            "description": "quadratic.roots is an array of exactly 2 numbers with values ≈0.5 and ≈3.0 (within 0.001) for 2x²-7x+3=0.",
+            "testPattern": "quadratic roots|roots.*3.*0.5|correct roots"
+          },
+          {
+            "id": "quadratic-steps",
+            "weight": 0.1,
+            "description": "quadratic.steps is an array with at least 3 entries showing intermediate working.",
+            "testPattern": "quadratic steps"
+          },
+          {
+            "id": "unit-conversion",
+            "weight": 0.2,
+            "description": "unit_conversion.result is ≈41.6667 m/s (150 km/h converted, within 0.001).",
+            "testPattern": "unit conversion|41.6667|meters per second"
+          },
+          {
+            "id": "conversion-steps",
+            "weight": 0.08,
+            "description": "unit_conversion.steps is an array with at least 2 entries showing the conversion working.",
+            "testPattern": "conversion steps"
+          },
+          {
+            "id": "linear-x",
+            "weight": 0.12,
+            "description": "linear_system.x is ≈3.6 (18/5, within 0.01) for the system 3x+2y=16, x-y=1.",
+            "testPattern": "x.*equals|linear x"
+          },
+          {
+            "id": "linear-y",
+            "weight": 0.12,
+            "description": "linear_system.y is ≈2.6 (x-1=2.6, within 0.01).",
+            "testPattern": "y.*equals|linear y"
+          },
+          {
+            "id": "linear-steps",
+            "weight": 0.04,
+            "description": "linear_system.steps is an array with at least 3 entries showing substitution or elimination steps.",
+            "testPattern": "linear system steps array has at least 3 entries"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent solved three math problems and documented step-by-step working.\n\nCriterion 1: Step Quality (Weight: 60%)\n1.0: Each steps array contains at least 3 meaningful entries that logically progress through the solution — not just restating the answer but showing intermediate workings (e.g., discriminant calculation, substitution steps, conversion factors).\n0.5: Steps are present but skip major intermediate workings or are too brief to follow.\n0: Steps arrays are empty, missing, or just restate the final answer.\n\nCriterion 2: Mathematical Clarity (Weight: 40%)\n1.0: Step descriptions use correct mathematical notation and terminology; equations are written clearly; no contradictions between steps and final answer.\n0.5: Steps are understandable but use informal notation or have minor inconsistencies.\n0: Steps are confusing, use wrong terminology, or contradict the final answer.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/math-solver",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

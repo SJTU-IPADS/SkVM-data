@@ -1,0 +1,26 @@
+{
+  "title": "Q3 2025 Platform Engineering Report",
+  "author": "Platform Engineering",
+  "overview_paragraphs": [
+    "This report summarizes Q3 2025 platform-engineering deliverables for internal distribution. It is intended as a round-trip-safe Word document suitable for review comments, track-changes editing, and PDF export.",
+    "Three themes dominate the quarter: reliability improvements on the request path, developer productivity gains from the new CI image, and a sharper security posture after the Q2 audit follow-ups landed."
+  ],
+  "action_items": [
+    "Upgrade CI runners to the 2025.09 base image before October close",
+    "Migrate the remaining three services off the legacy message queue",
+    "Schedule the Q4 security review with vendor coverage locked in"
+  ],
+  "metrics_table": {
+    "headers": ["Metric", "Q2 2025", "Q3 2025", "Change"],
+    "rows": [
+      ["Deploys per week", "48", "61", "+27%"],
+      ["Incidents", "4", "2", "-50%"],
+      ["Mean time to recovery (min)", "42", "28", "-33%"]
+    ]
+  },
+  "appendix_title": "Appendix A: Glossary",
+  "appendix_entries": [
+    ["MTTR", "Mean time to recovery from an incident, measured from page to resolution."],
+    ["Deploy", "A production release via the standard pipeline, counted regardless of traffic percentage."]
+  ]
+}

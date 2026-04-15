@@ -1,0 +1,96 @@
+{
+  "id": "vocabulary-builder_task_01",
+  "name": "Add Vocabulary Words and Create Tracker File",
+  "category": "vocabulary_learning",
+  "gradingType": "hybrid",
+  "prompt": "You are managing a vocabulary learning tracker. Add the following three English words to a vocabulary tracker file and save it to memory/vocabulary.md.\n\nWords to add:\n1. Word: \"ephemeral\" — Type: adjective — Book: \"The Midnight Library\" — Page: 47 — Pronunciation: /ɪˈfem.ər.əl/ — Meaning: lasting for a very short time — Synonyms: fleeting, transient, momentary — Context: \"The ephemeral nature of fame never bothered her.\"\n\n2. Word: \"cacophony\" — Type: noun — Book: \"The Midnight Library\" — Page: 83 — Pronunciation: /kəˈkɒf.ə.ni/ — Meaning: a harsh discordant mixture of sounds — Synonyms: din, racket, noise — Context: \"The cacophony of the city streets overwhelmed him.\"\n\n3. Word: \"sycophant\" — Type: noun — Book: \"The Midnight Library\" — Page: 112 — Pronunciation: /ˈsɪk.ə.fænt/ — Meaning: a person who flatters powerful people to gain advantage — Synonyms: flatterer, toady, yes-man — Context: \"The sycophant agreed with everything the boss said.\"\n\nCreate the file memory/vocabulary.md with this exact structure:\n1. A line at the top: `## Quiz State` followed by a `- **Pending quiz:** none` line and a `- **Last quiz sent:** none` line\n2. A blank line, then `## Active Words`\n3. Each word entry using the exact markdown format:\n```\n### [word]\n- **Type:** [type]\n- **Learned:** 2026-04-11 10:00 UTC\n- **Book:** [book]\n- **Page:** [page]\n- **Pronunciation:** /IPA/\n- **Meaning:** [meaning]\n- **Synonyms:** [synonyms]\n- **Context:** \"[sentence]\"\n- **Practice History:**\n```\n4. After all entries, add: `---` then `## Long-Term Review Words` then `## Mastered Words`\n\nAlso create a separate summary file words_summary.json with:\n{\"words\": [\"ephemeral\", \"cacophony\", \"sycophant\"], \"book\": \"The Midnight Library\", \"count\": 3}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "vocabulary-builder_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "vocab-file-exists",
+            "weight": 0.08,
+            "description": "memory/vocabulary.md exists at the correct nested path.",
+            "testPattern": "memory/vocabulary.md > file exists"
+          },
+          {
+            "id": "summary-exists",
+            "weight": 0.07,
+            "description": "words_summary.json exists in the working directory.",
+            "testPattern": "words_summary.json > file exists"
+          },
+          {
+            "id": "summary-structure",
+            "weight": 0.08,
+            "description": "words_summary.json has a words array containing all 3 word names and count equal to 3.",
+            "testPattern": "summary has words array and count 3"
+          },
+          {
+            "id": "quiz-state-section",
+            "weight": 0.1,
+            "description": "vocabulary.md contains a \"## Quiz State\" section with a \"Pending quiz\" line.",
+            "testPattern": "Quiz State section present"
+          },
+          {
+            "id": "active-words-section",
+            "weight": 0.1,
+            "description": "vocabulary.md contains a \"## Active Words\" section header.",
+            "testPattern": "Active Words section present"
+          },
+          {
+            "id": "three-entries",
+            "weight": 0.15,
+            "description": "vocabulary.md contains exactly 3 word entries using ### header format.",
+            "testPattern": "three word entries|3 word entries"
+          },
+          {
+            "id": "ephemeral-entry",
+            "weight": 0.12,
+            "description": "vocabulary.md has a \"### ephemeral\" entry with Type: adjective and book \"The Midnight Library\".",
+            "testPattern": "ephemeral entry"
+          },
+          {
+            "id": "cacophony-entry",
+            "weight": 0.12,
+            "description": "vocabulary.md has a \"### cacophony\" entry with Type: noun and a Page field.",
+            "testPattern": "cacophony entry"
+          },
+          {
+            "id": "sycophant-entry",
+            "weight": 0.12,
+            "description": "vocabulary.md has a \"### sycophant\" entry with Type: noun.",
+            "testPattern": "sycophant entry"
+          },
+          {
+            "id": "section-order",
+            "weight": 0.06,
+            "description": "vocabulary.md sections appear in order: Quiz State, then Active Words, then Long-Term Review Words, then Mastered Words.",
+            "testPattern": "Long-Term Review.*Mastered|section order"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent created a vocabulary tracker file with three word entries.\n\nCriterion 1: Format Compliance (Weight: 60%)\n1.0: The vocabulary.md file follows the exact entry format with all required fields (Type, Learned, Book, Page, Pronunciation, Meaning, Synonyms, Context, Practice History) for all three words, and the file sections are in correct order (Quiz State, Active Words, Long-Term Review, Mastered).\n0.5: Most fields are present but some are missing or the section order is wrong.\n0: File is missing or the format is fundamentally incorrect.\n\nCriterion 2: Content Accuracy (Weight: 40%)\n1.0: All three words have correct IPA pronunciations, meanings, and context sentences exactly as specified in the task.\n0.5: Minor transcription errors in one or two entries.\n0: Word content is significantly wrong or fabricated.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/vocabulary-builder",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

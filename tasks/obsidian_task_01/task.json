@@ -1,0 +1,79 @@
+{
+  "id": "obsidian_task_01",
+  "name": "Create a structured knowledge vault with linked notes",
+  "category": "planning_productivity",
+  "gradingType": "hybrid",
+  "prompt": "Create a personal knowledge base as a folder called `vault` in the working directory. The vault should contain markdown notes organized into the following structure:\n\n1. A `vault/projects/` folder with 3 project notes. Each project note must have YAML frontmatter with fields: `title`, `status` (active/completed/planned), `tags` (array), and `created` (date). The body should contain a brief description and a `## Related` section with [[wiki-links]] to relevant notes in the vault.\n\n2. A `vault/concepts/` folder with 4 concept/topic notes. Each must have frontmatter with `title`, `tags`, and `aliases` (array of alternative names). The body should explain the concept and link to related concepts and projects using [[wiki-links]].\n\n3. A `vault/daily/` folder with 2 daily notes named using ISO date format (e.g., `2025-01-15.md`). Each daily note should have frontmatter with `date` and `tags`, and the body should contain `## Tasks`, `## Notes`, and `## Links` sections. The Links section should reference projects or concepts.\n\n4. A `vault/index.md` file that serves as a Map of Content (MOC) — it should list all projects and concepts with [[wiki-links]] organized by category.\n\nEnsure there are at least 15 total [[wiki-links]] across all notes, and that every note is reachable from index.md (directly or through a chain of links).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "obsidian_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "vault-structure",
+            "weight": 0.15,
+            "description": "vault/ directory exists with subdirectories projects/, concepts/, and daily/.",
+            "testPattern": "vault folder|structure"
+          },
+          {
+            "id": "project-notes",
+            "weight": 0.15,
+            "description": "vault/projects/ contains at least 3 markdown files, each with valid YAML frontmatter including title and status fields.",
+            "testPattern": "project notes|projects/"
+          },
+          {
+            "id": "concept-notes",
+            "weight": 0.15,
+            "description": "vault/concepts/ contains at least 4 markdown files, each with YAML frontmatter including a title field.",
+            "testPattern": "concept notes|concepts/"
+          },
+          {
+            "id": "daily-notes",
+            "weight": 0.1,
+            "description": "vault/daily/ contains at least 2 markdown files named in YYYY-MM-DD.md format.",
+            "testPattern": "daily notes"
+          },
+          {
+            "id": "frontmatter",
+            "weight": 0.15,
+            "description": "All project and concept notes begin with a YAML frontmatter block (---) containing required fields.",
+            "testPattern": "frontmatter|YAML"
+          },
+          {
+            "id": "wiki-links",
+            "weight": 0.15,
+            "description": "Total [[wiki-links]] count across all vault notes (including index.md) is at least 15.",
+            "testPattern": "wiki.link|15.*links"
+          },
+          {
+            "id": "index-moc",
+            "weight": 0.15,
+            "description": "vault/index.md exists and contains at least 5 [[wiki-links]] serving as a Map of Content.",
+            "testPattern": "index.md|MOC"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent created an Obsidian-compatible knowledge vault with linked markdown notes organized into projects, concepts, and daily notes.\n\nCriterion 1: Vault Structure and Frontmatter (Weight: 45%)\n1.0: Vault has correct folder structure (projects/3 notes, concepts/4 notes, daily/2 notes, index.md). All notes have valid YAML frontmatter with required fields. Daily notes use ISO date naming.\n0.5: Most structure correct but 1-2 missing notes or incomplete frontmatter.\n0: Vault structure fundamentally wrong or missing.\n\nCriterion 2: Wiki-Links and Connectivity (Weight: 55%)\n1.0: At least 15 [[wiki-links]] total, links use correct [[syntax]], every note is reachable from index.md, index.md serves as a proper Map of Content. Links connect across folders (projects reference concepts and vice versa).\n0.5: Links exist but fewer than 15, or some notes are orphaned (not reachable from index.md).\n0: No wiki-links or index.md is missing/non-functional.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/obsidian",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "easy"
+}

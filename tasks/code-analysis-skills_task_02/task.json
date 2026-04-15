@@ -1,0 +1,96 @@
+{
+  "id": "code-analysis-skills_task_02",
+  "name": "Compute Developer Slacking Index from Commit Timestamps",
+  "category": "code_analysis",
+  "gradingType": "hybrid",
+  "prompt": "You need to compute a simplified developer slacking index from a set of commit records and write the results to a structured JSON file.\n\nYou are given the following 20 commit records for a developer named \"Carlos Mendez\" in a repository. Each record has a timestamp (ISO 8601) and a message:\n\n1. 2026-03-02T09:15:00 — feat: add payment API\n2. 2026-03-02T09:45:00 — feat: add payment validation\n3. 2026-03-03T14:20:00 — fix: correct rounding error\n4. 2026-03-04T10:00:00 — docs: update API reference\n5. 2026-03-05T11:30:00 — feat: add retry logic\n6. 2026-03-06T16:55:00 — fix: null pointer in handler\n7. 2026-03-10T10:10:00 — chore: update dependencies\n8. 2026-03-10T10:12:00 — fix: typo\n9. 2026-03-10T10:14:00 — fix: another typo\n10. 2026-03-10T10:16:00 — fix: yet another typo\n11. 2026-03-11T23:45:00 — feat: late night work\n12. 2026-03-12T00:05:00 — fix: late night fix\n13. 2026-03-15T09:00:00 — feat: new dashboard widget\n14. 2026-03-15T09:05:00 — docs: add widget docs\n15. 2026-03-20T14:00:00 — refactor: clean up auth module\n16. 2026-03-21T15:00:00 — test: add unit tests\n17. 2026-03-22T16:00:00 — feat: export CSV feature\n18. 2026-03-23T17:00:00 — fix: CSV encoding bug\n19. 2026-03-29T10:00:00 — chore: upgrade node version\n20. 2026-03-30T11:00:00 — feat: finalize release\n\nWrite a Python script called compute_slacking.py that processes this data and creates slacking_report.json with exactly these fields:\n- \"developer\": \"Carlos Mendez\"\n- \"total_commits\": 20\n- \"trivial_commit_count\": number of commits whose message starts with \"fix: \" or \"chore: \" or \"docs: \" (case-insensitive). Expected: 11 (fix:×7 at commits 3,6,8,9,10,12,18; chore:×2 at 7,19; docs:×2 at 4,14).\n- \"trivial_commit_ratio\": trivial_commit_count / total_commits, rounded to 4 decimal places\n- \"late_night_commits\": number of commits between 22:00 and 05:59 (inclusive). Expected: 2.\n- \"burst_days\": number of calendar days that had 3 or more commits. Expected: 1 (March 10 has 4 commits).\n- \"active_days\": number of distinct calendar days with at least 1 commit. Expected: 15.\n- \"slacking_index\": a number 0-100 computed as: round((trivial_commit_ratio * 40) + (late_night_commits / total_commits * 20) + max(0, (1 - active_days / 20) * 40), 1)\n- \"slacking_level\": based on slacking_index: \"Workaholic\" if <=20, \"Normal\" if <=40, \"Suspicious\" if <=60, \"Slacking Pro\" if <=80, else \"Slacking Master\"",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "code-analysis-skills_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "report-exists",
+            "weight": 0.07,
+            "description": "slacking_report.json file is present in the working directory.",
+            "testPattern": "slacking_report.json > file exists"
+          },
+          {
+            "id": "report-keys",
+            "weight": 0.08,
+            "description": "slacking_report.json contains all 9 required keys: developer, total_commits, trivial_commit_count, trivial_commit_ratio, late_night_commits, burst_days, active_days, slacking_index, slacking_level.",
+            "testPattern": "all required keys"
+          },
+          {
+            "id": "developer-total",
+            "weight": 0.08,
+            "description": "developer is 'Carlos Mendez' and total_commits is 20.",
+            "testPattern": "developer name and total_commits"
+          },
+          {
+            "id": "trivial-count",
+            "weight": 0.15,
+            "description": "trivial_commit_count is exactly 11 (7 fix + 2 chore + 2 docs commits).",
+            "testPattern": "trivial_commit_count is 11"
+          },
+          {
+            "id": "trivial-ratio",
+            "weight": 0.12,
+            "description": "trivial_commit_ratio is exactly 0.55 (11 divided by 20).",
+            "testPattern": "trivial_commit_ratio is 0.55"
+          },
+          {
+            "id": "late-night",
+            "weight": 0.13,
+            "description": "late_night_commits is exactly 2 (commits at 23:45 and 00:05 fall between 22:00 and 05:59).",
+            "testPattern": "late_night_commits is 2"
+          },
+          {
+            "id": "burst-days",
+            "weight": 0.1,
+            "description": "burst_days is exactly 1 (only March 10 has 4 commits, meeting the threshold of 3+).",
+            "testPattern": "burst_days is 1"
+          },
+          {
+            "id": "active-days",
+            "weight": 0.1,
+            "description": "active_days is exactly 15 (15 distinct calendar days have at least one commit).",
+            "testPattern": "active_days is 15"
+          },
+          {
+            "id": "index-range",
+            "weight": 0.07,
+            "description": "slacking_index is a number between 0 and 100 inclusive.",
+            "testPattern": "slacking_index is a number between 0 and 100"
+          },
+          {
+            "id": "level-valid",
+            "weight": 0.1,
+            "description": "slacking_level is one of the 5 valid categories: Workaholic, Normal, Suspicious, Slacking Pro, or Slacking Master.",
+            "testPattern": "slacking_level is a valid category"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to compute a developer slacking index from 20 commit records and produce a structured JSON report.\n\nCriterion 1: Calculation Correctness (Weight: 70%)\n1.0: All computed fields are mathematically correct. trivial_commit_count=11 (fix:×7 + chore:×2 + docs:×2), late_night_commits=2, burst_days=1, active_days=15. The slacking_index formula is applied correctly.\n0.5: Most values are correct but 1-2 counts are off.\n0: Multiple computation errors.\n\nCriterion 2: Script Quality (Weight: 30%)\n1.0: compute_slacking.py is clean, readable, and processes the data correctly using only Python standard library.\n0.5: Script works but is hard to follow or uses unnecessary dependencies.\n0: Script is missing or non-functional.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/code-analysis-skills",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

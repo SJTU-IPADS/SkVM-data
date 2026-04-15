@@ -1,0 +1,96 @@
+{
+  "id": "growth-tracker_task_01",
+  "name": "Initialize and Populate a Quantified Self Data File",
+  "category": "data_management",
+  "gradingType": "hybrid",
+  "prompt": "You are building a personal progress tracking system. Complete the following steps and save all results to the specified files.\n\nStep 1: Create a quantified self data file at quantified_self.json with this exact structure:\n{\n  \"initialized_at\": \"2024-01-15T09:00:00Z\",\n  \"last_update\": \"2024-01-15T17:30:00Z\",\n  \"growth\": {\n    \"baseline\": {\"overall\": 42.0, \"knowledge\": 8.0, \"capability\": 55.0, \"quality\": 62.0, \"efficiency\": 38.0},\n    \"current\": {\"overall\": 48.5, \"knowledge\": 22.0, \"capability\": 63.0, \"quality\": 70.0, \"efficiency\": 44.0},\n    \"history\": [\n      {\"timestamp\": \"2024-01-15T12:00:00Z\", \"overall\": 44.0},\n      {\"timestamp\": \"2024-01-15T17:30:00Z\", \"overall\": 48.5}\n    ]\n  },\n  \"tasks\": {\n    \"total\": 15,\n    \"completed\": 12,\n    \"in_progress\": 2,\n    \"failed\": 1,\n    \"completion_rate\": 80.0,\n    \"average_quality\": 8.1,\n    \"by_type\": {\"coding\": 6, \"debugging\": 4, \"design\": 3, \"documentation\": 2}\n  },\n  \"learning\": {\n    \"new_concepts\": [\n      {\"name\": \"async/await patterns\", \"mastery\": 80, \"applied_count\": 4, \"source\": \"task_execution\"},\n      {\"name\": \"SQL window functions\", \"mastery\": 65, \"applied_count\": 2, \"source\": \"user_question\"}\n    ],\n    \"total_concepts\": 2,\n    \"by_category\": {\"programming\": 1, \"databases\": 1}\n  },\n  \"efficiency\": {\n    \"avg_response_time\": 1.9,\n    \"first_try_success_rate\": 80.0,\n    \"avg_iterations\": 1.5,\n    \"time_distribution\": {\"thinking\": 30, \"tools\": 50, \"output\": 20}\n  },\n  \"achievements\": [\n    {\"type\": \"milestone\", \"title\": \"Completed first multi-step debugging session\", \"timestamp\": \"2024-01-15T14:00:00Z\", \"icon\": \"milestone\"}\n  ],\n  \"goals\": [\n    {\"name\": \"Master async programming\", \"progress\": 80, \"target\": 100, \"unit\": \"%\", \"eta_days\": 2}\n  ],\n  \"daily_stats\": {\n    \"2024-01-15\": {\n      \"conversations\": 18,\n      \"tasks_completed\": 12,\n      \"concepts_learned\": 2,\n      \"achievements\": 1,\n      \"overall_growth\": 6.5\n    }\n  }\n}\n\nStep 2: Using the data in quantified_self.json, compute a growth summary and save it to growth_summary.json with these exact fields:\n- overall_growth_delta: current.overall minus baseline.overall (rounded to 1 decimal)\n- completion_rate: the tasks.completion_rate value\n- top_category: the task category with the highest count (string key from by_type)\n- total_concepts_learned: learning.total_concepts\n- first_try_rate: efficiency.first_try_success_rate\n\nSave growth_summary.json as a flat JSON object with exactly those 5 fields.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "growth-tracker_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "qs-file-exists",
+            "weight": 0.08,
+            "description": "The file quantified_self.json exists in the working directory.",
+            "testPattern": "quantified_self.json > file exists"
+          },
+          {
+            "id": "qs-structure",
+            "weight": 0.1,
+            "description": "quantified_self.json has all required top-level keys: initialized_at, growth, tasks, learning, efficiency, achievements, goals, daily_stats.",
+            "testPattern": "has required top-level keys"
+          },
+          {
+            "id": "growth-values",
+            "weight": 0.12,
+            "description": "growth.baseline.overall is 42.0, growth.current.overall is 48.5, growth.history has 2 entries.",
+            "testPattern": "growth baseline and current values"
+          },
+          {
+            "id": "tasks-fields",
+            "weight": 0.1,
+            "description": "tasks object has fields: total, completed, in_progress, failed, completion_rate, average_quality, by_type.",
+            "testPattern": "tasks has required fields"
+          },
+          {
+            "id": "tasks-total",
+            "weight": 0.08,
+            "description": "tasks.total is 15, tasks.completed is 12, tasks.failed is 1, tasks.in_progress is 2.",
+            "testPattern": "tasks total is 15"
+          },
+          {
+            "id": "learning-concepts",
+            "weight": 0.1,
+            "description": "learning.new_concepts has exactly 2 entries and learning.total_concepts is 2.",
+            "testPattern": "learning has 2 concepts"
+          },
+          {
+            "id": "achievements-count",
+            "weight": 0.08,
+            "description": "achievements is an array with exactly 1 entry having 'type' and 'title' fields.",
+            "testPattern": "achievements array has 1 entry"
+          },
+          {
+            "id": "summary-exists",
+            "weight": 0.08,
+            "description": "The file growth_summary.json exists in the working directory.",
+            "testPattern": "growth_summary.json > file exists"
+          },
+          {
+            "id": "summary-delta",
+            "weight": 0.14,
+            "description": "growth_summary.json overall_growth_delta is exactly 6.5 (48.5 minus 42.0).",
+            "testPattern": "overall_growth_delta is 6.5"
+          },
+          {
+            "id": "summary-fields",
+            "weight": 0.12,
+            "description": "growth_summary.json has all 5 required flat fields: overall_growth_delta, completion_rate, top_category, total_concepts_learned, first_try_rate.",
+            "testPattern": "summary has all 5 required fields"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a structured quantified-self data file and derive a growth summary from it.\n\nCriterion 1: Data Accuracy (Weight: 60%)\n1.0: All numeric values in both files are correct and match the specification exactly; no fields are missing or misnamed.\n0.5: Files exist with correct structure but one or two values are slightly off or a field name has a minor inconsistency.\n0: Files are missing, malformed, or have multiple incorrect values.\n\nCriterion 2: JSON Quality (Weight: 40%)\n1.0: Both files are valid JSON with clean formatting, correct types (numbers as numbers, not strings), and no extra fields.\n0.5: Files parse as valid JSON but have minor type issues or extra fields.\n0: Files fail JSON parsing or have structural problems.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/growth-tracker",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

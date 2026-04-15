@@ -1,0 +1,31 @@
+{
+  "id": "data-analysis_task_02",
+  "name": "A/B Test Readout: New Checkout Flow with Device Segmentation",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "A product team ran a September 2025 A/B test on a new checkout flow. The raw log is `experiment_log.csv`, a 1,180-row file with columns: `user_id`, `arm` (\"control\" or \"treatment\"), `device_type` (\"mobile\" or \"desktop\"), `session_date` (YYYY-MM-DD), `converted` (boolean), `revenue` (numeric). Before computing any metrics you must clean the data using these three exclusion rules:\n\n(a) **Contaminated users** — any user whose `user_id` appears in both the control and treatment arms must be fully excluded: remove every row for that user regardless of arm, date, or conversion status.\n(b) **Out-of-window sessions** — any row whose `session_date` falls outside 2025-09-01 through 2025-09-30 inclusive must be excluded.\n(c) **Bad-revenue rows** — any row where `converted` is true but `revenue` is zero, negative, or missing must be excluded (these indicate a data-capture failure, not a real zero-revenue conversion).\n\nProduce two artifacts at the workspace root:\n\n**1. `results.json`** — a JSON file with these top-level keys:\n- `input_rows` (integer): total rows in the CSV before any exclusion\n- `valid_users` (integer): total rows remaining after all three exclusions\n- `control_users` (integer): valid rows in the control arm\n- `treatment_users` (integer): valid rows in the treatment arm\n- `overall` (object): top-level experiment summary with sub-keys `control` and `treatment`, each containing `users`, `converted`, `cvr` (conversion rate as a decimal, rounded to 6 places), `revenue_total`, and `arpu` (average revenue per user, rounded to 4 places); plus `cvr_lift_pp` (treatment CVR minus control CVR, 6 decimal places) and `cvr_lift_pct` (relative lift as a percentage, 2 decimal places)\n- `by_device` (object): per-segment breakdown with keys `mobile` and `desktop`, each containing the same sub-structure as `overall` (control stats, treatment stats, cvr_lift_pp, cvr_lift_pct, arpu_lift, arpu_lift_pct)\n\n**2. `experiment_brief.md`** — a stakeholder-facing markdown document. It MUST contain markdown headers for exactly these five sections (in any order): `Answer`, `Evidence`, `Confidence`, `Caveats`, `Next Action`. Content rules:\n- Every percentage must be accompanied by its raw count on the same or adjacent line — e.g. `13.6% (75 of 550)` — never a bare percentage.\n- The `Confidence` section must express uncertainty as a range, interval, or an explicit caveat keyword (`range`, `approximately`, `uncertainty`, `CI`, `n=`, `confidence interval`, `small sample`, …). A bare point estimate is not enough.\n- The `Caveats` section MUST explicitly name the multiple-comparisons problem that arises from testing two metrics (CVR and ARPU) simultaneously, and must mention either a statistical correction method (Bonferroni, FDR) or label the results as exploratory.\n\n**Invariants.** `control_users + treatment_users == valid_users`. The device segmentation must cover exactly `mobile` and `desktop`; no other device buckets are present in the fixture.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed an A/B test log (experiment_log.csv, 1,180 rows) and produced results.json + experiment_brief.md. The prompt required three exclusion steps (contaminated users, out-of-window sessions, bad-revenue rows), per-device CVR segmentation, and a stakeholder brief that explicitly addresses the multiple-comparisons problem.\n\nCriterion 1: Analysis JSON correctness (Weight: 40%)\n1.0: results.json exists, parses cleanly, has all required top-level keys, and by_device contains mobile and desktop sub-objects each with control/treatment stats. The valid_users count reflects correct application of all three exclusion rules. CVR values and lifts are numerically plausible (overall treatment CVR noticeably higher than control; mobile lift substantially larger than desktop lift).\n0.5: JSON exists but is missing by_device detail, or the exclusion logic was partially applied (e.g. contaminated users included, or out-of-window rows counted).\n0: JSON missing, unparseable, or completely wrong schema.\n\nCriterion 2: Device segmentation and lift reporting (Weight: 40%)\n1.0: by_device breaks out mobile and desktop with control/treatment CVR and computes per-device lift (absolute pp and/or relative %). The brief's Evidence section reports device-level results with raw counts alongside percentages. The mobile vs desktop asymmetry is surfaced as the key finding.\n0.5: Device segmentation present but lift not computed or counts missing from the brief.\n0: No device segmentation in either artifact.\n\nCriterion 3: Multiple-comparisons discipline (Weight: 20%)\n1.0: The brief's Caveats section explicitly identifies that testing CVR and ARPU simultaneously creates a multiple-comparisons problem, mentions a correction method (Bonferroni, FDR) or labels the results as exploratory, and does not overstate the statistical significance of either metric. The Confidence section expresses uncertainty rather than a bare point estimate.\n0.5: Caveats mentions data-quality issues but not multiple comparisons; or Confidence section exists but has no uncertainty range or caveat.\n0: No caveats about statistical validity; the brief treats the results as definitively proven.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/data-analysis",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

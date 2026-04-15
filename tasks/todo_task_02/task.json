@@ -1,0 +1,96 @@
+{
+  "id": "todo_task_02",
+  "name": "Todo Item Status Update and What-Next Recommendation",
+  "category": "task_management",
+  "gradingType": "hybrid",
+  "prompt": "Create a Python 3 script named `todo_ops.py` that operates on a local JSON file `tasks.json`. The file format is: `{\"items\": [...]}` where each item has fields: `id` (integer), `title` (string), `status` (string: `open` or `done`), `priority` (integer, lower = higher priority), `type` (string).\n\nThe script must support:\n\n- `python3 todo_ops.py init` — write `tasks.json` with the following 4 pre-seeded items (do not accept command-line input for them, hard-code exactly these):\n  - `{\"id\": 1, \"title\": \"Fix login bug\", \"status\": \"open\", \"priority\": 1, \"type\": \"task\"}`\n  - `{\"id\": 2, \"title\": \"Prepare demo slides\", \"status\": \"open\", \"priority\": 2, \"type\": \"task\"}`\n  - `{\"id\": 3, \"title\": \"Reply to client email\", \"status\": \"open\", \"priority\": 3, \"type\": \"commitment\"}`\n  - `{\"id\": 4, \"title\": \"Read new docs\", \"status\": \"open\", \"priority\": 4, \"type\": \"reminder\"}`\n  Print: `Initialized with 4 items`\n- `python3 todo_ops.py complete --id <n>` — set item with that id's `status` to `done`. Print: `Completed: <title>`\n- `python3 todo_ops.py what_next` — print the open item with the lowest `priority` number as a JSON object\n\nRun the following sequence and save outputs:\n1. `python3 todo_ops.py init`\n2. `python3 todo_ops.py complete --id 1`\n3. `python3 todo_ops.py what_next > what_next_output.json`\n\nRequired output files: `todo_ops.py`, `tasks.json`, `what_next_output.json`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "todo_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.08,
+            "description": "todo_ops.py exists as a readable file in the working directory.",
+            "testPattern": "todo_ops.py > file exists|todo_ops exists"
+          },
+          {
+            "id": "tasks-json",
+            "weight": 0.08,
+            "description": "tasks.json exists as a readable file in the working directory.",
+            "testPattern": "tasks.json > file exists|tasks\\.json exists"
+          },
+          {
+            "id": "tasks-count",
+            "weight": 0.1,
+            "description": "tasks.json has an items array containing exactly 4 task objects.",
+            "testPattern": "tasks.json has 4 items|four items"
+          },
+          {
+            "id": "item1-done",
+            "weight": 0.15,
+            "description": "The item with id 1 ('Fix login bug') has status 'done' after the complete command.",
+            "testPattern": "item 1 has status 'done' after complete command"
+          },
+          {
+            "id": "items-2-4-open",
+            "weight": 0.12,
+            "description": "Items with ids 2, 3, and 4 all have status 'open' (only item 1 was completed).",
+            "testPattern": "items 2, 3, and 4 are still open"
+          },
+          {
+            "id": "what-next-exists",
+            "weight": 0.08,
+            "description": "what_next_output.json exists as a readable file in the working directory.",
+            "testPattern": "what_next_output.json > file exists|what_next_output exists"
+          },
+          {
+            "id": "what-next-valid",
+            "weight": 0.1,
+            "description": "what_next_output.json parses as a valid non-null JSON object.",
+            "testPattern": "what_next_output is valid JSON|valid json"
+          },
+          {
+            "id": "what-next-title",
+            "weight": 0.15,
+            "description": "what_next_output.json has title equal to 'Prepare demo slides' (the open task with lowest priority=2).",
+            "testPattern": "Prepare demo slides|what_next title"
+          },
+          {
+            "id": "what-next-priority",
+            "weight": 0.08,
+            "description": "what_next_output.json has priority equal to 2.",
+            "testPattern": "priority.*2|what_next priority"
+          },
+          {
+            "id": "what-next-status",
+            "weight": 0.06,
+            "description": "what_next_output.json has status equal to 'open'.",
+            "testPattern": "what_next status is 'open'"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a Python todo operations script with status update and priority-based recommendation.\n\nCriterion 1: Logic Correctness (Weight: 65%)\n1.0: After completing item 1, what_next correctly returns item 2 (next lowest priority that is still open). tasks.json reflects that item 1 has status 'done'. what_next_output.json contains a valid JSON object with title 'Prepare demo slides'.\n0.5: Partial correctness — item is marked done but what_next returns the wrong item, or vice versa.\n0: what_next_output.json is missing or contains wrong data.\n\nCriterion 2: Script Structure (Weight: 35%)\n1.0: Script is clean Python 3, properly handles --id flag, reads/writes tasks.json atomically, and all 3 subcommands are implemented correctly.\n0.5: Script works but has minor issues such as not validating the --id argument or using print statements for JSON instead of json.dumps.\n0: Script is missing or does not run.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/todo",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

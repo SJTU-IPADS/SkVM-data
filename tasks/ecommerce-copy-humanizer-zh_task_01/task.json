@@ -1,0 +1,84 @@
+{
+  "id": "ecommerce-copy-humanizer-zh_task_01",
+  "name": "Analyze and Rewrite AI-Toned Product Description",
+  "category": "content_writing",
+  "gradingType": "hybrid",
+  "prompt": "You are given the following Chinese ecommerce product description that sounds AI-generated. Analyze it and produce a humanized rewrite.\n\nOriginal copy:\n\"本产品采用先进的纳米技术，经过严格的质量检验流程，能够有效提升用户体验，满足广大消费者的多元化需求，是您生活品质提升的理想选择。产品特点：1.高效能表现 2.卓越品质保障 3.全方位功能覆盖。立即购买，开启品质生活新篇章！\"\n\nPlatform: Taobao product page. Audience: women aged 25-40. Tone preference: warm and conversational.\n\nWrite the results to a file named copy_analysis.json with exactly this structure:\n{\n  \"ai_tone_issues\": [<array of strings, each describing one detected AI-tone problem>],\n  \"main_rewrite\": \"<string, the humanized main copy in Chinese>\",\n  \"alternative_version\": \"<string, a second variant in Chinese>\",\n  \"risk_safe_swaps\": [<array of objects with fields: original (string) and replacement (string)>]\n}\n\nRequirements:\n- ai_tone_issues must contain at least 2 entries.\n- main_rewrite and alternative_version must be non-empty strings in Chinese.\n- risk_safe_swaps must contain at least 1 entry.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "ecommerce-copy-humanizer-zh_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "The file copy_analysis.json exists in the working directory.",
+            "testPattern": "copy_analysis.json.*exists|file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.1,
+            "description": "copy_analysis.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON|parses.*JSON"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.15,
+            "description": "The JSON has all four required top-level fields: ai_tone_issues, main_rewrite, alternative_version, risk_safe_swaps.",
+            "testPattern": "required fields|ai_tone_issues.*main_rewrite"
+          },
+          {
+            "id": "ai-issues-count",
+            "weight": 0.15,
+            "description": "ai_tone_issues is an array with at least 2 non-empty string entries describing detected AI-tone problems.",
+            "testPattern": "at least 2.*ai_tone_issues|ai_tone_issues.*2"
+          },
+          {
+            "id": "main-rewrite-nonempty",
+            "weight": 0.15,
+            "description": "main_rewrite is a non-empty string with more than 10 characters.",
+            "testPattern": "main_rewrite.*non-empty|main rewrite"
+          },
+          {
+            "id": "alt-version-nonempty",
+            "weight": 0.15,
+            "description": "alternative_version is a non-empty string with more than 10 characters and differs from main_rewrite.",
+            "testPattern": "alternative_version.*non-empty|alternative version"
+          },
+          {
+            "id": "risk-swaps-present",
+            "weight": 0.1,
+            "description": "risk_safe_swaps is an array with at least 1 entry.",
+            "testPattern": "risk_safe_swaps.*at least 1|swap.*original.*replacement"
+          },
+          {
+            "id": "swap-structure",
+            "weight": 0.1,
+            "description": "Each risk_safe_swaps entry has both 'original' and 'replacement' string fields.",
+            "testPattern": "each risk_safe_swaps entry has 'original' and 'replacement' fields"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to analyze AI-toned Chinese ecommerce copy and produce a humanized rewrite in a structured JSON file.\n\nCriterion 1: Rewrite Quality (Weight: 60%)\n1.0: The main rewrite sounds natural and conversational in Chinese, avoids the vague superlatives in the original, and retains a clear CTA. The alternative version offers a meaningfully different angle.\n0.5: The rewrite is improved but still has some stiff or AI-like phrasing, or the two versions are nearly identical.\n0: The rewrite is machine-like, does not sound human, or is not in Chinese.\n\nCriterion 2: Issue Detection Accuracy (Weight: 40%)\n1.0: The ai_tone_issues list identifies specific, accurate problems (e.g., vague superlatives, generic claims, empty buzzwords) with enough detail to be actionable.\n0.5: Issues are identified but described too vaguely to be useful.\n0: Issues are missing, irrelevant, or copy-pasted from the prompt.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ecommerce-copy-humanizer-zh",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

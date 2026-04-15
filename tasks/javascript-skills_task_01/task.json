@@ -1,0 +1,96 @@
+{
+  "id": "javascript-skills_task_01",
+  "name": "Write a Style-Compliant JavaScript Utility Module",
+  "category": "code_generation",
+  "gradingType": "hybrid",
+  "prompt": "Write a JavaScript utility module that strictly follows modern best-practice conventions. Save it as utils.js in the current directory.\n\nThe module must export these three functions using ES module syntax (export, not module.exports):\n\n1. calculateAverage(numbers) — accepts an array of numbers, returns the arithmetic mean rounded to 2 decimal places. Use array higher-order functions (reduce), not for loops.\n\n2. formatCurrency(amount, currency) — accepts a number and a currency code string (default 'USD'), returns a string like '$1,234.56' for USD or the currency code prefix for others (e.g. 'EUR 1234.56'). Use const/let, template literals, no var.\n\n3. groupBy(items, key) — accepts an array of objects and a property name string, returns an object where each value is an array of items sharing that key value. Use array reduce, arrow functions, no for-in loops.\n\nRequirements:\n- Use const for all non-reassigned variables, let only where reassignment is needed\n- Use arrow functions for all callbacks\n- Use single quotes for all strings\n- Always use semicolons\n- Use default parameter syntax (not manual argument mutation)\n- Export all three as named exports\n\nAlso create utils_demo.js that imports all three from utils.js and writes results to stdout in this exact format (one line each):\n  average: <result of calculateAverage([10, 20, 30, 40])>\n  currency: <result of formatCurrency(1234.56)>\n  groupBy: <JSON.stringify result of groupBy([{type:'a',v:1},{type:'b',v:2},{type:'a',v:3}], 'type')>\n\nRun utils_demo.js with node or bun and save stdout to demo_output.txt.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "javascript-skills_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "utils-exists",
+            "weight": 0.05,
+            "description": "utils.js file is present in the workspace.",
+            "testPattern": "utils.js > file exists"
+          },
+          {
+            "id": "es-module",
+            "weight": 0.15,
+            "description": "utils.js uses ES module export syntax (export keyword) and contains no module.exports or require() calls.",
+            "testPattern": "ES module export syntax"
+          },
+          {
+            "id": "no-var",
+            "weight": 0.1,
+            "description": "utils.js contains no var declarations.",
+            "testPattern": "does not use var"
+          },
+          {
+            "id": "single-quotes",
+            "weight": 0.1,
+            "description": "utils.js uses single-quoted string literals throughout (no double-quoted string literals outside comments).",
+            "testPattern": "uses single quotes"
+          },
+          {
+            "id": "exports",
+            "weight": 0.1,
+            "description": "utils.js source contains the identifiers calculateAverage, formatCurrency, and groupBy.",
+            "testPattern": "exports calculateAverage"
+          },
+          {
+            "id": "arrow-fns",
+            "weight": 0.05,
+            "description": "utils.js uses arrow function syntax (=>) for at least one callback.",
+            "testPattern": "arrow functions for callbacks"
+          },
+          {
+            "id": "reduce",
+            "weight": 0.05,
+            "description": "utils.js calls .reduce() at least once.",
+            "testPattern": "uses reduce"
+          },
+          {
+            "id": "demo-exists",
+            "weight": 0.05,
+            "description": "demo_output.txt file is present in the workspace.",
+            "testPattern": "demo_output.txt > file exists"
+          },
+          {
+            "id": "demo-average",
+            "weight": 0.15,
+            "description": "demo_output.txt contains a line matching \"average: 25\" (the mean of [10, 20, 30, 40]).",
+            "testPattern": "average line with value 25"
+          },
+          {
+            "id": "demo-groupby",
+            "weight": 0.2,
+            "description": "demo_output.txt contains a groupBy line with both keys \"a\" and \"b\" present in the JSON output.",
+            "testPattern": "groupBy line with keys"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a style-compliant JavaScript utility module with three exported functions.\n\nCriterion 1: Style Compliance (Weight: 50%)\n1.0: Code uses const/let (no var), single quotes, semicolons, arrow function callbacks, default parameters, and ES module exports throughout.\n0.5: Most conventions followed but 1-2 violations present.\n0: Multiple convention violations or uses CommonJS require/module.exports.\n\nCriterion 2: Functional Correctness (Weight: 50%)\n1.0: demo_output.txt shows correct values: average 25.00, currency $1,234.56, groupBy with keys a and b correctly populated.\n0.5: Some outputs correct but others wrong or missing.\n0: demo_output.txt missing or all values wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/javascript-skills",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

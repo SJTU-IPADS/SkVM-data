@@ -1,0 +1,102 @@
+{
+  "id": "market-research_task_01",
+  "name": "Market Sizing Analysis for a B2B SaaS HR Tool",
+  "category": "business_research",
+  "gradingType": "hybrid",
+  "prompt": "Conduct a market sizing analysis for a B2B SaaS HR onboarding tool targeting US companies with 50-500 employees. No internet access is available — use your knowledge to estimate figures.\n\nProduce the file market_sizing.json with exactly this structure:\n\n- \"product\": \"HR onboarding SaaS for US mid-market companies\"\n- \"target\": \"US companies with 50-500 employees\"\n- \"sizing\": object with:\n  - \"tam\": object with \"label\": \"TAM\", \"description\": string, \"value_usd_billions\": number, \"formula\": string\n  - \"sam\": object with \"label\": \"SAM\", \"description\": string, \"value_usd_billions\": number, \"formula\": string\n  - \"som\": object with \"label\": \"SOM\", \"description\": string, \"value_usd_millions\": number, \"formula\": string\n  - \"confidence\": one of \"low\", \"medium\", \"high\"\n- \"segments\": array of at least 3 segment objects each with:\n  - \"name\": string\n  - \"size_description\": string\n  - \"willingness_to_pay\": one of \"low\", \"medium\", \"high\"\n  - \"urgency\": one of \"low\", \"medium\", \"high\"\n- \"recommendation\": object with:\n  - \"verdict\": one of \"enter\", \"avoid\", \"investigate_further\"\n  - \"rationale\": string (2-3 sentences)\n  - \"uncertainties\": array of at least 2 strings naming key unknowns\n  - \"next_steps\": array of at least 2 strings\n\nAll numeric values must be positive. SAM must be less than or equal to TAM. SOM must be substantially smaller than SAM.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "market-research_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "market_sizing.json file is present in the workspace.",
+            "testPattern": "market_sizing.json > file exists"
+          },
+          {
+            "id": "top-fields",
+            "weight": 0.05,
+            "description": "market_sizing.json contains the top-level keys product, target, sizing, segments, and recommendation.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "sizing-keys",
+            "weight": 0.08,
+            "description": "The sizing object contains tam, sam, som, and confidence sub-keys.",
+            "testPattern": "sizing has tam, sam, som"
+          },
+          {
+            "id": "tam-fields",
+            "weight": 0.1,
+            "description": "tam has label=\"TAM\", description, value_usd_billions (positive number), and formula.",
+            "testPattern": "tam has label"
+          },
+          {
+            "id": "sam-fields",
+            "weight": 0.08,
+            "description": "sam has label=\"SAM\" and value_usd_billions as a positive number.",
+            "testPattern": "sam has label"
+          },
+          {
+            "id": "som-fields",
+            "weight": 0.08,
+            "description": "som has label=\"SOM\" and value_usd_millions as a positive number.",
+            "testPattern": "som has label"
+          },
+          {
+            "id": "sam-lte-tam",
+            "weight": 0.12,
+            "description": "sam.value_usd_billions is less than or equal to tam.value_usd_billions.",
+            "testPattern": "SAM is less than or equal to TAM"
+          },
+          {
+            "id": "confidence",
+            "weight": 0.04,
+            "description": "sizing.confidence is one of: low, medium, or high.",
+            "testPattern": "confidence is one of"
+          },
+          {
+            "id": "segments-count",
+            "weight": 0.08,
+            "description": "The segments array has at least 3 entries.",
+            "testPattern": "array of at least 3 entries"
+          },
+          {
+            "id": "segment-fields",
+            "weight": 0.12,
+            "description": "Every segment has name, size_description, willingness_to_pay, and urgency (each of the latter two is low/medium/high).",
+            "testPattern": "each segment has name"
+          },
+          {
+            "id": "recommendation",
+            "weight": 0.2,
+            "description": "recommendation has verdict (enter/avoid/investigate_further), rationale, uncertainties (≥2 items), and next_steps (≥2 items).",
+            "testPattern": "verdict, rationale, uncertainties"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a structured market sizing analysis for a B2B HR SaaS tool with TAM/SAM/SOM layers, segments, and a recommendation.\n\nCriterion 1: Sizing Plausibility (Weight: 50%)\n1.0: TAM is a realistic broad HR software market figure (multi-billion USD); SAM narrows to US mid-market; SOM is a credible 3-5 year capture estimate (tens to low hundreds of millions); formulas show the reasoning chain.\n0.5: Sizing exists but numbers are implausible (TAM < $1B or SOM > SAM) or formulas are missing.\n0: Sizing section missing or all values are 0 or identical.\n\nCriterion 2: Recommendation Quality (Weight: 50%)\n1.0: Recommendation cites specific evidence from the sizing; uncertainties are concrete and relevant (e.g., churn rate, implementation cost sensitivity); next steps are actionable.\n0.5: Recommendation is present but generic or poorly connected to the data.\n0: Recommendation is missing, empty, or contradicts the sizing data.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/market-research",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

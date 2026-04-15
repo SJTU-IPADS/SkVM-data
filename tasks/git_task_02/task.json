@@ -1,0 +1,31 @@
+{
+  "id": "git_task_02",
+  "name": "Bisect a Regression and Recover a Lost Branch",
+  "category": "development",
+  "gradingType": "hybrid",
+  "prompt": "You're maintaining a Python pricing library, `pricing-utils`. Sometime in the last few days a regression slipped into `main`: `calculate_discount(100, 10)` used to return `90.0` but now returns a wildly wrong value. You have `test_lib.py` in the repo — running `python3 test_lib.py` will tell you whether the current checkout is broken or not.\n\n**Part 1 — Find the breaking commit using bisect**\n\nUse `git bisect` to locate the exact commit that introduced the regression. The very first commit on `main` (the oldest one in `git log`) is known-good. The current `HEAD` of `main` is known-bad.\n\nWhen bisect finishes identifying the culprit, **write a file called `bisect-result.txt`** at the workspace root with this exact two-line format:\n\n```\nbad-commit: <full 40-character SHA>\nsubject: <the commit subject line>\n```\n\nExample (not the real answer):\n```\nbad-commit: e3b0c44298fc1c149afbf4c8996fb92427ae41e4\nsubject: refactor: rewrite core loop\n```\n\nAfter writing the file, make sure to **exit the bisect session cleanly** (`git bisect reset`) so that the repository is not left in a mid-bisect state. The SKILL.md warns about detached HEAD: after bisect reset, HEAD should be back on the `main` branch, not floating in a detached state.\n\n**Part 2 — Recover the lost experiment branch**\n\nA branch called `experiment/cache` was accidentally deleted before you started. Its last commit introduced `cache.py` with a memoization wrapper. The branch tip has been preserved as a tag named `experiment-cache-tip`.\n\nRecreate `experiment/cache` so that it points to the exact same commit the tag references. Verify it's there with `git branch`.\n\n**When you're done:**\n- `bisect-result.txt` exists at the workspace root with the two-line format above.\n- `git bisect reset` has been called (no active bisect session).\n- `HEAD` is on `main` (not in detached HEAD state).\n- `experiment/cache` branch exists and points to the commit tagged `experiment-cache-tip`.\n- The `main` branch tip is unchanged from when you started.\n\nDo not push anywhere — this repo has no remotes.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was given a Python pricing library repo where a regression was introduced in one of 9 commits on main. It needed to (1) use git bisect to find the breaking commit and write bisect-result.txt in a specific format, (2) call git bisect reset to exit cleanly, and (3) recover a deleted branch from a tag.\n\nCriterion 1: Bisect correctness and output format (Weight: 45%)\n1.0: bisect-result.txt exists, has the exact two-line format 'bad-commit: <sha>' and 'subject: <text>', the SHA identifies the correct regression commit, and the subject matches that commit's message.\n0.5: bisect-result.txt exists but uses an incorrect format (wrong keys, missing lines, wrong SHA length) OR the SHA is present but identifies the wrong commit.\n0: bisect-result.txt is missing or completely malformed.\n\nCriterion 2: Clean session teardown and branch hygiene (Weight: 35%)\n1.0: 'git bisect reset' was called (no BISECT_HEAD or BISECT_LOG files remain), HEAD is on branch main (not detached), experiment/cache branch exists and points to the tagged commit, and main's SHA is unchanged.\n0.5: Bisect was reset but HEAD is still detached OR experiment/cache was not recovered OR main was altered.\n0: Bisect session is still active (BISECT_HEAD exists) and/or experiment/cache is missing.\n\nCriterion 3: Workflow discipline (Weight: 20%)\n1.0: Agent used git bisect (not manual diff hunting), recorded the finding in the required file format, and recovered the branch cleanly using the tag reference.\n0.5: Agent found the regression but via grep/manual diff rather than bisect, or recovered the branch by guessing a SHA rather than using the tag.\n0: Agent did not use bisect at all or could not locate the regression.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/git",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

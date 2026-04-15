@@ -1,0 +1,96 @@
+{
+  "id": "dependency-auditor_task_02",
+  "name": "License Compliance Analysis for a Python Project",
+  "category": "dependency_management",
+  "gradingType": "hybrid",
+  "prompt": "Create a file `input/requirements.txt` with the following content:\n```\nrequests==2.28.0\nnumpy==1.24.0\npandas==1.5.3\nscikit-learn==1.2.0\nflask==2.2.3\nsqlalchemy==2.0.0\npytest==7.2.0\ncryptography==39.0.0\n```\n\nAnalyze this Python project's dependencies for license compliance and produce `output/license_report.json` with exactly these keys:\n- `project_type`: string, describe what type of project this appears to be based on the dependencies\n- `dependency_count`: integer, count of packages listed\n- `license_inventory`: array of objects, one per package, each with:\n  - `package` (string): package name\n  - `version` (string): version from requirements.txt\n  - `license` (string): the known license for that package (e.g. \"MIT\", \"Apache-2.0\", \"BSD-3-Clause\")\n  - `license_type` (string): one of `\"permissive\"`, `\"copyleft\"`, or `\"unknown\"`\n- `license_conflicts`: array of strings, describing any license incompatibilities found\n- `compliance_status`: string, one of `\"compliant\"`, `\"review_required\"`, or `\"non_compliant\"`\n- `permissive_count`: integer, count of packages with permissive licenses\n- `copyleft_count`: integer, count of packages with copyleft licenses",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "dependency-auditor_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "output/license_report.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "output/license_report.json can be parsed as valid JSON without throwing.",
+            "testPattern": "valid JSON format"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "output/license_report.json has all seven required top-level keys: project_type, dependency_count, license_inventory, license_conflicts, compliance_status, permissive_count, and copyleft_count.",
+            "testPattern": "has all required top-level keys"
+          },
+          {
+            "id": "dep-count",
+            "weight": 0.1,
+            "description": "dependency_count equals exactly 8 (the number of packages in requirements.txt).",
+            "testPattern": "dependency_count is 8"
+          },
+          {
+            "id": "inventory-count",
+            "weight": 0.1,
+            "description": "license_inventory is an array of exactly 8 entries, one per package.",
+            "testPattern": "license_inventory has 8 entries"
+          },
+          {
+            "id": "inventory-fields",
+            "weight": 0.2,
+            "description": "Every license_inventory entry has string fields package, version, and license, plus a license_type of \"permissive\", \"copyleft\", or \"unknown\".",
+            "testPattern": "each license_inventory entry has required fields"
+          },
+          {
+            "id": "compliance-status",
+            "weight": 0.1,
+            "description": "compliance_status is one of exactly three valid strings: \"compliant\", \"review_required\", or \"non_compliant\".",
+            "testPattern": "compliance_status is one of the valid"
+          },
+          {
+            "id": "permissive-count",
+            "weight": 0.1,
+            "description": "permissive_count is a positive integer representing the count of packages with permissive licenses.",
+            "testPattern": "permissive_count is a non-negative"
+          },
+          {
+            "id": "all-packages",
+            "weight": 0.15,
+            "description": "license_inventory includes entries for all 8 packages: requests, numpy, pandas, scikit-learn, flask, sqlalchemy, pytest, and cryptography.",
+            "testPattern": "all packages are represented"
+          },
+          {
+            "id": "conflicts-array",
+            "weight": 0.05,
+            "description": "license_conflicts is an array (may be empty if no incompatibilities are found).",
+            "testPattern": "license_conflicts is an array"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent audited Python dependencies for license compliance.\n\nCriterion 1: License identification accuracy (Weight: 60%)\n1.0: Correctly identifies that requests=Apache-2.0, numpy=BSD-3-Clause, pandas=BSD-3-Clause, scikit-learn=BSD-3-Clause, flask=BSD-3-Clause, sqlalchemy=MIT, pytest=MIT, cryptography=Apache-2.0/BSD — all permissive. Compliance status is 'compliant'.\n0.5: Most licenses correct but 1-2 are wrong or compliance status is overly cautious.\n0: Most licenses are wrong or compliance assessment is incorrect.\n\nCriterion 2: Report completeness (Weight: 40%)\n1.0: All 8 packages included in license_inventory with all required fields, counts are correct.\n0.5: Some packages missing or fields incomplete.\n0: License inventory is missing or severely incomplete.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/dependency-auditor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

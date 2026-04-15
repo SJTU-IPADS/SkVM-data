@@ -1,0 +1,31 @@
+{
+  "id": "image_task_02",
+  "name": "Batch Center-Crop, Watermark, and Convert Four Product Images to WebP",
+  "category": "image_processing",
+  "gradingType": "hybrid",
+  "prompt": "Your workspace contains four product images at the root that need to be prepared for a product catalog. Process all four and write the results to an `output/` directory.\n\nSource files:\n- `prod_001.jpg` — landscape JPEG photograph\n- `prod_002.jpg` — JPEG photograph (may have embedded EXIF orientation metadata)\n- `prod_003.png` — PNG with alpha channel\n- `prod_004.png` — palette-mode PNG\n\n**Step 1 — Apply EXIF orientation.** Before any processing, apply any embedded EXIF orientation tag so the pixel grid reflects the correct visual orientation. Some images are stored rotated and rely on the EXIF tag to display upright; your subsequent steps must operate on the visually-correct pixel layout.\n\n**Step 2 — Convert to RGB.** Flatten any alpha channel by compositing on a white (#FFFFFF) background. Convert palette-mode images to RGB as well. Every image must be in RGB mode before cropping.\n\n**Step 3 — Center-crop to 600 × 400 pixels.** Crop from the center of the image — the crop box is centered on the image's midpoint, not anchored at the top-left corner. The output canvas must be exactly 600 wide × 400 tall.\n\n**Step 4 — Add watermark.** Draw the text `© Catalog 2026` in the lower-right corner of each cropped image. Leave at least 10 pixels of margin from the right and bottom edges. Use white fill with a dark outline or shadow so the text is legible on varied backgrounds.\n\n**Step 5 — Save as WebP.** Save each result as a WebP file at quality 80. Output filenames use the source stem with a `.webp` extension:\n- `prod_001.jpg` → `output/prod_001.webp`\n- `prod_002.jpg` → `output/prod_002.webp`\n- `prod_003.png` → `output/prod_003.webp`\n- `prod_004.png` → `output/prod_004.webp`\n\n**Invariant**: `output/` must contain exactly 4 files, one per source image, with no extras.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent processed four product images (two JPEGs, two PNGs) through a 5-step pipeline: apply EXIF orientation, convert to RGB (compositing alpha on white), center-crop to 600×400, add watermark text in lower-right, save as WebP quality=80.\n\nCriterion 1: Output artifact completeness (Weight: 40%)\n1.0: output/ contains exactly 4 WebP files named prod_001.webp through prod_004.webp, all valid WebP at exactly 600×400 pixels, all in RGB mode (no alpha).\n0.5: Most files present but at least one has wrong dimensions, wrong format, or missing alpha compositing.\n0.0: output/ missing, fewer than 3 files present, or files are unreadable.\n\nCriterion 2: Pipeline correctness (Weight: 40%)\n1.0: All steps applied correctly — EXIF orientation applied before crop (verifiable via correct dimensions on prod_002), palette and RGBA modes converted to RGB, center-crop used (not top-left crop), watermark visible in lower-right corner of each image.\n0.5: Most steps correct but at least one failure — e.g. EXIF ignored causing wrong crop region, alpha channel not composited, or watermark misplaced or missing.\n0.0: Multiple critical steps skipped — e.g. no center-crop (top-left crop), no watermark, alpha channels not handled.\n\nCriterion 3: Spec adherence (Weight: 20%)\n1.0: Output filenames match the specified stem+.webp pattern exactly, WebP quality is at or near 80, watermark margin is within 10px of lower-right edges, no extra or missing files.\n0.5: Minor naming or quality deviation but deliverables substantially correct.\n0.0: Output not in output/ directory, naming conventions ignored, or pipeline steps applied in wrong order causing visible artifacts.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/image",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "content-gap-analysis_task_01",
+  "name": "Content Gap Analysis from Topic Inventory Data",
+  "category": "seo_analysis",
+  "gradingType": "hybrid",
+  "prompt": "Perform a content gap analysis using the data provided below. Identify topics competitors cover that your site does not, and produce a prioritized gap report.\n\n**My Site** (fitnessblog.example.com) — existing content topics:\n- Beginner workout routines\n- Protein intake guide\n- Running tips for beginners\n- Home gym equipment basics\n- Weight loss meal plan\n\n**Competitor 1** (fitnessworld.example.com) — content topics:\n- Beginner workout routines, Protein intake guide, Running tips for beginners\n- HIIT training guide, Yoga for weight loss, Kettlebell workouts\n- Intermittent fasting explained, Macros calculator guide, Post-workout nutrition\n- Marathon training plan, Foam rolling techniques, Sleep and recovery\n\n**Competitor 2** (healthpeak.example.com) — content topics:\n- Home gym equipment basics, Weight loss meal plan, Running tips for beginners\n- Strength training for women, Mobility exercises, Cycling for beginners\n- Keto diet explained, Calorie deficit guide, Meal prep for weight loss\n- Mental health and exercise, Supplements guide, Swimming workouts\n\nSave your analysis to `content_gaps.json` with exactly this structure:\n\n```json\n{\n  \"my_site\": \"fitnessblog.example.com\",\n  \"my_topic_count\": 5,\n  \"competitor_topic_counts\": {\n    \"fitnessworld.example.com\": <integer>,\n    \"healthpeak.example.com\": <integer>\n  },\n  \"gap_topics\": [\n    {\n      \"topic\": \"string\",\n      \"covered_by\": [\"string (competitor domains that cover this)\"],\n      \"priority\": \"tier1\" | \"tier2\" | \"tier3\",\n      \"estimated_traffic_potential\": \"high\" | \"medium\" | \"low\",\n      \"content_type_recommendation\": \"string\"\n    }\n  ],\n  \"total_gaps_found\": <integer>,\n  \"tier1_count\": <integer>,\n  \"quick_wins\": [\"string (tier1 topic names)\"],\n  \"coverage_score\": <float — my topics / total unique topics across all sites * 100, rounded to 1 decimal>\n}\n```\n\nCount competitor topics exactly as listed. `total_gaps_found` = number of items in `gap_topics`. `tier1_count` = count of gap_topics with priority='tier1'. Topics covered by both competitors are higher priority than those covered by only one. `coverage_score` = my 5 topics / total unique topics * 100.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "content-gap-analysis_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "content_gaps.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "content_gaps.json is valid JSON with all required top-level fields: my_site, my_topic_count, competitor_topic_counts, gap_topics, total_gaps_found, tier1_count, quick_wins, and coverage_score.",
+            "testPattern": "valid JSON with required"
+          },
+          {
+            "id": "my-site-count",
+            "weight": 0.1,
+            "description": "my_site equals \"fitnessblog.example.com\" and my_topic_count equals 5.",
+            "testPattern": "my_site is fitnessblog|my_topic_count"
+          },
+          {
+            "id": "competitor-counts",
+            "weight": 0.15,
+            "description": "competitor_topic_counts correctly records 12 topics for fitnessworld.example.com and 12 for healthpeak.example.com.",
+            "testPattern": "competitor_topic_counts has correct"
+          },
+          {
+            "id": "gaps-count",
+            "weight": 0.1,
+            "description": "gap_topics is an array with at least 10 entries representing topics competitors cover that the site does not.",
+            "testPattern": "gap_topics is array with at least 10"
+          },
+          {
+            "id": "gap-fields",
+            "weight": 0.1,
+            "description": "Every gap topic has required fields: topic, covered_by (array), priority (tier1/tier2/tier3), estimated_traffic_potential (high/medium/low), and content_type_recommendation.",
+            "testPattern": "each gap topic has required fields"
+          },
+          {
+            "id": "no-overlap",
+            "weight": 0.2,
+            "description": "None of the gap topics match any of the 5 topics already on the site (e.g., no \"beginner workout routines\" or \"protein intake guide\" appears in gap_topics).",
+            "testPattern": "gap topics do not include topics already"
+          },
+          {
+            "id": "totals-match",
+            "weight": 0.1,
+            "description": "total_gaps_found equals the length of the gap_topics array, and tier1_count equals the count of entries with priority \"tier1\".",
+            "testPattern": "total_gaps_found matches|tier1_count matches"
+          },
+          {
+            "id": "quick-wins",
+            "weight": 0.05,
+            "description": "quick_wins is a non-empty array of strings representing high-priority gap topic names.",
+            "testPattern": "quick_wins array is non-empty"
+          },
+          {
+            "id": "coverage-score",
+            "weight": 0.1,
+            "description": "coverage_score is a number between 0 and 100 representing the site's topic coverage percentage.",
+            "testPattern": "coverage_score is a number"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent identified content gaps between a fitness blog and two competitors.\n\nCriterion 1: Gap Identification Accuracy (Weight: 60%)\n1.0: All gap topics are genuinely missing from the user's site (not already in their 5 topics), covered_by arrays correctly identify which competitors have that topic, priority assignments correctly weight topics covered by both competitors higher.\n0.5: Most gaps are correctly identified but 1-3 errors (e.g., including a topic the user already has, wrong covered_by).\n0: Gap identification is significantly wrong or the analysis includes topics the user already covers.\n\nCriterion 2: Prioritization Quality (Weight: 40%)\n1.0: Tier 1 topics are the highest-value fitness topics (e.g., HIIT, intermittent fasting, macros, keto — high search volume topics), content type recommendations match the topic (e.g., 'calculator' for macros, 'guide' for HIIT), quick_wins are actionable.\n0.5: Prioritization exists but seems arbitrary rather than based on traffic potential or business relevance.\n0: No meaningful prioritization or recommendations.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/content-gap-analysis",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

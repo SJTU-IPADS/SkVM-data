@@ -1,0 +1,96 @@
+{
+  "id": "resume-screener-pro_task_02",
+  "name": "Design Structured Interview Questions for a Shortlisted Candidate",
+  "category": "recruiting",
+  "gradingType": "hybrid",
+  "prompt": "You are designing a structured interview plan for a shortlisted candidate. Produce a complete interview question set with evaluation criteria.\n\nPosition: Product Manager — B2B SaaS\nRequired competencies: Customer discovery, data-driven decision making, cross-functional collaboration, prioritization under constraints\n\nCandidate profile: Sarah Liu\n- 4 years PM experience at one mid-size SaaS company\n- Claims: \"Increased user activation rate from 32% to 61% in 6 months\"\n- Claims: \"Led cross-functional team of 12 to ship a new onboarding flow on time\"\n- Career changer from UX design (3 years prior experience)\n- No B2B SaaS experience; all B2C products to date\n\nStep 1: Define the Scorecard for the role and save to scorecard.json.\n\nInclude: mission (1 sentence, the core purpose of the PM role), outcomes (array of exactly 3 measurable outcomes expected in the first 12 months), competencies (array of exactly 4 competency objects, one per required competency, each with: name, description, level_required (\"Must Have\" or \"Nice to Have\")).\n\nSave as: { \"role\": \"Product Manager - B2B SaaS\", \"candidate\": \"Sarah Liu\", \"mission\": \"...\", \"outcomes\": [...], \"competencies\": [...] }\n\nStep 2: Generate interview questions and save to interview_questions.json.\n\nProduce exactly 8 questions covering these sections:\n- Section A: 2 universal questions (self-introduction structure, biggest failure/learning)\n- Section B: 2 deep-dive questions probing Sarah's specific claims (activation rate improvement + cross-functional leadership), each with a follow-up prompt that goes one level deeper\n- Section C: 2 competency questions covering customer discovery and prioritization under constraints, each in STAR format\n- Section D: 2 career transition questions addressing the B2C-to-B2B shift and UX background\n\nFor each question include: question_id (Q1-Q8), section (A/B/C/D), question_text, probe_focus (what competency or claim this tests), follow_up (a follow-up question or null for section A/C/D).\n\nSave as: { \"candidate\": \"Sarah Liu\", \"role\": \"Product Manager - B2B SaaS\", \"questions\": [ { \"question_id\": \"Q1\", \"section\": \"A\", \"question_text\": \"...\", \"probe_focus\": \"...\", \"follow_up\": null or \"...\" }, ... ] }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "resume-screener-pro_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "scorecard-exists",
+            "weight": 0.08,
+            "description": "scorecard.json exists in the working directory.",
+            "testPattern": "scorecard.json.*exists|file exists.*scorecard"
+          },
+          {
+            "id": "scorecard-mission",
+            "weight": 0.08,
+            "description": "scorecard.json mission field is a non-empty string longer than 15 characters.",
+            "testPattern": "mission.*string|has mission field"
+          },
+          {
+            "id": "scorecard-outcomes",
+            "weight": 0.1,
+            "description": "scorecard.json outcomes array contains exactly 3 non-empty string entries (each >10 chars).",
+            "testPattern": "3 outcomes|exactly 3|outcomes.*3"
+          },
+          {
+            "id": "scorecard-competencies",
+            "weight": 0.1,
+            "description": "scorecard.json competencies array contains exactly 4 entries, each with name, description, and level_required ('Must Have' or 'Nice to Have').",
+            "testPattern": "4 competencies|exactly 4 competenc"
+          },
+          {
+            "id": "questions-exists",
+            "weight": 0.08,
+            "description": "interview_questions.json exists in the working directory.",
+            "testPattern": "interview_questions.json.*exists|file exists.*interview_questions"
+          },
+          {
+            "id": "eight-questions",
+            "weight": 0.12,
+            "description": "interview_questions.json questions array contains exactly 8 entries.",
+            "testPattern": "8 questions|exactly 8|questions.*8"
+          },
+          {
+            "id": "section-coverage",
+            "weight": 0.12,
+            "description": "Questions cover all four sections: A (2 questions), B (2 questions), C (2 questions), and D.",
+            "testPattern": "section A|section B|section C|section D"
+          },
+          {
+            "id": "section-b-followup",
+            "weight": 0.12,
+            "description": "Both Section B questions have a non-null follow_up string (>10 chars) probing deeper into Sarah Liu's stated claims.",
+            "testPattern": "section B.*follow_up|follow_up.*section B|section.*B.*probe"
+          },
+          {
+            "id": "question-fields",
+            "weight": 0.1,
+            "description": "Every question entry has question_text (string >10 chars) and probe_focus (string) fields.",
+            "testPattern": "question_id.*section|probe_focus|question_text.*probe"
+          },
+          {
+            "id": "q-ids",
+            "weight": 0.1,
+            "description": "Question IDs are Q1 through Q8, all present in the questions array.",
+            "testPattern": "Q1.*Q8|Q8.*question|question_id.*Q"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent defined a PM role scorecard and designed a structured interview question set for a specific candidate.\n\nCriterion 1: Scorecard Quality (Weight: 40%)\n1.0: Mission is a clear, role-specific one-sentence statement. All 3 outcomes are measurable and relevant to B2B SaaS PM role (e.g., revenue, retention, adoption metrics). All 4 competencies are present with accurate level classifications (customer discovery and data-driven decision making as Must Have).\n0.5: Scorecard exists with all sections but outcomes are vague or competency levels are arbitrary.\n0: Scorecard is missing key sections or outcomes are not measurable.\n\nCriterion 2: Interview Question Quality (Weight: 60%)\n1.0: All 8 questions present across 4 sections. Section B questions directly reference Sarah's specific claims (the 32%→61% activation stat and the 12-person cross-functional team). Follow-up probes in section B go at least one level deeper (e.g., 'How exactly did you measure that?' or 'What was your specific contribution vs the team?'). Section D questions address the B2C/B2B and UX/PM transitions specifically.\n0.5: 6-7 questions present; most sections covered but follow-ups are generic.\n0: Fewer than 6 questions or sections B and D do not reference the candidate's specific background.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/resume-screener-pro",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

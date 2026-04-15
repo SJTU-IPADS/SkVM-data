@@ -1,0 +1,31 @@
+{
+  "id": "schema-markup-generator_task_01",
+  "name": "Product + AggregateRating JSON-LD with Schema.org Enumeration URLs",
+  "category": "seo_structured_data",
+  "gradingType": "hybrid",
+  "prompt": "An e-commerce team needs Schema.org JSON-LD markup for their hiking boots product page. You'll find the product data in `product_brief.json` at the workspace root. Generate the markup and write it as a single JSON object to `product_schema.json`.\n\nThe output must be a single JSON-LD object (not wrapped in a `<script>` tag) with the following structure:\n\n```\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"Product\",\n  \"name\": ...,\n  \"description\": ...,\n  \"sku\": ...,\n  \"brand\": { \"@type\": \"Brand\", \"name\": ... },\n  \"image\": ...,\n  \"url\": ...,\n  \"offers\": {\n    \"@type\": \"Offer\",\n    \"priceCurrency\": ...,\n    \"price\": ...,\n    \"priceValidUntil\": ...,\n    \"availability\": ...,\n    \"itemCondition\": ...,\n    \"url\": ...\n  },\n  \"aggregateRating\": {\n    \"@type\": \"AggregateRating\",\n    \"ratingValue\": ...,\n    \"ratingCount\": ...,\n    \"bestRating\": ...,\n    \"worstRating\": ...\n  }\n}\n```\n\n**Exact format requirements** — these are validated automatically:\n\n1. `@context` must be exactly `https://schema.org` — the https scheme, no trailing slash, no path segment. The form `http://schema.org` or `https://schema.org/` is wrong.\n\n2. `availability` must be the full Schema.org enumeration URL: `https://schema.org/InStock`. The bare string `InStock` or `in stock` is not valid for this property even though some examples use it.\n\n3. `itemCondition` must be the full Schema.org enumeration URL: `https://schema.org/NewCondition`. The bare string `NewCondition` or `new` is not valid.\n\n4. `priceValidUntil` must be a date-only string in `YYYY-MM-DD` format (e.g. `2026-12-31`). A datetime string with a time component like `2026-12-31T00:00:00` is not valid for this field.\n\n5. `priceCurrency` must be the ISO 4217 three-letter currency code (`USD`), not a currency symbol (`$`).\n\n6. `ratingValue` must be a JSON number, not a quoted string. Write `4.6`, not `\"4.6\"`.\n\n7. `ratingCount`, `bestRating`, and `worstRating` must all be present in `aggregateRating`. Copy these values exactly from `product_brief.json` — do not round or invent them. Google's rich results eligibility requires `bestRating` and `worstRating` to define the scale.\n\nAll values should be drawn directly from `product_brief.json`. Do not add extra top-level keys or rename any property.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent read product_brief.json and wrote product_schema.json containing a Schema.org Product + AggregateRating JSON-LD object. The prompt pinned down exact format requirements for @context, enumeration URLs, date formats, currency codes, and numeric types.\n\nCriterion 1: Structural correctness (Weight: 40%)\n1.0: product_schema.json is valid JSON with @context, @type='Product', all required top-level properties (name, description, sku, brand, offers, aggregateRating), and correctly nested Offer and AggregateRating objects each with their own @type.\n0.5: File exists and is valid JSON but missing one or two required properties, or nested types are incorrect.\n0: File is missing, invalid JSON, or fundamentally wrong structure.\n\nCriterion 2: Schema.org specification compliance (Weight: 40%)\n1.0: All enumeration values use full Schema.org URLs (availability, itemCondition), priceValidUntil uses YYYY-MM-DD format, priceCurrency uses ISO 4217 code, ratingValue is a number not a string, and bestRating/worstRating are both present.\n0.5: Most format requirements met but one or two violations — e.g. bare enumeration value, wrong date format, or currency symbol instead of code.\n0: Multiple format violations showing the agent ignored the spec constraints.\n\nCriterion 3: Data fidelity (Weight: 20%)\n1.0: All numeric and string values match product_brief.json exactly — ratingCount, ratingValue, bestRating, worstRating, price, sku, brand name all faithfully copied from the source without invention or rounding.\n0.5: Most values correct but one or two differ from the source data.\n0: Significant values invented or significantly altered from the source.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/schema-markup-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

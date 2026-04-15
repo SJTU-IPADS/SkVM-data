@@ -1,0 +1,96 @@
+{
+  "id": "content-quality-auditor_task_02",
+  "name": "Veto Check and Priority Improvements for a Product Review",
+  "category": "content_quality",
+  "gradingType": "hybrid",
+  "prompt": "Audit the following product review content against CORE-EEAT standards. Treat it as a \"Product Review\" content type.\n\n---\nTitle: XPhone Pro 15 Review\n\nThe XPhone Pro 15 is the best phone ever made. Buy it now. It has a great camera and amazing battery life. Everyone loves this phone. Get 20% off with code SAVE20. This phone will change your life. I tested hundreds of phones and this is number one. Trust me.\n---\n\nProduce a file called product_review_audit.json with exactly this structure:\n- \"content_title\": string\n- \"content_type\": string (must be \"Product Review\")\n- \"veto_check\": object with keys \"T04_disclosure\" (string: \"Pass\", \"Partial\", or \"Fail\"), \"C01_intent_alignment\" (string: \"Pass\", \"Partial\", or \"Fail\"), \"R10_content_consistency\" (string: \"Pass\", \"Partial\", or \"Fail\"), \"any_veto_triggered\" (boolean)\n- \"dimension_scores\": object with keys \"C\", \"O\", \"R\", \"E\", \"Exp\", \"Ept\", \"A\", \"T\" — each a number 0-100\n- \"geo_score\": number (average of C, O, R, E, rounded to 1 decimal)\n- \"seo_score\": number (average of Exp, Ept, A, T, rounded to 1 decimal)\n- \"total_score\": number between 0 and 100\n- \"rating\": string — one of \"Excellent\", \"Good\", \"Medium\", \"Low\", \"Poor\"\n- \"critical_issues\": array of strings listing the specific veto items that triggered (empty array if none triggered)\n- \"top_improvements\": array of exactly 5 objects, each with keys \"id\" (string), \"name\" (string), \"current_status\" (string: \"Fail\" or \"Partial\"), \"action\" (string)\n\nNote: The content contains a promotional discount code and unsubstantiated superlative claims — these should be reflected in veto item evaluations where applicable.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "content-quality-auditor_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "product_review_audit.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.07,
+            "description": "product_review_audit.json is valid JSON with all required top-level keys: content_title, content_type, veto_check, dimension_scores, geo_score, seo_score, total_score, rating, critical_issues, and top_improvements.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "content-type",
+            "weight": 0.07,
+            "description": "The content_type field equals exactly the string \"Product Review\".",
+            "testPattern": "Product Review"
+          },
+          {
+            "id": "veto-triggered",
+            "weight": 0.18,
+            "description": "veto_check.any_veto_triggered is true, reflecting that the promotional discount code or unsubstantiated claims triggered at least one veto item.",
+            "testPattern": "at least one veto triggered"
+          },
+          {
+            "id": "dimension-scores",
+            "weight": 0.12,
+            "description": "dimension_scores contains all 8 keys (C, O, R, E, Exp, Ept, A, T), each a number between 0 and 100.",
+            "testPattern": "all 8 dimensions"
+          },
+          {
+            "id": "geo-score",
+            "weight": 0.1,
+            "description": "geo_score equals the arithmetic mean of C, O, R, E within a tolerance of 1 point.",
+            "testPattern": "geo_score is average"
+          },
+          {
+            "id": "seo-score",
+            "weight": 0.1,
+            "description": "seo_score equals the arithmetic mean of Exp, Ept, A, T within a tolerance of 1 point.",
+            "testPattern": "seo_score is average"
+          },
+          {
+            "id": "low-score",
+            "weight": 0.13,
+            "description": "total_score is a number strictly below 60, reflecting the low-quality promotional content.",
+            "testPattern": "below 60"
+          },
+          {
+            "id": "critical-issues",
+            "weight": 0.08,
+            "description": "critical_issues is a non-empty array listing the specific veto items that were triggered.",
+            "testPattern": "critical_issues"
+          },
+          {
+            "id": "improvements",
+            "weight": 0.1,
+            "description": "top_improvements is an array of exactly 5 objects, each with id, name, current_status (Fail/Partial), and a non-empty action string.",
+            "testPattern": "exactly 5 entries"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent audited a low-quality product review containing promotional language, unsubstantiated claims, and a discount code — all quality red flags.\n\nCriterion 1: Appropriate Score Calibration (Weight: 60%)\n1.0: Total score is in the Low or Poor range (below 60) reflecting the content's obvious quality problems. Veto items T04 and/or C01 are triggered given the promotional/disclosure issues. The agent correctly identified the discount code and superlatives as problems.\n0.5: Score exists and is below 75 but veto logic is inconsistent or missed obvious issues.\n0: Score is unreasonably high (above 75) for this low-quality content, or veto items are all Pass despite obvious issues.\n\nCriterion 2: Specificity of Improvements (Weight: 40%)\n1.0: Top 5 improvements directly call out specific problems in this content — the discount code, missing test methodology, unsubstantiated claims, lack of disclosure. Actions are concrete.\n0.5: Improvements are partially relevant but miss the most obvious issues.\n0: Improvements are generic or irrelevant to this specific content.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/content-quality-auditor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "medium"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "university-applications_task_02",
+  "name": "Generate Admissions Summary Statistics from Program Data",
+  "category": "data_management",
+  "gradingType": "hybrid",
+  "prompt": "Write a Python 3 script named `admissions_stats.py` that reads a JSON file `raw_programs.json` and computes summary statistics, saving results to `admissions_summary.json`.\n\nFirst, create `raw_programs.json` with exactly this content:\n```json\n[\n  {\"university_abbr\": \"HKU\", \"degree_type\": \"MSc\", \"study_mode\": \"Full-time\", \"tuition_hkd\": 180000},\n  {\"university_abbr\": \"HKU\", \"degree_type\": \"MA\", \"study_mode\": \"Part-time\", \"tuition_hkd\": 95000},\n  {\"university_abbr\": \"CUHK\", \"degree_type\": \"MSc\", \"study_mode\": \"Full-time\", \"tuition_hkd\": 160000},\n  {\"university_abbr\": \"CUHK\", \"degree_type\": \"MBA\", \"study_mode\": \"Full-time\", \"tuition_hkd\": 520000},\n  {\"university_abbr\": \"HKUST\", \"degree_type\": \"MSc\", \"study_mode\": \"Full-time & Part-time\", \"tuition_hkd\": 140000},\n  {\"university_abbr\": \"HKUST\", \"degree_type\": \"MBA\", \"study_mode\": \"Full-time\", \"tuition_hkd\": 580000},\n  {\"university_abbr\": \"PolyU\", \"degree_type\": \"MSc\", \"study_mode\": \"Part-time\", \"tuition_hkd\": 110000},\n  {\"university_abbr\": \"CityU\", \"degree_type\": \"MA\", \"study_mode\": \"Full-time\", \"tuition_hkd\": 130000}\n]\n```\n\nThe script must read `raw_programs.json` and compute:\n1. `total_programs` — total number of programs (integer)\n2. `universities_covered` — count of distinct university_abbr values (integer)\n3. `degree_type_distribution` — object mapping each degree_type to its count\n4. `study_mode_distribution` — object mapping each study_mode to its count\n5. `tuition_stats` — object with: `min_hkd` (integer), `max_hkd` (integer), `mean_hkd` (integer, rounded), `median_hkd` (float or integer)\n6. `programs_per_university` — object mapping each university_abbr to its program count\n\nSave all results to `admissions_summary.json` as a single JSON object with those 6 top-level keys.\n\nRequired output files: `admissions_stats.py`, `raw_programs.json`, `admissions_summary.json`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "university-applications_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.06,
+            "description": "admissions_stats.py exists in the working directory.",
+            "testPattern": "admissions_stats.py > file exists|admissions_stats exists"
+          },
+          {
+            "id": "raw-exists",
+            "weight": 0.06,
+            "description": "raw_programs.json exists in the working directory.",
+            "testPattern": "raw_programs.json > file exists|raw_programs exists"
+          },
+          {
+            "id": "summary-exists",
+            "weight": 0.08,
+            "description": "admissions_summary.json exists in the working directory.",
+            "testPattern": "admissions_summary.json > file exists|summary exists"
+          },
+          {
+            "id": "total-programs",
+            "weight": 0.12,
+            "description": "admissions_summary.json total_programs field equals 8, the count of all input records.",
+            "testPattern": "total_programs is 8|total programs"
+          },
+          {
+            "id": "universities-covered",
+            "weight": 0.1,
+            "description": "universities_covered field equals 4, the count of distinct university_abbr values in the dataset.",
+            "testPattern": "universities_covered is 4|4 universities"
+          },
+          {
+            "id": "degree-distribution",
+            "weight": 0.12,
+            "description": "degree_type_distribution has MSc count 4, MA count 2, and MBA count 2.",
+            "testPattern": "MSc.*4|degree_type_distribution.*MSc|degree distribution"
+          },
+          {
+            "id": "top-level-keys",
+            "weight": 0.1,
+            "description": "admissions_summary.json has all 6 required top-level keys: total_programs, universities_covered, degree_type_distribution, study_mode_distribution, tuition_stats, programs_per_university.",
+            "testPattern": "has all 6 required top-level keys"
+          },
+          {
+            "id": "tuition-min-max",
+            "weight": 0.12,
+            "description": "tuition_stats has min_hkd=95000 and max_hkd=580000 matching the cheapest and most expensive programs.",
+            "testPattern": "min.*95000|max.*580000|tuition min.*max"
+          },
+          {
+            "id": "tuition-mean",
+            "weight": 0.12,
+            "description": "tuition_stats mean_hkd equals 214375 (sum 1,715,000 divided by 8 programs).",
+            "testPattern": "mean.*214375|mean_hkd.*214|tuition mean"
+          },
+          {
+            "id": "programs-per-uni",
+            "weight": 0.12,
+            "description": "programs_per_university has HKU=2, CUHK=2, HKUST=2, PolyU=1, CityU=1.",
+            "testPattern": "HKU.*2|HKUST.*2|programs_per_university"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to compute statistical summaries over a dataset of 8 university programs.\n\nCriterion 1: Computation Accuracy (Weight: 70%)\n1.0: All values are correct. total_programs=8, universities_covered=4, MSc count=4, MBA count=2, MA count=2, min=95000, max=580000, mean=214375, median=170000 (average of sorted middle two: 140000 and 160000... actually sorted: 95k,110k,130k,140k,160k,180k,520k,580k → median=(140k+160k)/2=150000). programs_per_university: HKU=2, CUHK=2, HKUST=2, PolyU=1, CityU=1.\n0.5: Most values correct but median or mean has a calculation error.\n0: Values are largely wrong or key fields are missing.\n\nCriterion 2: Output Structure (Weight: 30%)\n1.0: admissions_summary.json has all 6 top-level keys with correct nested structure. tuition_stats has all 4 sub-keys. All count values are integers.\n0.5: File exists but one or two top-level keys are missing or misnamed.\n0: admissions_summary.json is missing or malformed.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/university-applications",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

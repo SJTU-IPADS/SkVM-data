@@ -1,0 +1,96 @@
+{
+  "id": "ppt-outline_task_02",
+  "name": "Generate an HTML Slide Presentation on Remote Work Productivity",
+  "category": "presentation",
+  "gradingType": "hybrid",
+  "prompt": "Generate a self-contained HTML presentation file on the topic of \"Remote Work Productivity\" and save it to presentation.html.\n\nRequirements:\n- The file must be valid HTML that can be opened directly in a browser\n- Must contain exactly 6 slides covering: (1) Title Slide, (2) The Remote Work Challenge, (3) Key Productivity Factors, (4) Tools & Technology, (5) Best Practices, (6) Conclusion & Action Items\n- Each slide must be a distinct <section> or <div> element with a data-slide attribute set to its slide number (1 through 6)\n- Each slide must have an <h1> or <h2> heading and at least 2 bullet points in a <ul> or <ol> list\n- The Title Slide (slide 1) must contain the exact text \"Remote Work Productivity\" in a heading element\n- Include inline CSS styling (no external stylesheets) — at minimum set a background color, font-family, and readable font size\n- The final slide must include an <ol> list of at least 3 numbered action items\n\nSave the complete HTML to presentation.html.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "ppt-outline_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.06,
+            "description": "presentation.html exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "file-size",
+            "weight": 0.06,
+            "description": "presentation.html is at least 500 bytes in size.",
+            "testPattern": "non-empty.*500 bytes"
+          },
+          {
+            "id": "valid-html",
+            "weight": 0.1,
+            "description": "The file starts with <!doctype html> or contains an <html> tag, indicating valid HTML.",
+            "testPattern": "DOCTYPE.*html tag|valid HTML"
+          },
+          {
+            "id": "title-text",
+            "weight": 0.12,
+            "description": "The exact text 'Remote Work Productivity' appears in a heading element.",
+            "testPattern": "Remote Work Productivity"
+          },
+          {
+            "id": "slide-attrs",
+            "weight": 0.16,
+            "description": "The HTML contains exactly 6 data-slide attributes with values 1 through 6 (data-slide=\"1\" through data-slide=\"6\").",
+            "testPattern": "data-slide.*1 through 6|exactly 6 data-slide"
+          },
+          {
+            "id": "headings",
+            "weight": 0.12,
+            "description": "The combined count of <h1> and <h2> elements is at least 6, providing one heading per slide.",
+            "testPattern": "heading element.*h1 or h2"
+          },
+          {
+            "id": "lists",
+            "weight": 0.12,
+            "description": "The combined count of <ul> and <ol> elements is at least 6, providing bullet lists for each slide.",
+            "testPattern": "list elements.*ul or ol"
+          },
+          {
+            "id": "action-items",
+            "weight": 0.12,
+            "description": "The element with data-slide=\"6\" (the final slide) contains an <ol> element for the numbered action items list.",
+            "testPattern": "final slide.*ordered list"
+          },
+          {
+            "id": "css-style",
+            "weight": 0.08,
+            "description": "The HTML includes a <style> block with inline CSS (no external stylesheet).",
+            "testPattern": "inline CSS.*style block|inline CSS style"
+          },
+          {
+            "id": "css-properties",
+            "weight": 0.06,
+            "description": "The inline CSS declares both background-color and font-family properties.",
+            "testPattern": "background-color.*font-family|CSS includes background"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated an HTML presentation on Remote Work Productivity.\n\nCriterion 1: Content Quality (Weight: 60%)\n1.0: Each slide's content is specific, informative, and relevant to remote work productivity. Bullet points contain concrete advice (e.g., specific tool names, measurable techniques like Pomodoro, async communication norms) rather than generic statements.\n0.5: Most slides have relevant content but some bullet points are vague or overly generic.\n0: Content is entirely generic or unrelated to remote work.\n\nCriterion 2: Visual Presentation (Weight: 40%)\n1.0: The HTML renders as a visually distinct slide-like layout with clear visual separation between slides, readable typography, and cohesive color scheme. Slides feel like presentation slides, not a plain document.\n0.5: Basic styling exists (background color, font) but slides don't feel visually distinct from each other.\n0: No visible styling or the file is not valid HTML.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ppt-outline",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

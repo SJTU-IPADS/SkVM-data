@@ -1,0 +1,31 @@
+{
+  "id": "powerpoint-pptx_task_02",
+  "name": "Build a 4-Slide Sales Deck from CSV with Chart and Table",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "A finance analyst has given you `quarterly_sales.csv`, which tracks revenue for three product lines across four quarters of 2025. You need to turn this data into a presentation and a machine-readable report so leadership can review it before the board meeting.\n\nProduce two files at the workspace root:\n\n**1. `sales_deck.pptx`** — a four-slide python-pptx presentation built from the CSV. Build it in exactly this order:\n\n- **Slide 0** — use the `'Title Slide'` layout. Set the title placeholder (idx=0) to `'Annual Sales Review 2025'` and the subtitle placeholder (idx=1) to a concise description of the deck's purpose. Leave speaker notes empty.\n\n- **Slide 1** — use the `'Title Only'` layout. Set the title to `'Quarterly Revenue Summary'`. Add a real table (using `slide.shapes.add_table(...)`, not a text box) with **5 rows and 4 columns**. The header row must contain exactly `['Quarter', 'Analytics Pro', 'Data Bridge', 'Insight API']` — these names must come from the CSV, not be paraphrased. Each data row corresponds to one quarter (`Q1 2025` through `Q4 2025` in chronological order). Revenue cells should be formatted with a comma separator and no decimal places (e.g. `142,500`). Add speaker notes summarising revenue growth across the quarters.\n\n- **Slide 2** — use the `'Title Only'` layout. Set the title to `'Revenue Trends by Product'`. Add a **clustered column chart** (`XL_CHART_TYPE.COLUMN_CLUSTERED`) with:\n  - 4 categories, one per quarter in chronological order (`Q1 2025`, `Q2 2025`, `Q3 2025`, `Q4 2025`)\n  - 3 series, one per product, with series names matching the CSV product strings exactly (`'Analytics Pro'`, `'Data Bridge'`, `'Insight API'`)\n  - Each series' values are the per-quarter revenue figures for that product, read directly from the CSV\n  The chart must have exactly 4 categories and exactly 3 series — do not aggregate, summarise, or collapse product lines. Add speaker notes identifying which product contributes the most revenue.\n\n- **Slide 3** — use the `'Title Slide'` layout. Set the title to `'Thank You'` and the subtitle placeholder to a closing line with contact information. Leave speaker notes empty.\n\n**2. `deck_report.json`** — a JSON file produced by re-reading the saved `sales_deck.pptx` from disk. Required top-level fields:\n- `\"deck_title\"` (string): `'Annual Sales Review 2025'`\n- `\"slide_count\"` (integer): number of slides in the saved file\n- `\"total_revenue\"` (number): sum of all revenue values from the CSV\n- `\"quarters\"` (array of strings): the 4 distinct quarter labels in chronological order\n- `\"products\"` (array of strings): the 3 distinct product names in alphabetical order\n- `\"quarterly_totals\"` (object): map each quarter string to its total revenue across all products\n- `\"slide_width_emu\"` (integer): actual slide width read from the saved presentation\n- `\"slide_height_emu\"` (integer): actual slide height read from the saved presentation\n- `\"slides\"` (array): one object per slide with `slide_index`, `layout_name`, `shape_count`, `shape_types` (array of `int(shape.shape_type)` values), `has_table`, `has_chart`, `has_notes`, and a `\"chart\"` object for slide 2 containing `chart_type` (integer), `category_count` (integer), `series_count` (integer), and `series_names` (array of strings)\n\nRead `quarterly_sales.csv` to drive all content. Build `sales_deck.pptx` from the data, then produce `deck_report.json` by reading the saved file back.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent read quarterly_sales.csv and produced sales_deck.pptx (4 slides: title, table, chart, closing) plus deck_report.json. The spec required exact layout names, exact product/quarter names from the CSV, a real PPTX chart with 4 categories × 3 series, and speaker notes on the data slides.\n\nCriterion 1: Multi-slide coherence (Weight: 40%)\n1.0: All four slides use the correct named layouts ('Title Slide', 'Title Only', 'Title Slide'). Slide 1 has a real table with the correct header row and 4 quarter rows. Slide 2 has a real clustered column chart with exactly 4 categories and 3 series whose names and values match the CSV. Speaker notes are present on slides 1 and 2 and absent on slides 0 and 3. Slide 3 has a non-empty subtitle.\n0.5: Most structure correct but one slide has the wrong layout, a table or chart is missing, notes are on the wrong slides, or product/quarter names are paraphrased.\n0: PPTX missing or structurally broken.\n\nCriterion 2: Data accuracy (Weight: 40%)\n1.0: Table revenue cells match the CSV values (e.g., Q4 Analytics Pro = 181,200). Chart series values match the per-product per-quarter CSV data. deck_report.json total_revenue and quarterly_totals are computed correctly from the CSV. Series names in the chart match the CSV product strings exactly — no paraphrasing or truncation.\n0.5: Most values correct but at least one table cell, one chart series value, or one JSON total is wrong or the series names are paraphrased.\n0: Values are invented, aggregated incorrectly, or deck_report.json is missing.\n\nCriterion 3: Protocol discipline (Weight: 20%)\n1.0: Chart is a proper PPTX chart shape (not a static image or text description), table is a proper PPTX table shape (not a text box grid), layout matching was done by name not by index, and deck_report.json was produced by re-reading the saved file.\n0.5: One protocol shortcut but output is mostly functional.\n0: Multiple shortcuts or incorrect artifact types used.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/powerpoint-pptx",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

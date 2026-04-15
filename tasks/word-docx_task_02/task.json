@@ -1,0 +1,31 @@
+{
+  "id": "word-docx_task_02",
+  "name": "Selective Tracked-Changes Review: Accept Alice, Revert Bob",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "The file `draft.docx` is a short product-requirements brief that a team has been editing collaboratively. Two reviewers left tracked changes in the document: **Alice Chen** and **Bob Torres**. Your job is to apply a selective review pass and produce `reviewed.docx` at the workspace root.\n\nThe review policy is:\n- **Accept** every change made by **Alice Chen** — her insertions become plain text, her deletions are enacted (the deleted text is permanently removed).\n- **Reject** every change made by **Bob Torres** — his insertions are discarded (the inserted text is removed), his deletions are reverted (the original deleted text is restored).\n\nAfter the review, `reviewed.docx` must satisfy all of the following:\n\n1. **No revision markup.** `word/document.xml` must contain no `w:ins`, `w:del`, or `w:commentRangeStart` elements. The review is fully resolved — do not leave any tracked-change wrapper in the output file.\n\n2. **Alice's insertion kept.** The phrase \"and approved by the steering committee\" must appear as plain text in the document. Alice added this clause after \"reviewed quarterly\" and it should survive.\n\n3. **Alice's deletion enacted.** Alice deleted the word \"automatically\" and replaced it with \"by the cache manager\". The final text for that sentence must read \"Cache invalidation is handled by the cache manager.\" — the word \"automatically\" must be absent.\n\n4. **Bob's insertion removed.** Bob inserted \" and real-time sync\" after \"batch import\". Since you are rejecting Bob's changes, that phrase must not appear in the final document. The sentence must read \"The inventory module currently supports batch import.\"\n\n5. **Bob's deletion reverted.** Bob deleted \"Q3\" and inserted \"Q4\". Since you are rejecting Bob's changes, revert his deletion: restore \"Q3\" and remove \"Q4\". The sentence must read \"Legacy endpoints will be deprecated by Q3.\"\n\n6. **Bookmark preserved.** The bookmark named `intro-anchor` that wraps the introduction paragraph must survive in `word/document.xml` as a `w:bookmarkStart` element with `w:name=\"intro-anchor\"`.\n\n7. **Footnote preserved.** The document has a footnote in `word/footnotes.xml` containing the text \"Applies to API versions 1.x through 2.3.\" It must be present in the output.\n\nYou may manipulate the OOXML directly via `zipfile` and `lxml`, or use any other approach — but the final file must be a valid `.docx` package. Save the result as `reviewed.docx` at the workspace root.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent read draft.docx (a DOCX with tracked changes from two reviewers) and produced reviewed.docx. The review policy: accept all of Alice Chen's changes, reject all of Bob Torres's changes.\n\nCriterion 1: Revision resolution correctness (Weight: 40%)\n1.0: The document correctly applies the policy — Alice's insertions are plain text, Alice's deletions are gone, Bob's insertions are absent, Bob's deletions are reverted. No w:ins/w:del markup remains. The text reads exactly as the policy requires.\n0.5: Some changes are correctly handled but at least one reviewer's changes are wrong — e.g. accepting all changes instead of being selective, or leaving markup in the output.\n0.0: The document still contains tracked-change markup, or the wrong set of changes was accepted, or reviewed.docx is not a valid DOCX.\n\nCriterion 2: Structural integrity (Weight: 40%)\n1.0: reviewed.docx is a valid OOXML package. The bookmark 'intro-anchor' survives in word/document.xml. The footnote text 'Applies to API versions 1.x through 2.3.' survives in word/footnotes.xml. No extraneous elements introduced.\n0.5: File is valid and opens, but either the bookmark or the footnote is missing or corrupted.\n0.0: reviewed.docx is not a valid DOCX package, or both the bookmark and footnote are lost.\n\nCriterion 3: Approach discipline (Weight: 20%)\n1.0: The agent used OOXML-aware editing (direct zipfile/lxml manipulation or equivalent), did not blindly accept all changes, and handled both insertions and deletions for each reviewer correctly.\n0.5: The agent attempted the task but took a blunt approach (e.g. accepting all changes indiscriminately) or used a conversion tool that may have silently dropped the bookmark or footnote.\n0.0: The agent did not produce a meaningful reviewed.docx, or made no attempt to distinguish between the two reviewers.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/word-docx",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

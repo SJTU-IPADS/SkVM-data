@@ -1,0 +1,108 @@
+{
+  "id": "information-security-manager-iso27001_task_02",
+  "name": "ISO 27001 Incident Response Classification",
+  "category": "information_security",
+  "gradingType": "hybrid",
+  "prompt": "You are documenting security incidents for a healthcare organization. Process the following 4 incidents and produce structured output files.\n\nIncidents to process:\n1. An employee clicked a phishing link and their credentials were used to access the patient database. 2,000 patient records were exported. Detected 3 hours after it occurred.\n2. A misconfigured firewall rule exposed the internal admin panel to the internet for 6 hours. No evidence of access was found.\n3. A developer accidentally deleted a table in the staging database. The staging environment was down for 2 hours. No patient data was affected.\n4. Ransomware encrypted files on 3 workstations. Systems were isolated immediately. No patient data was on the affected machines.\n\nStep 1: Classify each incident. Save to incidents.json as an array of 4 objects. Each object must have: id (INC-001 to INC-004), title (short descriptive title), category (one of: Security Breach, Malware, Data Leakage, System Compromise, Policy Violation, Configuration Error), severity (one of: Critical, High, Medium, Low), response_time_hours (number, time to detection/response as described), containment_actions (array of at least 2 strings describing steps taken or recommended), affected_data (boolean, true if patient/sensitive data was accessed or at risk).\n\nStep 2: Save a response_stats.json with:\n{\n  \"total_incidents\": 4,\n  \"critical_count\": <int>,\n  \"high_count\": <int>,\n  \"medium_count\": <int>,\n  \"low_count\": <int>,\n  \"data_breach_incidents\": <int>,\n  \"average_response_time_hours\": <float rounded to 2 decimal places>\n}\ndata_breach_incidents = count of incidents where affected_data is true. average_response_time_hours = mean of all response_time_hours values.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "information-security-manager-iso27001_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "incidents_exist",
+            "weight": 0.08,
+            "description": "incidents.json file is present in the workspace.",
+            "testPattern": "incidents.json exists"
+          },
+          {
+            "id": "incidents_count",
+            "weight": 0.08,
+            "description": "incidents.json is an array containing exactly 4 incident objects.",
+            "testPattern": "exactly 4 incidents"
+          },
+          {
+            "id": "incident_ids",
+            "weight": 0.07,
+            "description": "The incident id values are exactly INC-001, INC-002, INC-003, and INC-004 (sorted).",
+            "testPattern": "INC-001 through INC-004"
+          },
+          {
+            "id": "incident_fields",
+            "weight": 0.1,
+            "description": "Every incident has the fields id, title, category, severity, response_time_hours, containment_actions, and affected_data.",
+            "testPattern": "all required fields"
+          },
+          {
+            "id": "category_values",
+            "weight": 0.1,
+            "description": "Every incident's category is one of the six valid enum values: Security Breach, Malware, Data Leakage, System Compromise, Policy Violation, or Configuration Error.",
+            "testPattern": "category values are valid"
+          },
+          {
+            "id": "severity_values",
+            "weight": 0.1,
+            "description": "Every incident's severity is one of Critical, High, Medium, or Low.",
+            "testPattern": "severity values are valid"
+          },
+          {
+            "id": "containment_actions",
+            "weight": 0.1,
+            "description": "Every incident's containment_actions is an array with at least 2 string items.",
+            "testPattern": "containment_actions"
+          },
+          {
+            "id": "affected_data_bool",
+            "weight": 0.07,
+            "description": "Every incident's affected_data field is a boolean (not a string or null).",
+            "testPattern": "affected_data is boolean"
+          },
+          {
+            "id": "stats_fields",
+            "weight": 0.07,
+            "description": "response_stats.json contains all seven required fields: total_incidents, critical_count, high_count, medium_count, low_count, data_breach_incidents, and average_response_time_hours.",
+            "testPattern": "all required fields"
+          },
+          {
+            "id": "severity_sum",
+            "weight": 0.08,
+            "description": "The sum of critical_count + high_count + medium_count + low_count in response_stats.json equals 4.",
+            "testPattern": "severity counts sum"
+          },
+          {
+            "id": "data_breach_match",
+            "weight": 0.08,
+            "description": "response_stats.json data_breach_incidents equals the count of incidents where affected_data is true.",
+            "testPattern": "data_breach_incidents matches"
+          },
+          {
+            "id": "avg_response_time",
+            "weight": 0.07,
+            "description": "response_stats.json average_response_time_hours equals the mean of all four incidents' response_time_hours values, within 0.01 tolerance.",
+            "testPattern": "average_response_time_hours matches"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent classified 4 security incidents and computed statistics.\n\nCriterion 1: Classification Accuracy (Weight: 60%)\n1.0: Incident categories and severities are appropriate (e.g., credential theft + data export = Critical Security Breach/Data Leakage; ransomware = High/Critical Malware; misconfigured firewall = Medium Configuration Error; accidental deletion = Low/Medium).\n0.5: Most classifications are reasonable but one severity is off by one level or category is slightly wrong.\n0: Multiple incidents are incorrectly classified in ways that don't match the described impact.\n\nCriterion 2: Containment Action Quality (Weight: 40%)\n1.0: Containment actions are specific and actionable for each incident type (e.g., revoke credentials, block IP, restore from backup, isolate workstations).\n0.5: Actions are generic or vague.\n0: Actions are missing or irrelevant to the incident type.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/information-security-manager-iso27001",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

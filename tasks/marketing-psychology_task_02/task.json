@@ -1,0 +1,90 @@
+{
+  "id": "marketing-psychology_task_02",
+  "name": "Email Sequence Psychology Playbook",
+  "category": "marketing",
+  "gradingType": "hybrid",
+  "prompt": "A B2B SaaS company wants to design a 5-email onboarding sequence to activate free-trial users who signed up but never completed setup. Their product is a project-management tool.\n\nGenerate a psychology playbook for this sequence and save it to email_playbook.json with this exact structure:\n{\n  \"goal\": \"<one sentence describing the desired end behavior>\",\n  \"emails\": [\n    {\n      \"position\": <1-5>,\n      \"subject_line\": \"<email subject>\",\n      \"primary_principle\": \"<psychological principle name>\",\n      \"principle_application\": \"<how the principle is applied in this email>\",\n      \"cta_text\": \"<call-to-action button label>\"\n    }\n  ],\n  \"principles_used\": [\"<name>\", ...]\n}\n\nRequirements:\n- Exactly 5 email objects, position 1 through 5.\n- Each email uses a distinct psychological principle (no repeats).\n- principles_used must list all 5 distinct principles used across the emails.\n- subject_line must be 10 words or fewer.\n- cta_text must use action-framing (not 'Submit' or 'Click here').\n- At least one email must apply Loss Aversion and at least one must apply Goal-Gradient Effect.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "marketing-psychology_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.07,
+            "description": "email_playbook.json file is present in the workspace.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.07,
+            "description": "email_playbook.json is parseable JSON without throwing.",
+            "testPattern": "valid JSON|parseable"
+          },
+          {
+            "id": "email-count",
+            "weight": 0.15,
+            "description": "The emails array contains exactly 5 entries.",
+            "testPattern": "exactly 5 emails"
+          },
+          {
+            "id": "email-fields",
+            "weight": 0.12,
+            "description": "Every email entry has numeric position, string subject_line, string primary_principle, string principle_application, and string cta_text.",
+            "testPattern": "email fields|position.*subject.*principle"
+          },
+          {
+            "id": "distinct-principles",
+            "weight": 0.15,
+            "description": "All 5 emails use distinct primary_principle values (no two emails share the same principle, case-insensitive).",
+            "testPattern": "distinct principles|no repeated"
+          },
+          {
+            "id": "loss-aversion",
+            "weight": 0.15,
+            "description": "At least one email has a primary_principle containing \"loss aversion\" (case-insensitive).",
+            "testPattern": "loss aversion"
+          },
+          {
+            "id": "goal-gradient",
+            "weight": 0.15,
+            "description": "At least one email has a primary_principle containing both \"goal\" and \"gradient\" (case-insensitive).",
+            "testPattern": "goal.gradient"
+          },
+          {
+            "id": "subject-length",
+            "weight": 0.07,
+            "description": "Every email's subject_line is 10 words or fewer when split on whitespace.",
+            "testPattern": "subject.*10 words|subject line length"
+          },
+          {
+            "id": "principles-list",
+            "weight": 0.07,
+            "description": "principles_used is an array of exactly 5 distinct entries that match the emails' primary_principle values.",
+            "testPattern": "principles_used"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent designed a psychology-driven 5-email onboarding sequence for a B2B SaaS free trial.\n\nCriterion 1: Principle Application Quality (Weight: 70%)\n1.0: Each principle_application clearly and concretely explains how the principle manifests in the specific email — not just named but demonstrated. Loss Aversion and Goal-Gradient emails are distinguishable and well-matched.\n0.5: Most applications are plausible but some are surface-level (e.g., 'we use reciprocity by giving value' without specifics).\n0: Applications are generic, mismatched to the principle, or missing.\n\nCriterion 2: Sequence Coherence (Weight: 30%)\n1.0: The five emails form a logical arc that moves the user from awareness to action, with subject lines and CTAs that feel natural for a B2B onboarding context.\n0.5: The sequence has some coherence but emails feel disconnected or CTAs are weak.\n0: Emails are in random order with no narrative progression.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/marketing-psychology",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

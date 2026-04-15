@@ -1,0 +1,31 @@
+{
+  "id": "quality-documentation-manager_task_02",
+  "name": "Classify Changes and Determine Revision Designation",
+  "category": "quality_management",
+  "gradingType": "hybrid",
+  "prompt": "Your team has received a change control request (`change_request.json`) proposing three changes to `SOP-08-002 Nonconformance Investigation Procedure`, currently at revision 02. Process the request and write a single file `change_assessment.json` to the workspace root.\n\n**`change_assessment.json` must contain these top-level keys:**\n- `change_request_id` — string, copied from the input\n- `document_number` — `\"SOP-08-002\"`\n- `document_title` — copied from the input\n- `current_revision` — `\"02\"`\n- `highest_classification` — the highest classification across all three changes (drives the revision designation)\n- `new_revision` — the new revision string, derived from the highest classification (see rule below)\n- `changes` — array of change entries (one per proposed change)\n- `change_history` — complete revision history array, in ascending date order\n\n**Each entry in `changes` must include:** `change_id`, `description`, `section_affected`, `classification`, `justification` (1–2 sentences), `requires_training` (boolean), `approval_level`.\n\n**Classification criteria:**\n| Class | Definition | Examples |\n|-------|-----------|----------|\n| Administrative | No content impact | Typos, formatting, branding updates |\n| Minor | Limited content change | Clarifications, resolving ambiguity without new requirements |\n| Major | Significant content change | New mandatory steps, new equipment requirements, scope changes |\n| Emergency | Urgent safety/compliance | Safety issues requiring expedited approval |\n\n**Approval levels** must match the classification:\n- Administrative → `\"Document Control\"`\n- Minor → `\"Process Owner + QA\"`\n- Major → `\"Full review cycle\"`\n\n**Requires-training rule:** Training is required only when a change introduces new steps, new equipment requirements, or changes that affect how personnel perform their work. Clarifications and administrative corrections do not require retraining.\n\n**Revision designation rule (highest classification wins):**\n- If any change is Major → increment the revision number by 1 (revision 02 → 03, written as `\"03\"`)\n- If the highest change is Minor (no Major changes) → append `.1` to the current revision (02 → `\"02.1\"`)\n- If all changes are Administrative → append a letter suffix (02 → `\"02a\"`)\n\n**Change history rule:** `change_history` must include **all** prior revision entries from the input (do not drop any) plus a new entry for the new revision. Entries must be sorted by date ascending (oldest first). Each history entry must have: `revision`, `date`, `description`, `author`, `approver`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent classified three proposed changes to SOP-08-002 (logo update, clarifying note, typo corrections) and produced change_assessment.json with revision designation and updated change history.\n\nCriterion 1: Classification accuracy (Weight: 40%)\n1.0: Change X (logo) and Z (typos) are Administrative; Change Y (clarifying note on investigation timelines) is Minor. Approval levels match classifications. Requires_training is false for all three — the clarification does not introduce new mandatory steps or equipment. The highest_classification field is 'Minor'.\n0.5: Two of three changes classified correctly; one classification is off by one level (e.g., Y classified as Major instead of Minor).\n0: Classifications are systematically wrong or Change Y is incorrectly called Administrative.\n\nCriterion 2: Revision designation (Weight: 40%)\n1.0: new_revision is '02.1' — the sub-revision form for the Minor-only scenario. The agent did not increment to '03' (the Major increment), which is the most common default error. The rule is: only a Major change triggers a full increment; Minor triggers sub-revision.\n0.5: New revision shows correct understanding of the hierarchy but has a minor formatting deviation (e.g., '2.1' instead of '02.1').\n0: new_revision is '03' or some other value that does not reflect the Minor designation rule.\n\nCriterion 3: Change history integrity (Weight: 20%)\n1.0: change_history contains all three entries (revisions 01, 02, and the new 02.1) in ascending date order. The new entry has revision, date, description, author, and approver populated. Existing entries were not modified or removed.\n0.5: History entries are present but out of order, or one prior entry is missing, or the new entry is missing a required field.\n0: change_history has fewer than 3 entries or is missing entirely.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/quality-documentation-manager",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

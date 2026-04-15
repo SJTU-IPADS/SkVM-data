@@ -1,0 +1,96 @@
+{
+  "id": "novel-generator_task_01",
+  "name": "Generate Novel Outline and First Chapter with Memory Files",
+  "category": "creative-writing",
+  "gradingType": "hybrid",
+  "prompt": "You are writing a fantasy cultivation novel. Complete the following steps and save all files as specified.\n\nThe story direction: a discarded outer disciple named Wei Liang discovers a broken cultivation manual in a trash heap that grants him the ability to absorb others' cultivation insights as his own.\n\nStep 1: Create the file output/outline.json with this exact structure:\n{\n  \"title\": \"<novel title>\",\n  \"genre\": \"cultivation fantasy\",\n  \"protagonist\": { \"name\": \"Wei Liang\", \"starting_level\": \"<level name>\", \"ability\": \"<one-line description of the golden finger>\" },\n  \"power_system\": { \"levels\": [\"<level1>\", \"<level2>\", \"<level3>\", \"<level4>\", \"<level5>\"] },\n  \"volume_1\": { \"name\": \"<volume name>\", \"chapter_count\": 5, \"core_conflict\": \"<one sentence>\" }\n}\n\nStep 2: Create .learnings/CHARACTERS.md containing a markdown table with columns: Name, Status, Level, Role, Notes. Include Wei Liang as the first entry.\n\nStep 3: Create .learnings/PLOT_POINTS.md listing at least 2 plot points that have been established (numbered list, one sentence each).\n\nStep 4: Create output/chapter_01.md. The file must start with a markdown H1 heading '# Chapter 1', include a section labeled '**Chapter Summary**:' (bold, with a colon), have body text of at least 400 words, and end with a section labeled '**Chapter Hook**:' (bold, with a colon) containing a cliffhanger sentence.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "novel-generator_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "outline-exists",
+            "weight": 0.1,
+            "description": "output/outline.json file is present.",
+            "testPattern": "outline.json > file exists"
+          },
+          {
+            "id": "outline-fields",
+            "weight": 0.12,
+            "description": "outline.json contains title, genre, protagonist (name=Wei Liang), power_system, and volume_1 fields.",
+            "testPattern": "outline has required top-level fields"
+          },
+          {
+            "id": "power-system",
+            "weight": 0.1,
+            "description": "power_system.levels is an array of exactly 5 non-empty strings.",
+            "testPattern": "power_system has 5 levels"
+          },
+          {
+            "id": "characters-exists",
+            "weight": 0.08,
+            "description": ".learnings/CHARACTERS.md file is present.",
+            "testPattern": "CHARACTERS.md > file exists"
+          },
+          {
+            "id": "characters-wei-liang",
+            "weight": 0.08,
+            "description": "CHARACTERS.md contains the text \"Wei Liang\" and a markdown table with a Name column.",
+            "testPattern": "Wei Liang is listed"
+          },
+          {
+            "id": "plot-points-exists",
+            "weight": 0.08,
+            "description": ".learnings/PLOT_POINTS.md file is present.",
+            "testPattern": "PLOT_POINTS.md > file exists"
+          },
+          {
+            "id": "plot-points-count",
+            "weight": 0.08,
+            "description": "PLOT_POINTS.md contains at least 2 numbered list entries.",
+            "testPattern": "at least 2 plot points"
+          },
+          {
+            "id": "chapter-exists",
+            "weight": 0.1,
+            "description": "output/chapter_01.md file is present.",
+            "testPattern": "chapter_01.md > file exists"
+          },
+          {
+            "id": "chapter-heading",
+            "weight": 0.12,
+            "description": "chapter_01.md starts with the exact H1 heading \"# Chapter 1\".",
+            "testPattern": "starts with H1 heading"
+          },
+          {
+            "id": "chapter-length",
+            "weight": 0.14,
+            "description": "chapter_01.md body contains at least 400 words.",
+            "testPattern": "at least 400 words"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to bootstrap a cultivation fantasy novel with structured outline, memory files, and a first chapter.\n\nCriterion 1: Chapter Quality (Weight: 60%)\n1.0: Chapter 1 has a vivid opening scene, establishes Wei Liang's underdog situation, introduces the broken manual discovery, contains engaging prose with at least one moment of tension, and ends with a compelling hook.\n0.5: Chapter exists with required structure but prose is flat, generic, or the cultivation system feels unexplained.\n0: Chapter is missing, under 200 words, or lacks narrative progression.\n\nCriterion 2: Outline and Memory Coherence (Weight: 40%)\n1.0: The power system levels are internally consistent, the volume conflict aligns with the golden finger ability, CHARACTERS.md and PLOT_POINTS.md are consistent with chapter content.\n0.5: Files exist but there are minor inconsistencies between the outline and chapter content.\n0: Outline or memory files are missing or contradicted by the chapter.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/novel-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

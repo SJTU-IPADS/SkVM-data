@@ -1,0 +1,96 @@
+{
+  "id": "web-research_task_01",
+  "name": "Fetch and Summarize Weather Data from Public API",
+  "category": "web_research",
+  "gradingType": "hybrid",
+  "prompt": "Fetch current weather data for three cities using the public wttr.in JSON API and save a structured report.\n\nFor each city, fetch: https://wttr.in/{city}?format=j1\n- Cities: London, Tokyo, Sydney\n\nFrom each response, extract:\n- temp_C (current temperature in Celsius, from current_condition[0].temp_C)\n- weatherDesc (description string, from current_condition[0].weatherDesc[0].value)\n- humidity (from current_condition[0].humidity)\n- windspeedKmph (from current_condition[0].windspeedKmph)\n\nSave to weather_report.json with this exact structure:\n{\n  \"cities\": [\n    {\n      \"city\": \"London\",\n      \"temp_C\": <number>,\n      \"weatherDesc\": \"<string>\",\n      \"humidity\": <number>,\n      \"windspeedKmph\": <number>\n    },\n    { \"city\": \"Tokyo\", ... },\n    { \"city\": \"Sydney\", ... }\n  ],\n  \"hottest_city\": \"<city with highest temp_C>\",\n  \"coldest_city\": \"<city with lowest temp_C>\",\n  \"fetched_count\": 3\n}\n\nAll numeric fields must be actual numbers (not strings). If the API is unavailable, use realistic placeholder values but set a field \"data_source\": \"fallback\" at the top level. If API data is used, set \"data_source\": \"live\".\n\nAlso save a plain text summary to weather_summary.txt with one line per city in the format:\n{City}: {temp_C}°C, {weatherDesc}, Humidity: {humidity}%, Wind: {windspeedKmph} km/h",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "web-research_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "json-exists",
+            "weight": 0.08,
+            "description": "weather_report.json exists in the working directory.",
+            "testPattern": "weather_report.json > file exists"
+          },
+          {
+            "id": "txt-exists",
+            "weight": 0.07,
+            "description": "weather_summary.txt exists in the working directory.",
+            "testPattern": "weather_summary.txt > file exists"
+          },
+          {
+            "id": "three-cities",
+            "weight": 0.12,
+            "description": "weather_report.json cities array contains exactly 3 entries.",
+            "testPattern": "exactly 3 cities|three cities"
+          },
+          {
+            "id": "city-names",
+            "weight": 0.1,
+            "description": "City names in the cities array are exactly \"London\", \"Tokyo\", and \"Sydney\".",
+            "testPattern": "London.*Tokyo.*Sydney|city names"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.12,
+            "description": "Each city object has temp_C, weatherDesc, humidity, and windspeedKmph fields.",
+            "testPattern": "temp_C.*humidity.*windspeed|required fields"
+          },
+          {
+            "id": "numeric-types",
+            "weight": 0.1,
+            "description": "temp_C, humidity, and windspeedKmph are all numeric types (not strings) for each city.",
+            "testPattern": "temp_C is a number for each city|humidity and windspeedKmph are numbers"
+          },
+          {
+            "id": "fetched-count",
+            "weight": 0.08,
+            "description": "fetched_count top-level field equals 3.",
+            "testPattern": "fetched_count is 3"
+          },
+          {
+            "id": "hottest-coldest",
+            "weight": 0.13,
+            "description": "hottest_city and coldest_city are valid city names that match the entries with the highest and lowest temp_C respectively.",
+            "testPattern": "hottest_city.*coldest_city|hottest and coldest"
+          },
+          {
+            "id": "summary-lines",
+            "weight": 0.12,
+            "description": "weather_summary.txt has exactly 3 non-empty lines, each containing a °C symbol and wind/km/h information.",
+            "testPattern": "has exactly 3 non-empty lines|each line contains city name, temperature symbol, and wind speed info"
+          },
+          {
+            "id": "data-source-field",
+            "weight": 0.08,
+            "description": "data_source field is present and equals either \"live\" or \"fallback\".",
+            "testPattern": "data_source field"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent fetched weather data and produced a structured report.\n\nCriterion 1: Data Completeness (Weight: 60%)\n1.0: All three cities are present with all four required fields (temp_C, weatherDesc, humidity, windspeedKmph) as correct types, hottest_city and coldest_city are correctly identified, fetched_count is 3.\n0.5: All cities present but one field is missing or incorrectly typed for one city.\n0: One or more cities are missing entirely.\n\nCriterion 2: Summary File Quality (Weight: 40%)\n1.0: weather_summary.txt has exactly 3 lines, each following the specified format with city name, temperature, description, humidity percentage, and wind speed.\n0.5: Summary exists but format deviates from spec for some lines.\n0: Summary file is missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/web-research",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

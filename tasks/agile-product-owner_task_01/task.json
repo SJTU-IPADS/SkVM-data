@@ -1,0 +1,96 @@
+{
+  "id": "agile-product-owner_task_01",
+  "name": "Generate User Stories and Sprint Plan from Epic",
+  "category": "agile_planning",
+  "gradingType": "hybrid",
+  "prompt": "You are helping a product team plan their next sprint. Complete the following two steps and save results to JSON files.\n\nStep 1: Break down this epic into user stories and save them to backlog.json.\n\nEpic: \"User Notification Center\" — Allow users to manage how and when they receive in-app notifications.\n\nGenerate exactly 5 user stories covering: (1) viewing notification preferences, (2) enabling/disabling notification types, (3) marking notifications as read, (4) bulk-clearing all notifications, (5) receiving real-time in-app alerts. Each story must follow the 'As a [persona], I want to [action], So that [benefit]' template. For each story include: id (US-001 through US-005), title, persona, story (the full As/I want/So that text), points (Fibonacci: 1, 2, 3, 5, or 8), priority (High/Medium/Low), and acceptance_criteria (array of at least 3 Given-When-Then strings).\n\nSave to backlog.json as: { \"epic\": \"User Notification Center\", \"stories\": [...] }\n\nStep 2: Plan a sprint and save to sprint_plan.json.\n\nTeam velocity: 34 points. Availability factor: 0.85. Calculate adjusted_capacity (round to nearest integer). Commit to at most 85% of adjusted_capacity. Select stories from backlog.json (you may assign story points however you like as long as each is a valid Fibonacci number 1-8). Fill sprint_plan.json with: { \"sprint_goal\": \"...\", \"velocity\": 34, \"availability_factor\": 0.85, \"adjusted_capacity\": <number>, \"committed_points\": <number>, \"committed_stories\": [array of story IDs], \"stretch_stories\": [array of story IDs or empty array] }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "agile-product-owner_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "backlog-exists",
+            "weight": 0.06,
+            "description": "backlog.json file is present in the working directory.",
+            "testPattern": "backlog.json > file exists"
+          },
+          {
+            "id": "backlog-structure",
+            "weight": 0.07,
+            "description": "backlog.json contains both an 'epic' field and a 'stories' array at the top level.",
+            "testPattern": "has epic field and stories array"
+          },
+          {
+            "id": "story-count",
+            "weight": 0.1,
+            "description": "The stories array contains exactly 5 user story objects.",
+            "testPattern": "exactly 5 user stories"
+          },
+          {
+            "id": "story-fields",
+            "weight": 0.1,
+            "description": "Every story object has all 7 required fields: id, title, persona, story, points, priority, and acceptance_criteria.",
+            "testPattern": "required fields.*id.*title|id.*title.*persona"
+          },
+          {
+            "id": "story-ids",
+            "weight": 0.08,
+            "description": "The five story IDs are exactly US-001, US-002, US-003, US-004, and US-005.",
+            "testPattern": "US-001 through US-005"
+          },
+          {
+            "id": "story-template",
+            "weight": 0.12,
+            "description": "Every story's text field contains the phrases 'as a', 'i want', and 'so that' (case-insensitive), conforming to the user story template.",
+            "testPattern": "As a.*I want.*So that|story text contains"
+          },
+          {
+            "id": "story-points",
+            "weight": 0.1,
+            "description": "Each story's points field is a number from the Fibonacci set {1, 2, 3, 5, 8} and does not exceed 8.",
+            "testPattern": "Fibonacci story points"
+          },
+          {
+            "id": "acceptance-criteria",
+            "weight": 0.1,
+            "description": "Each story has an acceptance_criteria array containing at least 3 entries.",
+            "testPattern": "acceptance criteria"
+          },
+          {
+            "id": "sprint-capacity",
+            "weight": 0.15,
+            "description": "sprint_plan.json has adjusted_capacity equal to 29 (34 velocity × 0.85 availability, rounded to nearest integer).",
+            "testPattern": "adjusted_capacity.*29|34.*0.85"
+          },
+          {
+            "id": "sprint-committed",
+            "weight": 0.12,
+            "description": "committed_points is a positive integer that does not exceed 24 (floor of 85% of adjusted_capacity 29).",
+            "testPattern": "committed_points does not exceed"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to decompose an epic into user stories and produce a sprint plan.\n\nCriterion 1: User Story Quality (Weight: 60%)\n1.0: All 5 stories follow the As/I want/So that template properly, personas are sensible, acceptance criteria use Given-When-Then format with realistic conditions, story points are reasonable Fibonacci values.\n0.5: Most stories follow the template but some acceptance criteria are vague or not in Given-When-Then format.\n0: Stories are missing, poorly formed, or do not cover the epic scope.\n\nCriterion 2: Sprint Plan Coherence (Weight: 40%)\n1.0: Sprint goal is meaningful and aligned with the epic, capacity math is correct, committed_points does not exceed 85% of adjusted_capacity.\n0.5: Sprint plan exists but capacity math has a minor error or sprint goal is generic.\n0: Sprint plan is missing or committed_points exceeds capacity.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/agile-product-owner",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

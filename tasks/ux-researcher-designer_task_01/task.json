@@ -1,0 +1,90 @@
+{
+  "id": "ux-researcher-designer_task_01",
+  "name": "Generate User Persona from Survey Data",
+  "category": "ux_research",
+  "gradingType": "hybrid",
+  "prompt": "You are a UX researcher. Analyze the following user survey data and generate a structured user persona. Save the result to persona.json.\n\nSurvey data (50 respondents):\n- 38 users are aged 28-35, 12 are 36-45\n- 45 use the product daily for work, 5 use it weekly\n- Most-used features: dashboard (48/50), reports (40/50), export (35/50), collaboration (20/50)\n- Primary device: desktop (44/50), mobile (6/50)\n- Tech proficiency (1-10): average 7.8\n- Top pain points: slow loading times (42/50), no keyboard shortcuts (30/50), limited export formats (25/50)\n- Usage context: 48 use for work, 2 personal\n\nSave persona.json with exactly this structure:\n{\n  \"archetype\": \"<string — one of: power_user, casual_user, business_user, mobile_first>\",\n  \"name\": \"<string — persona name e.g. 'Alex the Power User'>\",\n  \"age_range\": \"<string e.g. '28-35'>\",\n  \"tech_proficiency\": \"<string — one of: Basic, Intermediate, Advanced>\",\n  \"usage_frequency\": \"<string — one of: daily, weekly, monthly>\",\n  \"primary_device\": \"<string — one of: desktop, mobile, tablet>\",\n  \"top_features\": [\"<string>\", \"<string>\", \"<string>\"],\n  \"goals\": [\"<string>\", \"<string>\", \"<string>\"],\n  \"frustrations\": [\n    {\"issue\": \"<string>\", \"frequency\": \"<number out of 50>\"}\n  ],\n  \"design_implications\": [\"<string>\", \"<string>\", \"<string>\"],\n  \"sample_size\": 50,\n  \"confidence\": \"<string — one of: Low, Medium, High>\"\n}\n\nThe frustrations array must include all three pain points from the survey data with their correct frequency counts. The archetype must be power_user given the data (daily work use, high tech proficiency, advanced feature adoption).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "ux-researcher-designer_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "persona.json exists in the working directory.",
+            "testPattern": "persona.json > file exists"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.12,
+            "description": "persona.json has all 12 required fields including archetype, name, age_range, tech_proficiency, usage_frequency, primary_device, top_features, goals, frustrations, design_implications, sample_size, and confidence.",
+            "testPattern": "required fields"
+          },
+          {
+            "id": "archetype-power-user",
+            "weight": 0.15,
+            "description": "archetype field equals \"power_user\", correctly derived from daily work use and high tech proficiency (7.8/10).",
+            "testPattern": "archetype is power_user"
+          },
+          {
+            "id": "age-range",
+            "weight": 0.1,
+            "description": "age_range field equals \"28-35\", matching the majority demographic (38 of 50 respondents).",
+            "testPattern": "age_range is 28-35"
+          },
+          {
+            "id": "confidence-high",
+            "weight": 0.1,
+            "description": "confidence field equals \"High\", appropriate for a survey with 50 respondents.",
+            "testPattern": "confidence is High"
+          },
+          {
+            "id": "sample-size",
+            "weight": 0.08,
+            "description": "sample_size field equals 50, accurately reflecting the number of survey respondents.",
+            "testPattern": "sample_size is 50"
+          },
+          {
+            "id": "frustrations-count",
+            "weight": 0.12,
+            "description": "frustrations array has exactly 3 entries, each with issue (string) and frequency (number) fields.",
+            "testPattern": "three frustration entries"
+          },
+          {
+            "id": "frustration-freqs",
+            "weight": 0.15,
+            "description": "Frustration frequency counts match the survey data exactly: 42, 30, and 25 out of 50.",
+            "testPattern": "frustration frequencies.*42.*30.*25|correct frequency"
+          },
+          {
+            "id": "top-features-array",
+            "weight": 0.1,
+            "description": "top_features is an array of at least 3 non-empty strings representing the most-used product features.",
+            "testPattern": "top_features is array"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed survey data and generated a structured user persona.\n\nCriterion 1: Data Fidelity (Weight: 50%)\n1.0: The persona accurately reflects the survey data — frustration frequency counts match the source, archetype is power_user, confidence is High (50 users), age_range and device are correct.\n0.5: Most data points are correct but one or two figures are slightly off or inferred loosely.\n0: Key data points are fabricated or contradict the source data.\n\nCriterion 2: Actionability of Goals and Design Implications (Weight: 50%)\n1.0: Goals are specific and user-centered, design implications are concrete actions a designer could act on immediately.\n0.5: Goals and implications are present but somewhat generic or vague.\n0: Goals or implications are missing, trivial, or not grounded in the survey data.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ux-researcher-designer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

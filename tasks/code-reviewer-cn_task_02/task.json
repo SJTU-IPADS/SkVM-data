@@ -1,0 +1,96 @@
+{
+  "id": "code-reviewer-cn_task_02",
+  "name": "Naming Convention and Comment Rate Analysis",
+  "category": "code_review",
+  "gradingType": "hybrid",
+  "prompt": "You are analyzing code for naming convention consistency and comment coverage. Complete the following steps.\n\nStep 1: Write the following JavaScript code to a file named `app.js`:\n\n```javascript\nconst UserName = 'Alice';\nconst user_age = 30;\nlet ITEM_count = 5;\nvar TotalPrice = 99.99;\n\n// Calculate discount\nfunction calcDisc(p, d) {\n  return p - (p * d);\n}\n\nfunction GetUserInfo(id) {\n  return { id: id, name: UserName };\n}\n\nfunction update_user_record(userId, newData) {\n  // update the record\n  return Object.assign({}, newData);\n}\n\nfunction ProcessOrderItems(items) {\n  let total = 0;\n  for (let i = 0; i < items.length; i++) {\n    total += items[i].price;\n  }\n  return total;\n}\n\nconst x = (a, b) => a + b;\n```\n\nStep 2: Analyze the code and produce a naming and documentation report. Save it to `naming_report.json` with exactly this structure:\n\n```json\n{\n  \"total_lines\": <integer>,\n  \"comment_lines\": <integer>,\n  \"comment_rate\": <float rounded to 2 decimal places, as a percentage 0-100>,\n  \"naming_style_violations\": [\n    {\n      \"identifier\": \"string\",\n      \"current_style\": \"string\",\n      \"expected_style\": \"camelCase\" | \"snake_case\" | \"UPPER_SNAKE_CASE\" | \"PascalCase\",\n      \"suggestion\": \"string\"\n    }\n  ],\n  \"dominant_naming_style\": \"camelCase\" | \"snake_case\" | \"PascalCase\",\n  \"comment_rating\": \"excellent\" | \"good\" | \"fair\" | \"poor\",\n  \"recommendations\": [\"string\"]\n}\n```\n\nCount total non-empty lines in the file (excluding blank lines). Count lines that start with `//`. Calculate comment_rate as (comment_lines / total_lines * 100) rounded to 2 decimal places. Identify at least 3 naming style violations (identifiers that deviate from camelCase convention for JavaScript variables/functions). Set comment_rating based on the comment_rate: <5% = poor, 5-15% = fair, 15-25% = good, >25% = excellent.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "code-reviewer-cn_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "Both app.js and naming_report.json are present in the working directory.",
+            "testPattern": "file exists|app.js source file"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.1,
+            "description": "naming_report.json contains all 7 required top-level fields: total_lines, comment_lines, comment_rate, naming_style_violations, dominant_naming_style, comment_rating, recommendations.",
+            "testPattern": "valid JSON with required"
+          },
+          {
+            "id": "line-counts",
+            "weight": 0.15,
+            "description": "total_lines and comment_lines are both positive integers.",
+            "testPattern": "total_lines and comment_lines"
+          },
+          {
+            "id": "comment-rate-range",
+            "weight": 0.1,
+            "description": "comment_rate is a number between 0 and 100 inclusive.",
+            "testPattern": "comment_rate is a number between"
+          },
+          {
+            "id": "comment-rate-math",
+            "weight": 0.15,
+            "description": "comment_rate is within 2 percentage points of (comment_lines / total_lines × 100).",
+            "testPattern": "comment_rate is consistent"
+          },
+          {
+            "id": "violations-count",
+            "weight": 0.15,
+            "description": "naming_style_violations is an array with at least 3 entries.",
+            "testPattern": "naming_style_violations is array"
+          },
+          {
+            "id": "violations-fields",
+            "weight": 0.15,
+            "description": "Each violation has string identifier, current_style, expected_style, and suggestion fields.",
+            "testPattern": "each violation has identifier"
+          },
+          {
+            "id": "dominant-style",
+            "weight": 0.05,
+            "description": "dominant_naming_style is one of the four valid style strings: camelCase, snake_case, PascalCase, or UPPER_SNAKE_CASE.",
+            "testPattern": "dominant_naming_style"
+          },
+          {
+            "id": "comment-rating",
+            "weight": 0.05,
+            "description": "comment_rating is one of the four valid values: 'excellent', 'good', 'fair', or 'poor'.",
+            "testPattern": "comment_rating is a valid rating"
+          },
+          {
+            "id": "recommendations",
+            "weight": 0.05,
+            "description": "recommendations is a non-empty array of non-empty strings.",
+            "testPattern": "recommendations is a non-empty"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed JavaScript code for naming conventions and comment coverage.\n\nCriterion 1: Naming Violation Identification (Weight: 60%)\n1.0: At least 3 naming violations correctly identified (e.g., UserName, user_age, ITEM_count, GetUserInfo, update_user_record are inconsistent with camelCase), suggestions are correct camelCase names.\n0.5: Only 1-2 violations identified, or violations are identified but suggestions are wrong.\n0: No violations identified or violations are completely incorrect.\n\nCriterion 2: Report Completeness (Weight: 40%)\n1.0: comment_rate is calculated correctly from actual line counts, comment_rating matches the rate, recommendations are specific and actionable.\n0.5: Some metrics are off but the overall analysis is reasonable.\n0: Critical metrics are missing or grossly incorrect.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/code-reviewer-cn",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

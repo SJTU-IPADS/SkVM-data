@@ -1,0 +1,96 @@
+{
+  "id": "workflow-builder_task_02",
+  "name": "Model an Approval Workflow with Decision Points",
+  "category": "workflow_design",
+  "gradingType": "hybrid",
+  "prompt": "Design a purchase approval workflow for a mid-size company and save it to approval_workflow.json.\n\nBusiness rules:\n- Purchases under $500: auto-approved, no human review needed\n- Purchases $500-$4999: requires direct manager approval\n- Purchases $5000-$19999: requires manager + finance director approval\n- Purchases $20000+: requires manager + finance director + CEO approval\n- All approvals must be completed within 5 business days or the request auto-escalates\n\nSave to approval_workflow.json with this exact structure:\n{\n  \"name\": \"Purchase Approval Workflow\",\n  \"trigger\": \"purchase_request_submitted\",\n  \"decision_points\": [\n    {\n      \"id\": \"D1\",\n      \"condition\": \"<string describing the condition>\",\n      \"true_path\": \"<step or outcome ID>\",\n      \"false_path\": \"<step or outcome ID>\"\n    }\n  ],\n  \"approval_tiers\": [\n    {\n      \"tier\": <number 1-4>,\n      \"min_amount\": <number>,\n      \"max_amount\": <number or null for no upper limit>,\n      \"approvers\": [\"<role strings>\"],\n      \"auto_approved\": <boolean>\n    }\n  ],\n  \"escalation_days\": 5,\n  \"total_tiers\": 4\n}\n\nThe approval_tiers array must have exactly 4 entries covering all four amount ranges. Tier 1 (auto-approved) must have auto_approved=true and an empty approvers array. Tiers 2-4 must have auto_approved=false. The min/max amounts must exactly match the business rules above (tier 4 max_amount must be null). Include at least 2 decision_points.\n\nAlso save a summary to approval_summary.txt with one line per tier in the format:\nTier {N}: ${min_amount}-${max_amount} — {approvers joined by ' + ' or 'Auto-approved'}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "workflow-builder_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "approval_workflow.json exists in the working directory.",
+            "testPattern": "approval_workflow.json > file exists"
+          },
+          {
+            "id": "summary-exists",
+            "weight": 0.06,
+            "description": "approval_summary.txt exists in the working directory.",
+            "testPattern": "approval_summary.txt > file exists"
+          },
+          {
+            "id": "four-tiers",
+            "weight": 0.12,
+            "description": "approval_tiers array has exactly 4 entries and total_tiers equals 4.",
+            "testPattern": "exactly 4 tiers|four approval tiers"
+          },
+          {
+            "id": "tier1-auto-approved",
+            "weight": 0.12,
+            "description": "Tier 1 has auto_approved=true and an empty approvers array (purchases under $500 require no human review).",
+            "testPattern": "tier 1.*auto_approved.*true|tier 1 is auto"
+          },
+          {
+            "id": "tier-amounts",
+            "weight": 0.15,
+            "description": "Tier amount boundaries are: tier1=0-499, tier2=500-4999, tier3=5000-19999, tier4=20000+ exactly matching business rules.",
+            "testPattern": "tier amount boundaries|500.*4999.*5000.*19999"
+          },
+          {
+            "id": "tier4-null-max",
+            "weight": 0.1,
+            "description": "Tier 4 max_amount is null (no upper limit for purchases $20,000 and above).",
+            "testPattern": "tier 4 max_amount is null"
+          },
+          {
+            "id": "decision-points",
+            "weight": 0.12,
+            "description": "decision_points has at least 2 entries, each with id, condition, true_path, and false_path fields.",
+            "testPattern": "at least 2 decision points|decision_points"
+          },
+          {
+            "id": "escalation-days",
+            "weight": 0.08,
+            "description": "escalation_days field equals 5 (auto-escalates after 5 business days without approval).",
+            "testPattern": "escalation_days is 5"
+          },
+          {
+            "id": "approvers-arrays",
+            "weight": 0.1,
+            "description": "Tiers 2, 3, and 4 have auto_approved=false and non-empty approvers arrays.",
+            "testPattern": "approvers.*array|approvers field"
+          },
+          {
+            "id": "summary-lines",
+            "weight": 0.07,
+            "description": "approval_summary.txt has exactly 4 non-empty lines, each containing a Tier label and a dollar amount.",
+            "testPattern": "has exactly 4 non-empty lines|each line contains Tier label and dollar amount"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent modeled a purchase approval workflow with decision points and tiers.\n\nCriterion 1: Business Rule Accuracy (Weight: 60%)\n1.0: All four approval tiers have correct amount ranges matching the spec, correct approver roles for each tier, tier 1 is auto-approved with empty approvers, tier 4 has null max_amount, escalation_days is 5.\n0.5: Most tiers correct but one has a wrong amount boundary or missing approver role.\n0: Tiers are missing, amounts are wrong, or business rules are not followed.\n\nCriterion 2: Decision Point Completeness (Weight: 40%)\n1.0: At least 2 decision points with clear conditions, true/false paths are logically consistent and reference valid tiers or outcomes.\n0.5: Decision points exist but conditions are vague or paths are incomplete.\n0: No decision points or the structure is fundamentally wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/workflow-builder",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "decide_task_01",
+  "name": "Initialize Decision Memory and Log a Structured Decision",
+  "category": "decision_management",
+  "gradingType": "hybrid",
+  "prompt": "Set up a decision tracking workspace and record a structured decision.\n\n1. Create the directory `workspace/decide/` and inside it create `workspace/decide/domains/` subdirectory.\n\n2. Create `workspace/decide/memory.md` with content that includes:\n   - A section header `## Decision Rules`\n   - At least one approval boundary rule stating that framework selection requires human confirmation\n   - A section header `## Confirmed Defaults`\n\n3. Record a decision in `workspace/decide/decisions.md`. The decision must be a JSON-fenced code block followed by a markdown table. The JSON block must have exactly these fields: `id` (string), `question` (string), `components` (object with at least 2 keys), `chosen_option` (string), `rationale` (string), `confidence` (number between 0 and 1), `outcome` (string, use \"pending\" if unknown)`. The decision must be about choosing between PostgreSQL and SQLite for a small internal tool used by 3 people with no concurrency requirements.\n\n4. Create `workspace/decide/domains/database.md` with content describing the domain context for database-related decisions, including at least one rule about when SQLite is appropriate.\n\nAll files must be valid and readable.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "decide_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "memory-exists",
+            "weight": 0.05,
+            "description": "workspace/decide/memory.md file is present.",
+            "testPattern": "memory.md file exists"
+          },
+          {
+            "id": "memory-rules",
+            "weight": 0.1,
+            "description": "memory.md contains a \"## Decision Rules\" section header.",
+            "testPattern": "memory.md contains Decision Rules"
+          },
+          {
+            "id": "memory-defaults",
+            "weight": 0.1,
+            "description": "memory.md contains a \"## Confirmed Defaults\" section header.",
+            "testPattern": "memory.md contains Confirmed Defaults"
+          },
+          {
+            "id": "memory-approval",
+            "weight": 0.1,
+            "description": "memory.md mentions both framework or architecture selection and human confirmation or approval as an approval boundary.",
+            "testPattern": "memory.md mentions framework selection"
+          },
+          {
+            "id": "decisions-exists",
+            "weight": 0.05,
+            "description": "workspace/decide/decisions.md file is present.",
+            "testPattern": "decisions.md file exists"
+          },
+          {
+            "id": "decisions-json",
+            "weight": 0.1,
+            "description": "decisions.md contains a fenced ```json code block.",
+            "testPattern": "decisions.md contains a JSON code block"
+          },
+          {
+            "id": "decisions-fields",
+            "weight": 0.2,
+            "description": "The JSON block in decisions.md parses successfully and contains all required fields: id, question, components, chosen_option, rationale, confidence, and outcome.",
+            "testPattern": "decisions.md JSON block has required fields"
+          },
+          {
+            "id": "decisions-confidence",
+            "weight": 0.1,
+            "description": "The decision's confidence field is a number between 0 and 1 inclusive.",
+            "testPattern": "decision confidence is between"
+          },
+          {
+            "id": "decisions-topic",
+            "weight": 0.1,
+            "description": "decisions.md mentions both PostgreSQL (or postgres) and SQLite, confirming the decision topic.",
+            "testPattern": "decision is about PostgreSQL vs SQLite"
+          },
+          {
+            "id": "domain-sqlite",
+            "weight": 0.1,
+            "description": "workspace/decide/domains/database.md mentions SQLite, describing when it is appropriate.",
+            "testPattern": "database.md mentions SQLite"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent set up a decision tracking workspace and recorded a structured decision about database selection.\n\nCriterion 1: Decision log quality (Weight: 60%)\n1.0: Decision JSON has all required fields with sensible values; rationale is clear and addresses the components; SQLite is the chosen option with sound justification.\n0.5: Decision is present but some fields are vague or rationale is weak.\n0: Decision record is missing, malformed, or clearly wrong.\n\nCriterion 2: Memory and domain file quality (Weight: 40%)\n1.0: memory.md and database.md contain meaningful, actionable rules that would actually guide future decisions.\n0.5: Files exist but content is minimal or generic.\n0: Files are missing or contain only placeholder text.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/decide",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "powerpoint-pptx_task_01",
+  "name": "Build a 5-Slide Product Deck from a JSON Spec",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "A solutions engineer sent you `deck_spec.json`, a machine-readable spec for a five-slide product presentation. Your job is to build the presentation exactly as specified and produce a machine-readable manifest so the CI pipeline can verify it.\n\nProduce two files at the workspace root:\n\n**1. `product_deck.pptx`** — a python-pptx presentation built from `deck_spec.json`. Rules:\n\n- The presentation must use the **default python-pptx template** (no custom theme file). This gives you exactly these named layouts: `'Title Slide'`, `'Title and Content'`, `'Title Only'`, and others. Match each slide to its layout **by name** — layout indexes vary across templates and must not be used as a proxy.\n- Apply each slide's layout by looking up `deck_spec.json`'s `\"layout\"` field in `prs.slide_layouts` by `layout.name`.\n- Set title text via the placeholder with `placeholder_format.idx == 0`. Set subtitle or content text via `placeholder_format.idx == 1`. Do not use text boxes as a substitute for placeholders — content placed in a text box instead of the designated placeholder ends up in the wrong layer.\n- For the slide whose spec contains a `\"table\"` key: add the table using `slide.shapes.add_table(rows, cols, left, top, width, height)` with **EMU integer values** taken directly from the spec's `\"position\"` object (`left_emu`, `top_emu`, `width_emu`, `height_emu`). Do not approximate these with `Inches()` — the CI check compares actual EMU coordinates to a tolerance of 914 EMU (one point).\n- Populate every table cell with the string from the spec's `\"rows\"` list.\n- Set speaker notes on slides whose spec has a non-empty `\"notes\"` field; leave the notes pane blank for slides with `\"notes\": \"\"`.\n\n**2. `deck_manifest.json`** — a JSON file that your code produces by re-reading the saved PPTX (not by copying variables from memory). Required top-level fields:\n- `\"deck_title\"` (string): the top-level `\"title\"` from `deck_spec.json`\n- `\"slide_count\"` (integer): number of slides in the saved file\n- `\"slide_width_emu\"` (integer): actual slide width read from the saved presentation\n- `\"slide_height_emu\"` (integer): actual slide height read from the saved presentation\n- `\"slides\"` (array): one object per slide, each with `slide_index` (0-based integer), `layout_name` (string), `title` (string from the title placeholder), `shape_count` (integer), `shape_types` (array of integers, one per shape using `int(shape.shape_type)`), `has_table` (boolean), and `has_notes` (boolean)\n\nRead `deck_spec.json` for the full content. Build `product_deck.pptx` precisely from that spec, then produce `deck_manifest.json` by re-reading the saved file.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent read deck_spec.json and produced product_deck.pptx plus deck_manifest.json. The spec described a 5-slide product presentation with exact layout names, placeholder indices, EMU table coordinates, and per-slide speaker notes rules.\n\nCriterion 1: PPTX structural fidelity (Weight: 40%)\n1.0: product_deck.pptx has exactly 5 slides; each slide uses the correct named layout ('Title Slide', 'Title and Content', 'Title Only'); title and subtitle/content text is in the correct placeholders (not text boxes); the table on slide 2 has 4×4 cells with the correct header and data rows; speaker notes are present on slides 0/1/3 and absent on slides 2/4.\n0.5: Most structural requirements met but at least one layout is wrong, a text box was used instead of a placeholder, table data has errors, or notes placement is wrong on one slide.\n0: PPTX missing, corrupted, or so structurally wrong that key checks cannot run.\n\nCriterion 2: EMU coordinate and manifest accuracy (Weight: 40%)\n1.0: Table on slide 2 is positioned with EMU values matching the spec within 914 EMU. deck_manifest.json reports correct slide_count, slide_width_emu, slide_height_emu, and per-slide shape_types arrays containing the correct integer codes.\n0.5: Manifest exists with mostly correct data but EMU coordinates are approximated with Inches() or slide dimensions are hardcoded instead of read from the saved file.\n0: Manifest missing or unparseable, or EMU coordinates are wildly off.\n\nCriterion 3: Spec discipline (Weight: 20%)\n1.0: The agent correctly avoided using layout indexes, used placeholder_format.idx to address placeholders, produced both artifacts at the workspace root, and read the PPTX back from disk for the manifest rather than constructing the manifest from in-memory variables.\n0.5: One protocol shortcut taken (e.g. layout indexed by position, manifest not read from disk) but output still broadly correct.\n0: Multiple protocol violations or artifacts missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/powerpoint-pptx",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "chart-generator_task_01",
+  "name": "Generate SVG Bar Chart for Quarterly Sales",
+  "category": "data_visualization",
+  "gradingType": "hybrid",
+  "prompt": "Generate a data visualization for quarterly sales figures. You have the following data:\n- Q1: 120 units\n- Q2: 185 units\n- Q3: 95 units\n- Q4: 210 units\n\nProduce two output files:\n\n1. sales_chart.svg — An SVG bar chart titled \"Quarterly Sales\" showing all four quarters. The file must be a valid SVG (start with `<svg` or `<?xml`). The bars must be visible (use rect elements). The chart should include text labels for the quarter names (Q1, Q2, Q3, Q4).\n\n2. chart_metadata.json — A JSON file with exactly these fields:\n   - \"title\": \"Quarterly Sales\"\n   - \"chart_type\": \"bar\"\n   - \"data_points\": an array of 4 objects each with \"label\" (string) and \"value\" (number)\n   - \"max_value\": 210\n   - \"min_value\": 95\n   - \"total\": 610\n\nDo not install any external packages. Use only tools and capabilities already available in the environment.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "chart-generator_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "svg-exists",
+            "weight": 0.07,
+            "description": "sales_chart.svg file is present in the working directory.",
+            "testPattern": "sales_chart.svg > file exists"
+          },
+          {
+            "id": "svg-size",
+            "weight": 0.06,
+            "description": "sales_chart.svg is at least 200 bytes, indicating non-trivial SVG content.",
+            "testPattern": "non-trivial size"
+          },
+          {
+            "id": "svg-valid",
+            "weight": 0.1,
+            "description": "sales_chart.svg starts with an <svg or <?xml tag and ends with </svg>, forming a valid SVG document.",
+            "testPattern": "valid SVG document"
+          },
+          {
+            "id": "svg-rects",
+            "weight": 0.13,
+            "description": "sales_chart.svg contains at least 4 <rect> elements representing the bars.",
+            "testPattern": "rect elements for bars"
+          },
+          {
+            "id": "svg-labels",
+            "weight": 0.12,
+            "description": "sales_chart.svg contains all four quarter label strings: Q1, Q2, Q3, and Q4.",
+            "testPattern": "quarter labels Q1 through Q4"
+          },
+          {
+            "id": "svg-title",
+            "weight": 0.07,
+            "description": "sales_chart.svg text contains 'quarterly' or 'sales' as a title or heading.",
+            "testPattern": "title or heading text"
+          },
+          {
+            "id": "meta-exists",
+            "weight": 0.06,
+            "description": "chart_metadata.json file is present in the working directory.",
+            "testPattern": "chart_metadata.json > file exists"
+          },
+          {
+            "id": "meta-keys",
+            "weight": 0.07,
+            "description": "chart_metadata.json contains all 6 required top-level keys: title, chart_type, data_points, max_value, min_value, total.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "meta-type-title",
+            "weight": 0.12,
+            "description": "chart_metadata.json has title='Quarterly Sales' and chart_type='bar'.",
+            "testPattern": "title and chart_type are correct"
+          },
+          {
+            "id": "meta-values",
+            "weight": 0.2,
+            "description": "chart_metadata.json has max_value=210, min_value=95, and total=610.",
+            "testPattern": "max_value, min_value, and total are correct"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce an SVG bar chart for quarterly sales data and a companion JSON metadata file.\n\nCriterion 1: SVG Chart Quality (Weight: 60%)\n1.0: The SVG contains visible bars for all 4 quarters, text labels, and a chart title. The bars visually represent the relative values (Q4 tallest, Q3 shortest).\n0.5: SVG exists and has some bar elements but is incomplete or the values are not proportionally represented.\n0: SVG is missing, malformed, or has no visible chart content.\n\nCriterion 2: Data Accuracy (Weight: 40%)\n1.0: chart_metadata.json has all required fields with exact values matching the prompt data.\n0.5: JSON exists but some values are wrong or a field is missing.\n0: JSON is missing or heavily incorrect.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/chart-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

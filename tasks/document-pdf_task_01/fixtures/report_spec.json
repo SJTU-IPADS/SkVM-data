@@ -1,0 +1,42 @@
+{
+  "company": "Acme Technologies Ltd.",
+  "title": "Q3 2025 Operational Performance Report",
+  "date": "October 1, 2025",
+  "sections": [
+    {
+      "title": "Executive Summary",
+      "content": [
+        "This report summarises the operational performance of Acme Technologies for Q3 2025. Revenue targets were met in two of three business units, while the infrastructure division saw cost overruns of approximately 12% against plan.",
+        "Key risks identified include supply chain delays for hardware components and regulatory uncertainty in two target markets. Mitigations are outlined in the Risk Management section."
+      ]
+    },
+    {
+      "title": "Revenue Analysis",
+      "content": [
+        "Total Q3 2025 revenue reached $48.3M, representing 6.4% growth year-over-year. The software licensing segment contributed $31.2M (64.6%), professional services $12.8M (26.5%), and hardware $4.3M (8.9%).",
+        "Geographic breakdown shows North America at $29.1M, EMEA at $14.7M, and APAC at $4.5M. The APAC segment grew 22% year-over-year driven by two new enterprise contracts signed in August."
+      ]
+    },
+    {
+      "title": "Cost Management",
+      "content": [
+        "Operating expenses totalled $39.7M against a plan of $38.2M, a variance of $1.5M (3.9%). Infrastructure costs were the primary driver of overspend at $6.8M versus a $6.1M plan.",
+        "Personnel costs remained on track at $22.4M. Travel and marketing spend came in $0.3M below budget due to two cancelled trade show appearances in Q3."
+      ]
+    },
+    {
+      "title": "Risk Management",
+      "content": [
+        "Three risks were elevated to high priority this quarter: (1) Component shortage for the Nexus line, estimated 8-week delay impact; (2) EU AI Act compliance timeline requiring additional legal resource; (3) Key account renewal risk for two contracts expiring in Q4.",
+        "Each risk has an assigned owner and a documented mitigation plan reviewed at the monthly steering committee. No risks have escalated to board level this quarter."
+      ]
+    },
+    {
+      "title": "Outlook",
+      "content": [
+        "Q4 2025 guidance is set at $50M-$53M revenue with operating margin expansion of 100-150 basis points. The pipeline coverage ratio stands at 2.8x on a 90-day view, above the historical average of 2.2x.",
+        "The board has approved an additional $3M investment in the APAC sales team to capitalise on the momentum established in Q3. Full-year 2025 targets remain unchanged."
+      ]
+    }
+  ]
+}

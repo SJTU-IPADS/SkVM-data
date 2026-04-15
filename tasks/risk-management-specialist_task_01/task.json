@@ -1,0 +1,31 @@
+{
+  "id": "risk-management-specialist_task_01",
+  "name": "ISO 14971 Risk Register and Action Plan from Hazard Inventory",
+  "category": "risk_management",
+  "gradingType": "hybrid",
+  "prompt": "Your team has identified 12 hazards for a class IIb infusion pump during design FMEA. The hazard inventory is in `hazard_inventory.csv` with columns: `hazard_id`, `description`, `hazard_category`, `probability_label` (P1–P5), `severity_label` (S1–S5).\n\nApply the ISO 14971:2019 5×5 risk matrix below to classify each hazard, then produce two artifacts at the workspace root.\n\n**Risk matrix (probability × severity → level):**\n\n| Probability | S1 | S2 | S3 | S4 | S5 |\n|---|---|---|---|---|---|\n| P5 (Frequent) | Medium | High | High | Unacceptable | Unacceptable |\n| P4 (Probable) | Medium | Medium | High | High | Unacceptable |\n| P3 (Occasional) | Low | Medium | Medium | High | High |\n| P2 (Remote) | Low | Low | Medium | Medium | High |\n| P1 (Improbable) | Low | Low | Low | Medium | Medium |\n\n**Acceptability mapping (exact strings required):**\n- Low → `Accept`\n- Medium → `ALARP`\n- High → `Reduce`\n- Unacceptable → `Redesign`\n\n**Control priority rule:** assign `control_priority` as an integer: `1` for Unacceptable or High hazards, `2` for Medium, `3` for Low. Both Unacceptable and High share priority 1.\n\n**Artifact 1 — `risk_register.json`:**\n```json\n{\n  \"total_hazards\": <integer>,\n  \"hazards\": [\n    {\n      \"hazard_id\": \"H-001\",\n      \"description\": \"...\",\n      \"hazard_category\": \"...\",\n      \"probability\": \"P3\",\n      \"severity\": \"S4\",\n      \"risk_level\": \"High\",\n      \"acceptability\": \"Reduce\",\n      \"control_priority\": 1\n    },\n    ...\n  ],\n  \"summary\": {\n    \"by_level\": {\"Low\": <int>, \"Medium\": <int>, \"High\": <int>, \"Unacceptable\": <int>},\n    \"hazards_requiring_control\": <int>\n  },\n  \"action_plan\": [\n    {\n      \"hazard_id\": \"H-XXX\",\n      \"risk_level\": \"High\",\n      \"control_priority\": 1,\n      \"recommended_control_type\": \"...\"\n    },\n    ...\n  ]\n}\n```\n\n`hazards_requiring_control` must equal the count of hazards whose `risk_level` is High or Unacceptable.\n\nThe `action_plan` array must contain exactly the hazards with `risk_level` of High or Unacceptable — no others. For each action plan entry, set `recommended_control_type` following the ISO 14971 control hierarchy: use `Inherent Safety by Design` for Unacceptable hazards (design change mandatory), and `Protective Measures` for High hazards.\n\n**Artifact 2 — `risk_summary.md`:**\nA markdown report that includes:\n- The total hazard count (12) and the count requiring control.\n- A breakdown of the four risk levels with their counts (Low, Medium, High, Unacceptable).\n- An action plan section listing the hazards that require control with their priority and recommended control type.\n- An acceptability statement summarising the overall result.\n\n**Invariants you must preserve:**\n- `total_hazards` equals the sum of all `by_level` counts (Low + Medium + High + Unacceptable).\n- `hazards_requiring_control` equals the number of High + Unacceptable hazards.\n- `action_plan` contains exactly one entry per High/Unacceptable hazard (no duplicates, no omissions).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was given a 12-row hazard inventory CSV (hazard_id, description, hazard_category, probability_label P1-P5, severity_label S1-S5) and asked to apply the ISO 14971 5x5 risk matrix to produce risk_register.json and risk_summary.md.\n\nCriterion 1: Risk register correctness (Weight: 40%)\n1.0: risk_register.json exists with all required fields. Every hazard's risk_level matches the pinned matrix lookup (not a P×S arithmetic product). acceptability strings exactly match the mapping (Accept/ALARP/Reduce/Redesign — not Acceptable/ALARP required/Reduce required). control_priority is 1 for High and Unacceptable (both), 2 for Medium, 3 for Low.\n0.5: Most hazards correct but 1–3 have wrong risk_level, wrong acceptability string, or wrong control_priority.\n0: More than 3 hazards have wrong classifications, or risk_register.json is missing.\n\nCriterion 2: Summary and action plan coherence (Weight: 40%)\n1.0: summary.by_level counts are correct and sum to total_hazards. hazards_requiring_control equals High + Unacceptable count. action_plan contains exactly the High/Unacceptable hazards with correct recommended_control_type (Inherent Safety by Design for Unacceptable, Protective Measures for High). All three sections are internally consistent.\n0.5: One of the three invariants is violated or action_plan has wrong entries/control types.\n0: Summary is missing or action_plan is absent.\n\nCriterion 3: Report quality (Weight: 20%)\n1.0: risk_summary.md is a coherent markdown report with all four sections (distribution, action plan, acceptability statement) and mentions total=12 and the correct requiring-control count. Reads like a real engineering deliverable.\n0.5: Report is present but missing one of the required sections or has significantly wrong numbers.\n0: Report is missing or is a minimal stub.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/risk-management-specialist",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

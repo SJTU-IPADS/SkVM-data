@@ -1,0 +1,31 @@
+{
+  "id": "image_task_01",
+  "name": "Resize and Convert Three Mixed-Format Images for Web Delivery",
+  "category": "image_processing",
+  "gradingType": "hybrid",
+  "prompt": "Your workspace contains three source image files at the root:\n\n- `photo_a.jpg` — a JPEG photograph\n- `banner_b.png` — a PNG banner graphic\n- `icon_c.png` — a PNG icon\n\nProcess all three so they meet the following delivery spec and write each output to a new `output/` directory at the workspace root.\n\n**Resize**: scale every image to exactly **800 × 600 pixels** using LANCZOS resampling. Do not preserve aspect ratio — stretch to fill the target canvas exactly.\n\n**EXIF orientation**: before resizing, inspect and apply any embedded EXIF orientation metadata so the pixel layout matches the visual orientation. Some cameras store images rotated in memory and use the orientation tag to tell viewers how to display them — your resize must operate on the visually-correct pixel grid, not the raw stored grid.\n\n**Format**: save every output as **JPEG** with quality **85**, regardless of the input format. JPEG cannot store transparency; if a source image has an alpha channel, composite it onto a white (#FFFFFF) background before saving — do not drop the alpha silently or let the encoder decide what to do with it.\n\n**Output filenames**: use the source stem with a `.jpg` extension for every output:\n- `photo_a.jpg` → `output/photo_a.jpg`\n- `banner_b.png` → `output/banner_b.jpg`\n- `icon_c.png` → `output/icon_c.jpg`\n\n**Invariant**: the `output/` directory must contain exactly 3 files, one per input, with no extras.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent processed three source images (photo_a.jpg, banner_b.png, icon_c.png) and was asked to produce 800×600 JPEG outputs in output/, applying EXIF orientation before resize and compositing transparent PNGs on white before JPEG conversion.\n\nCriterion 1: Output artifact correctness (Weight: 40%)\n1.0: output/ exists with exactly 3 files named photo_a.jpg, banner_b.jpg, icon_c.jpg — all valid JPEG files at exactly 800×600 pixels.\n0.5: Most files present and mostly correct dimensions, but at least one file has wrong dimensions or wrong format.\n0.0: output/ missing, or fewer than 2 files present, or files are unreadable.\n\nCriterion 2: Format conversion discipline (Weight: 40%)\n1.0: All output JPEGs are in RGB mode (no alpha channel), confirming that transparent PNG inputs were composited on a white background before format conversion, and that EXIF orientation was applied on the photograph so dimensions are correct.\n0.5: Files are JPEG but at least one retains an alpha channel, or the photograph has swapped dimensions suggesting EXIF was ignored.\n0.0: Outputs are not JPEG, or the alpha-handling is completely absent, or the EXIF orientation was entirely ignored causing obviously wrong dimensions.\n\nCriterion 3: Spec adherence (Weight: 20%)\n1.0: The agent followed the naming convention (PNG stems get .jpg extension), respected the exact 800×600 target, and wrote all outputs to output/ without leaving intermediate files or extra outputs.\n0.5: Minor deviation — e.g., extra files in output/, slightly wrong quality setting detectable visually, but core deliverables present.\n0.0: Agent ignored naming conventions, output to wrong directory, or skipped one of the three images entirely.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/image",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

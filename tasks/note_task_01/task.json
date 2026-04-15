@@ -1,0 +1,96 @@
+{
+  "id": "note_task_01",
+  "name": "Capture and Organize Notes into Local Storage Files",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "You are setting up a local knowledge capture system. Create the required directory structure and populate it with organized notes from the content below.\n\nCreate the directory memory/notes/ and populate these four files:\n\n1. memory/notes/notes.json — Capture the following 4 notes. Each note must have: id (NOTE-001 through NOTE-004), content (the captured text), topic (inferred topic tag), project (inferred project), created_at (use \"2026-04-11\"), tags (array of 1-3 relevant keyword strings).\n\nNote A: \"Feedback loops amplify both positive and negative signals. In product onboarding, a user who struggles early is less likely to return, creating a negative loop. Early wins are essential.\"\nNote B: \"The Pomodoro technique: 25 minutes focused work, 5 minute break, repeat 4 times then take a 30 minute break. Good for deep work sessions.\"\nNote C: \"Team retrospectives work best with psychological safety. Without it, people report what looks good rather than what went wrong.\"\nNote D: \"Network effects kick in at different thresholds per product type. Social networks need ~150 users (Dunbar's number), marketplaces need supply-demand balance first.\"\n\n2. memory/notes/topics.json — Map topics to note IDs:\n{ \"topics\": { \"<topic>\": [\"NOTE-XXX\", ...] } }\nEach note must appear under exactly one topic key.\n\n3. memory/notes/projects.json — Map projects to note IDs:\n{ \"projects\": { \"<project>\": [\"NOTE-XXX\", ...] } }\nEach note must appear under at least one project key.\n\n4. memory/notes/search_index.json — A searchable index:\n{ \"index\": [ { \"note_id\": \"NOTE-XXX\", \"keywords\": [\"<word>\", ...] } ] }\nEach note must have at least 3 keywords.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "note_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "notes-exists",
+            "weight": 0.08,
+            "description": "memory/notes/notes.json file is present.",
+            "testPattern": "notes.json.*exists|notes file exists"
+          },
+          {
+            "id": "topics-exists",
+            "weight": 0.07,
+            "description": "memory/notes/topics.json file is present.",
+            "testPattern": "topics.json.*exists|topics file exists"
+          },
+          {
+            "id": "projects-exists",
+            "weight": 0.07,
+            "description": "memory/notes/projects.json file is present.",
+            "testPattern": "projects.json.*exists|projects file exists"
+          },
+          {
+            "id": "index-exists",
+            "weight": 0.07,
+            "description": "memory/notes/search_index.json file is present.",
+            "testPattern": "search_index.json.*exists|index file exists"
+          },
+          {
+            "id": "note-count",
+            "weight": 0.12,
+            "description": "notes.json is an array containing exactly 4 notes.",
+            "testPattern": "exactly 4 notes|4 notes"
+          },
+          {
+            "id": "note-fields",
+            "weight": 0.12,
+            "description": "Each note has non-empty string fields for id, content, topic, project, created_at, and a tags array.",
+            "testPattern": "note fields|id.*content.*topic|NOTE-001.*NOTE-004"
+          },
+          {
+            "id": "note-ids",
+            "weight": 0.1,
+            "description": "Notes contain IDs NOTE-001, NOTE-002, NOTE-003, and NOTE-004, each with created_at of \"2026-04-11\".",
+            "testPattern": "NOTE-001.*NOTE-004|note IDs"
+          },
+          {
+            "id": "topics-mapping",
+            "weight": 0.12,
+            "description": "topics.json maps all 4 note IDs so each appears under exactly one topic key.",
+            "testPattern": "topics mapping|each note.*topic"
+          },
+          {
+            "id": "projects-mapping",
+            "weight": 0.1,
+            "description": "projects.json maps all 4 note IDs so each appears under at least one project key.",
+            "testPattern": "projects mapping|each note.*project"
+          },
+          {
+            "id": "search-keywords",
+            "weight": 0.15,
+            "description": "search_index.json index array has 4 entries, each with at least 3 keywords.",
+            "testPattern": "at least 3 keywords|keywords.*3"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent built a local note storage system with 4 structured JSON files.\n\nCriterion 1: Topic and Project Classification Quality (Weight: 60%)\n1.0: Topics assigned to notes are semantically coherent (e.g., Note A about feedback loops is tagged to onboarding/product, Note C to team dynamics). Projects are sensibly inferred from content. No note is under an irrelevant topic.\n0.5: Classification is mostly reasonable but one or two notes are misclassified or given overly generic topics like 'general'.\n0: Topics are arbitrary, missing, or all notes under one generic topic.\n\nCriterion 2: Keyword Relevance (Weight: 40%)\n1.0: Keywords in the search index are meaningful, specific to each note's content, and useful for retrieval — not just stopwords or the note ID.\n0.5: Keywords are present but some are too generic or redundant.\n0: Keywords are missing, all identical, or not derived from note content.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/note",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

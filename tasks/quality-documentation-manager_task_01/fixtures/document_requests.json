@@ -1,0 +1,62 @@
+{
+  "request_batch": "2025-Q1-B1",
+  "submitted_date": "2025-01-20",
+  "requests": [
+    {
+      "request_id": "REQ-001",
+      "title": "Incoming Inspection Procedure",
+      "doc_type": "SOP",
+      "functional_area": "Quality Control",
+      "requested_by": "M. Foster",
+      "notes": "New SOP for receiving inspection of raw materials"
+    },
+    {
+      "request_id": "REQ-002",
+      "title": "Supplier Re-qualification Procedure",
+      "doc_type": "SOP",
+      "functional_area": "Purchasing",
+      "requested_by": "R. Patel",
+      "notes": "Companion to SOP-05-001; covers periodic re-qualification triggers"
+    },
+    {
+      "request_id": "REQ-003",
+      "title": "Torque Verification Work Instruction",
+      "doc_type": "WI",
+      "functional_area": "Production",
+      "requested_by": "T. Morrison",
+      "notes": "Step-by-step for calibrated torque wrench usage on assembly line"
+    },
+    {
+      "request_id": "REQ-004",
+      "title": "Nonconforming Product Disposition Form",
+      "doc_type": "TF",
+      "functional_area": "Quality Control",
+      "requested_by": "L. Chen",
+      "notes": "Form to record NC product review and disposition decisions"
+    },
+    {
+      "request_id": "REQ-005",
+      "title": "Sterilization Validation Specification",
+      "doc_type": "SPEC",
+      "functional_area": "Design & Development",
+      "requested_by": "A. Rodriguez",
+      "notes": "Specification for EO sterilization validation requirements"
+    },
+    {
+      "request_id": "REQ-006",
+      "title": "Risk Management Plan",
+      "doc_type": "PLN",
+      "functional_area": "Risk Management",
+      "requested_by": "C. Williams",
+      "notes": "Project-level risk management plan per ISO 14971"
+    },
+    {
+      "request_id": "REQ-007",
+      "title": "Visual Inspection Work Instruction",
+      "doc_type": "WI",
+      "functional_area": "Quality Control",
+      "requested_by": "M. Foster",
+      "notes": "Step-by-step visual inspection criteria for finished devices"
+    }
+  ]
+}

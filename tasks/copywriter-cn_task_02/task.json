@@ -1,0 +1,96 @@
+{
+  "id": "copywriter-cn_task_02",
+  "name": "Pain Points Analysis and Landing Page Copy for an Online Course",
+  "category": "copywriting",
+  "gradingType": "hybrid",
+  "prompt": "Write landing page copy for an online course called \"Python for Data Analysts\" targeting spreadsheet users who want to automate repetitive data tasks. The course is priced at $197 and includes 40 hours of video content, 15 hands-on projects, and lifetime access.\n\nProduce a file called landing_page_copy.json with exactly this structure:\n- \"product\": string (must be \"Python for Data Analysts\")\n- \"target_audience\": string describing who the course is for\n- \"pain_points\": array of exactly 5 strings, each describing a specific pain point of the target audience (spreadsheet users doing repetitive data work)\n- \"hero_headline\": string — the main headline, 8-15 words\n- \"subheadline\": string — supporting subheadline, 15-30 words\n- \"benefits\": array of exactly 4 objects, each with keys \"title\" (string, 3-7 words) and \"description\" (string, 15-40 words)\n- \"social_proof_placeholder\": string — a template sentence for a testimonial (use placeholder names like [Student Name] and [Outcome])\n- \"price_anchor\": object with keys \"original_value\" (string), \"price\" (string, must be \"$197\"), \"cta_text\" (string — the button text)\n- \"urgency_element\": string — a scarcity or urgency line (15-30 words)\n\nAlso produce a file called pain_points_brief.md listing the 5 pain points with a one-sentence solution mapping for each, showing how the course addresses that specific pain.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "copywriter-cn_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "landing_page_copy.json file is present in the working directory.",
+            "testPattern": "landing_page_copy.json > file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.08,
+            "description": "landing_page_copy.json is valid JSON with all required top-level keys: product, target_audience, pain_points, hero_headline, subheadline, benefits, social_proof_placeholder, price_anchor, and urgency_element.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "product-name",
+            "weight": 0.07,
+            "description": "The product field equals exactly \"Python for Data Analysts\".",
+            "testPattern": "Python for Data Analysts"
+          },
+          {
+            "id": "pain-points",
+            "weight": 0.15,
+            "description": "pain_points is an array of exactly 5 non-empty strings, each longer than 10 characters.",
+            "testPattern": "exactly 5 non-empty strings"
+          },
+          {
+            "id": "hero-headline",
+            "weight": 0.12,
+            "description": "hero_headline is a string whose word count is between 8 and 15 inclusive.",
+            "testPattern": "8-15 words"
+          },
+          {
+            "id": "subheadline",
+            "weight": 0.1,
+            "description": "subheadline is a string whose word count is between 15 and 30 inclusive.",
+            "testPattern": "15-30 words"
+          },
+          {
+            "id": "benefits",
+            "weight": 0.13,
+            "description": "benefits is an array of exactly 4 objects each with a title (3–7 words) and description (15–40 words).",
+            "testPattern": "exactly 4 entries"
+          },
+          {
+            "id": "price-anchor",
+            "weight": 0.12,
+            "description": "price_anchor.price equals exactly \"$197\" and cta_text is a non-empty string.",
+            "testPattern": "price of \\$197"
+          },
+          {
+            "id": "urgency",
+            "weight": 0.08,
+            "description": "urgency_element is a string whose word count is between 15 and 30 inclusive.",
+            "testPattern": "urgency_element"
+          },
+          {
+            "id": "brief-exists",
+            "weight": 0.1,
+            "description": "pain_points_brief.md file is present in the working directory.",
+            "testPattern": "pain_points_brief.md > file exists"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent wrote landing page copy for a Python course targeting spreadsheet users, including pain points, benefits, and pricing elements.\n\nCriterion 1: Audience Relevance and Pain Point Quality (Weight: 50%)\n1.0: All 5 pain points are specific to spreadsheet users doing repetitive data work (e.g., copy-paste fatigue, manual reporting, Excel formula limits). Pain points feel real and resonate with the target audience. The solution mapping in the .md file is coherent.\n0.5: Pain points exist but are generic (\"data is hard\") rather than audience-specific.\n0: Pain points are off-target or missing.\n\nCriterion 2: Landing Page Persuasion Structure (Weight: 50%)\n1.0: Hero headline is compelling and benefit-focused. Benefits are specific (mention automation, hands-on projects, or time savings). CTA is action-oriented. Urgency element feels credible rather than manipulative.\n0.5: Structure is correct but copy is bland or misses key selling points (40 hours, 15 projects, lifetime access).\n0: Copy is generic, missing key elements, or not persuasive.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/copywriter-cn",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

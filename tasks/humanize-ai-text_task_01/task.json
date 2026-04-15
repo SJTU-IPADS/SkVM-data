@@ -1,0 +1,31 @@
+{
+  "id": "humanize-ai-text_task_01",
+  "name": "Strip AI Signals From a Supply Chain Article Under a Strict Token Protocol",
+  "category": "writing_content",
+  "gradingType": "hybrid",
+  "prompt": "A colleague pasted the file `input.txt` into your queue — it is a five-paragraph article about supply chain digital transformation that was clearly written by an AI assistant. Your job is to produce a clean, human-sounding rewrite that would pass a human reader's scrutiny.\n\nWrite the full rewritten article to `output.txt` at the workspace root. Follow this exact protocol:\n\n**Banned AI vocabulary** — every occurrence of the following words must be replaced or restructured so that none remain anywhere in output.txt (case-insensitive): delve, tapestry, landscape, pivotal, multifaceted, groundbreaking, undoubtedly, hallmark, cornerstone.\n\n**Banned filler phrases** — remove or rewrite every occurrence of: \"it's important to note\", \"it's worth noting\", \"in order to\", \"due to the fact that\", \"furthermore,\" (as a sentence-starting connector), \"indeed,\" (as a sentence-starting connector).\n\n**Banned significance inflation** — remove or rewrite: \"cannot be overstated\", \"nothing short of\" (followed by a superlative), \"serves as a testament to\".\n\n**Chatbot artifacts** — remove any sentence containing: \"I hope\", \"Feel free\", \"As an AI\".\n\n**Em-dashes** — replace every em-dash (—) with a comma or a period; no em-dashes may remain.\n\n**Structure invariants** — the output must have exactly 5 paragraphs (separated by blank lines), matching the input structure. Do not collapse paragraphs or add new ones. Do not introduce markdown formatting (bold, headers, bullet lists) — the input has none.\n\n**Length** — the output word count must stay between 80% and 120% of the input word count (the input has 234 words, so the target range is 187–281 words).\n\nReplace banned items with plain, direct language. Preserve all factual claims about supply chains, logistics, data analytics, and organizational culture.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent rewrote a 5-paragraph AI-generated supply chain article. The prompt pinned down a specific banned-token list (delve, tapestry, landscape, pivotal, multifaceted, groundbreaking, undoubtedly, hallmark, cornerstone), filler phrases, significance inflation, chatbot artifacts, and structural invariants (paragraph count, word count range, no markdown).\n\nCriterion 1: Naturalness of prose (Weight: 40%)\n1.0: The rewrite reads like a confident human writer — sentences vary in length and structure, the tone is direct and factual, there is no over-cautious hedging and no AI-generated cadence (e.g. no repetitive \"this X that Y\" constructions, no synthetic transitions like 'Additionally,' or 'In conclusion,'). The text does not feel like the original with a word-swap applied.\n0.5: Mostly natural but 1–2 sentences still have an AI cadence or the transitions are generic.\n0: The text still reads like AI output with cosmetic substitutions, or the language is stilted from over-aggressive removal.\n\nCriterion 2: Content preservation (Weight: 40%)\n1.0: All factual substance is preserved — digital transformation of supply chains, cross-department collaboration, data analytics for optimization, real-time visibility, predictive modeling, cost vs. service quality trade-off, agility. No facts have been dropped and no new claims have been invented.\n0.5: Most content preserved but one or two factual points are missing or distorted.\n0: Significant factual content was lost, or the agent produced a generic paragraph rather than preserving the original's specific claims.\n\nCriterion 3: Protocol discipline (Weight: 20%)\n1.0: A close reading finds zero instances of the banned terms and phrases, no em-dashes, no markdown, and the paragraph structure matches the input. The agent treated the protocol as a hard constraint, not a suggestion.\n0.5: One or two banned terms or structural violations remain.\n0: Multiple violations remain or the agent ignored the protocol entirely.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/humanize-ai-text",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

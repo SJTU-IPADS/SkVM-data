@@ -1,0 +1,96 @@
+{
+  "id": "cto-advisor_task_01",
+  "name": "Tech Debt Inventory and Prioritized Remediation Plan",
+  "category": "technical_leadership",
+  "gradingType": "hybrid",
+  "prompt": "You are helping a CTO assess and prioritize technical debt for a 45-person engineering team at a B2B SaaS company. The team has flagged these tech debt items:\n\n1. Auth service still running v1 API (deprecated 18 months ago): affects 8 downstream services, estimated 10 engineering days to migrate\n2. No database indexes on 3 high-traffic query paths: affects 2 services, estimated 2 days to fix, causing p95 latency of 850ms (target is <200ms)\n3. Monolithic deploy pipeline with no CI parallelism: affects all 12 services, estimated 15 days to refactor, build times average 22 minutes\n4. Legacy Python 2.7 batch jobs (EOL): affects 1 internal service, estimated 5 days to migrate\n5. Hardcoded API keys in 4 microservices: affects 4 services, estimated 3 days to fix, security risk\n\nFor each item, compute priority_score = (severity_weight × blast_radius) / cost_to_fix where severity weights are: P0=4, P1=3, P2=2, P3=1. Assign severity based on risk (security issues = P0, performance blocking SLA = P1, deprecated/EOL = P2, slowness = P3).\n\nProduce a file called tech_debt_inventory.json with exactly this structure:\n- \"team_size\": number (45)\n- \"items\": array of exactly 5 objects, each with keys: \"name\" (string), \"severity\" (string: \"P0\", \"P1\", \"P2\", or \"P3\"), \"cost_to_fix_days\" (number), \"blast_radius\" (number, count of affected services), \"priority_score\" (number, rounded to 2 decimal places)\n- \"sorted_by_priority\": array of item names sorted by priority_score descending\n- \"debt_ratio_pct\": number — percentage of 45 engineers' capacity consumed if all items were fixed in one sprint (assume 10-day sprint, 45 engineers); formula: (sum of all cost_to_fix_days / (45 * 10)) * 100, rounded to 1 decimal\n- \"immediate_sprint\": array of names of P0 and P1 items\n- \"next_quarter\": array of names of P2 items\n- \"tracked_backlog\": array of names of P3 items\n\nAlso produce a file called remediation_plan.md with an executive summary (at least 150 words) presenting the debt inventory findings and recommended sprint plan to a non-technical stakeholder.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "cto-advisor_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "tech_debt_inventory.json file is present in the working directory.",
+            "testPattern": "tech_debt_inventory.json > file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.07,
+            "description": "tech_debt_inventory.json is valid JSON with all required top-level keys: team_size, items, sorted_by_priority, debt_ratio_pct, immediate_sprint, next_quarter, and tracked_backlog.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "team-size",
+            "weight": 0.05,
+            "description": "The team_size field equals the integer 45.",
+            "testPattern": "team_size is 45"
+          },
+          {
+            "id": "items-fields",
+            "weight": 0.1,
+            "description": "items is an array of exactly 5 objects, each with name, severity (P0–P3), cost_to_fix_days, blast_radius, and priority_score.",
+            "testPattern": "exactly 5 entries with required fields"
+          },
+          {
+            "id": "priority-score",
+            "weight": 0.18,
+            "description": "Each item's priority_score equals (severity_weight × blast_radius) / cost_to_fix_days within a tolerance of 0.1.",
+            "testPattern": "priority_score computation"
+          },
+          {
+            "id": "sorted-priority",
+            "weight": 0.13,
+            "description": "sorted_by_priority is an array of 5 item names ordered so each item's priority_score is greater than or equal to the next.",
+            "testPattern": "descending priority order"
+          },
+          {
+            "id": "debt-ratio",
+            "weight": 0.12,
+            "description": "debt_ratio_pct equals (sum of all cost_to_fix_days / 450) × 100 within a tolerance of 0.5, yielding approximately 7.8%.",
+            "testPattern": "debt_ratio_pct"
+          },
+          {
+            "id": "sprint-tiers",
+            "weight": 0.1,
+            "description": "All 5 items appear across exactly three tiers with no duplicates: immediate_sprint (P0/P1 only), next_quarter (P2 only), and tracked_backlog (remaining).",
+            "testPattern": "P0 and P1|P2 items|three tiers"
+          },
+          {
+            "id": "plan-exists",
+            "weight": 0.05,
+            "description": "remediation_plan.md file is present in the working directory.",
+            "testPattern": "remediation_plan.md > file exists"
+          },
+          {
+            "id": "plan-content",
+            "weight": 0.15,
+            "description": "remediation_plan.md is at least 150 words and mentions both security (or API keys) and performance (or latency or SLA).",
+            "testPattern": "security and performance"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent performed a tech debt assessment for a 45-person engineering team with 5 specific debt items, including computing priority scores and categorizing items into sprints.\n\nCriterion 1: Technical Reasoning Accuracy (Weight: 60%)\n1.0: Severity assignments are logical (hardcoded API keys as P0, DB indexes as P1 given SLA violation). Priority scores are mathematically correct. The sorted order is correct. Debt ratio calculation is correct using the given formula.\n0.5: Most calculations are correct but severity assignments have 1-2 questionable choices or the sorted order has a minor error.\n0: Priority scores are missing, wrong formula used, or severity assignments are nonsensical.\n\nCriterion 2: Executive Communication (Weight: 40%)\n1.0: The remediation_plan.md is written clearly for a non-technical stakeholder, explains WHY items are urgent (security risk, SLA breach), and presents the sprint plan with business context (not just technical jargon).\n0.5: The plan exists but is too technical or lacks business framing.\n0: The plan is missing or reads as a raw data dump.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/cto-advisor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "medium"
+}

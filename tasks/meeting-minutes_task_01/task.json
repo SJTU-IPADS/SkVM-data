@@ -1,0 +1,96 @@
+{
+  "id": "meeting-minutes_task_01",
+  "name": "Generate Meeting Minutes and Action Items",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "You are given the following meeting transcript. Generate structured meeting minutes and action items, saving results to two files.\n\nMeeting transcript:\n---\nDate: 2026-04-10\nAttendees: Sarah Chen (PM), David Park (Engineering Lead), Aisha Torres (Designer), Marcus Webb (QA)\n\nSarah: Thanks everyone for joining. Today we need to decide on the Q2 launch date for the mobile app and assign owners for the remaining work.\n\nDavid: Engineering is 80% done. We need two more weeks for backend API work and one week for integration testing.\n\nAisha: Design is complete. I just need to hand off the final assets to David by end of this week.\n\nMarcus: QA needs at least one week after integration testing is done.\n\nSarah: So if David finishes API work by April 24 and integration testing by May 1, and Marcus does QA the week of May 5, we could launch May 12?\n\nDavid: That works if Aisha delivers assets by April 13.\n\nAisha: I can do that.\n\nSarah: Agreed. Let's go with May 12 as our target launch date. Any risks?\n\nDavid: Backend API depends on third-party auth provider. If they have downtime, we could slip by a week.\n\nSarah: Noted. Marcus, please start the regression test plan this week so we're ready. David, document the API dependency risk in our risk register.\n---\n\nTask 1: Save meeting minutes to minutes.json with this structure:\n{\n  \"date\": \"<YYYY-MM-DD>\",\n  \"attendees\": [{\"name\": \"<name>\", \"role\": \"<role>\"}],\n  \"summary\": \"<2-3 sentence summary>\",\n  \"decisions\": [\"<decision 1>\", ...],\n  \"risks\": [{\"description\": \"<risk>\", \"owner\": \"<name>\"}]\n}\n\nTask 2: Save action items to action_items.json as:\n{\n  \"action_items\": [\n    {\"id\": \"AI-001\", \"description\": \"<task>\", \"owner\": \"<full name>\", \"due_date\": \"<YYYY-MM-DD>\"}\n  ]\n}\n\nExtract all action items from the transcript. Assign due dates based on dates mentioned.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "meeting-minutes_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "minutes-exists",
+            "weight": 0.07,
+            "description": "minutes.json file is present in the working directory.",
+            "testPattern": "minutes.json.*exists|minutes file exists"
+          },
+          {
+            "id": "action-exists",
+            "weight": 0.07,
+            "description": "action_items.json file is present in the working directory.",
+            "testPattern": "action_items.json.*exists|action items file exists"
+          },
+          {
+            "id": "attendees",
+            "weight": 0.12,
+            "description": "minutes.json attendees array contains exactly 4 entries matching the 4 meeting participants.",
+            "testPattern": "attendees.*4|4 attendees"
+          },
+          {
+            "id": "attendee-fields",
+            "weight": 0.08,
+            "description": "Each attendee object has non-empty name and role string fields.",
+            "testPattern": "attendee.*name.*role|name and role"
+          },
+          {
+            "id": "date-correct",
+            "weight": 0.1,
+            "description": "minutes.json date field is exactly \"2026-04-10\".",
+            "testPattern": "date.*2026-04-10|correct date"
+          },
+          {
+            "id": "decisions",
+            "weight": 0.12,
+            "description": "decisions array is non-empty and at least one entry references the May 12 launch date.",
+            "testPattern": "decisions|May 12"
+          },
+          {
+            "id": "risks",
+            "weight": 0.1,
+            "description": "risks array has at least 1 entry where each risk object contains non-empty description and owner fields.",
+            "testPattern": "risks.*owner|risk.*owner"
+          },
+          {
+            "id": "action-items-count",
+            "weight": 0.12,
+            "description": "action_items.json contains an action_items array with at least 3 items.",
+            "testPattern": "action_items array|at least.*action"
+          },
+          {
+            "id": "action-item-fields",
+            "weight": 0.1,
+            "description": "Each action item object has non-empty string fields for id, description, owner, and due_date.",
+            "testPattern": "action item fields|id.*description.*owner.*due"
+          },
+          {
+            "id": "action-ids",
+            "weight": 0.12,
+            "description": "All action item id values match the pattern AI-NNN (e.g., AI-001, AI-002).",
+            "testPattern": "AI-001|action item IDs"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent processed a meeting transcript and generated structured minutes and action items.\n\nCriterion 1: Completeness and Accuracy (Weight: 60%)\n1.0: All attendees are captured correctly with their roles, decisions accurately reflect what was agreed (May 12 launch, specific handoff dates), risks are extracted faithfully, and all action items from the transcript are present with correct owners.\n0.5: Most information is captured but one or two details are missing or misattributed.\n0: Key decisions or action items are missing or attributed to wrong people.\n\nCriterion 2: Summary Quality (Weight: 40%)\n1.0: The summary field is 2-3 sentences that capture the purpose, key decision, and main outcome without being verbatim transcript.\n0.5: Summary exists but is too brief, too long, or reads like a bullet list.\n0: Summary is missing, single word, or just restates individual transcript lines.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/meeting-minutes",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,90 @@
+{
+  "id": "fitness-coach_task_01",
+  "name": "Generate Beginner Fat Loss Plan as Structured JSON",
+  "category": "fitness_coaching",
+  "gradingType": "hybrid",
+  "prompt": "A beginner wants a structured fat loss workout plan. Generate a complete plan and save it to `fitness_plan.json`.\n\nUser profile:\n- Fitness level: beginner\n- Goal: fat loss\n- Training location: home\n- Equipment: none (bodyweight only)\n- Days per week: 3\n- Session length: 30 minutes\n- No injuries\n\nThe output file `fitness_plan.json` must have this exact top-level structure:\n```json\n{\n  \"goal_summary\": {\n    \"goal\": \"fat loss\",\n    \"experience_level\": \"beginner\",\n    \"training_location\": \"home\",\n    \"equipment\": [],\n    \"days_per_week\": 3\n  },\n  \"weekly_plan\": [...],\n  \"exercises\": [...],\n  \"progression_guidance\": [...],\n  \"recovery_tips\": [],\n  \"nutrition_guidance\": []\n}\n```\n\nRequirements:\n- `weekly_plan` must be an array of exactly 7 objects, one per day (Day 1 through Day 7). Each object must have `day` (string, e.g. \"Day 1\") and `activity` (string describing workout or rest).\n- `exercises` must be an array of at least 4 objects. Each exercise object must have: `name` (string), `sets` (integer >= 1), `reps` (string), `rest_seconds` (integer >= 30).\n- `progression_guidance` must be an array of at least 2 strings.\n- `recovery_tips` and `nutrition_guidance` must each be arrays of at least 1 string.\n- All exercises must be bodyweight-only (no equipment required).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "fitness-coach_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "plan-exists",
+            "weight": 0.08,
+            "description": "The file fitness_plan.json exists in the working directory.",
+            "testPattern": "fitness_plan.json exists"
+          },
+          {
+            "id": "plan-parse",
+            "weight": 0.07,
+            "description": "fitness_plan.json parses as valid JSON.",
+            "testPattern": "parses as JSON|valid JSON"
+          },
+          {
+            "id": "goal-summary",
+            "weight": 0.12,
+            "description": "goal_summary.goal contains 'fat loss' and goal_summary.experience_level is 'beginner'.",
+            "testPattern": "goal_summary.*fat loss|goal.*fat loss"
+          },
+          {
+            "id": "goal-fields",
+            "weight": 0.1,
+            "description": "goal_summary has all required fields: goal, experience_level, training_location, equipment, days_per_week.",
+            "testPattern": "goal_summary has required fields"
+          },
+          {
+            "id": "weekly-plan",
+            "weight": 0.15,
+            "description": "weekly_plan is an array of exactly 7 objects, each with 'day' and 'activity' string fields.",
+            "testPattern": "weekly_plan.*7|7 days"
+          },
+          {
+            "id": "exercises-count",
+            "weight": 0.12,
+            "description": "exercises array contains at least 4 items.",
+            "testPattern": "exercises array has at least 4 items"
+          },
+          {
+            "id": "exercise-fields",
+            "weight": 0.12,
+            "description": "Each exercise has name, sets (integer >=1), reps (string), and rest_seconds (integer >=30) fields.",
+            "testPattern": "exercise.*name.*sets|exercise fields"
+          },
+          {
+            "id": "progression",
+            "weight": 0.12,
+            "description": "progression_guidance is an array of at least 2 non-empty strings.",
+            "testPattern": "progression_guidance"
+          },
+          {
+            "id": "recovery-nutrition",
+            "weight": 0.12,
+            "description": "Both recovery_tips and nutrition_guidance are non-empty arrays of strings.",
+            "testPattern": "recovery_tips|nutrition_guidance"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a beginner fat loss home workout plan as structured JSON.\n\nCriterion 1: Plan Suitability (Weight: 50%)\n1.0: Exercises are clearly bodyweight-only, appropriate for beginners, realistic for fat loss (e.g. squats, push-ups, lunges, planks), sets/reps are sensible for beginners (2-4 sets, 8-15 reps).\n0.5: Most exercises are beginner-appropriate but one requires equipment or has extreme set/rep counts.\n0: Exercises require equipment or are too advanced for beginners.\n\nCriterion 2: Progression and Guidance Quality (Weight: 50%)\n1.0: Progression guidance gives concrete week-to-week instructions (e.g. add reps before adding load). Recovery and nutrition tips are practical for beginners.\n0.5: Guidance is generic but present.\n0: Guidance fields are empty or contain placeholder text.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/fitness-coach",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

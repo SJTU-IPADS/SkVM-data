@@ -1,0 +1,73 @@
+{
+  "id": "nano-pdf_task_02",
+  "name": "Update multi-page product catalog PDF with new prices and seasonal info",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "I have a product catalog at product-catalog.pdf (4 pages: cover, indoor plants, accessories, ordering info). I need several edits across different pages:\n\n1. On the cover page (page 1): Change 'Spring Collection' to 'Summer Collection' since we're updating for the new season.\n2. On the indoor plants page (page 2): The spring discount '10% off all indoor plants through March 31, 2026' is expired. Replace it with 'Summer Special: 15% off all indoor plants through September 30, 2026'.\n3. On the accessories page (page 3): Update the footer from 'Prices valid through Q1 2026' to 'Prices valid through Q3 2026'.\n\nEdit the PDF directly and save the result as updated-catalog.pdf. Do not recreate the PDF from scratch — edit the existing one.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "nano-pdf_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "updated-catalog.pdf file is present in the working directory.",
+            "testPattern": "updated-catalog.pdf exists"
+          },
+          {
+            "id": "page-count",
+            "weight": 0.1,
+            "description": "updated-catalog.pdf contains at least 4 pages.",
+            "testPattern": "at least 4 pages"
+          },
+          {
+            "id": "cover-updated",
+            "weight": 0.2,
+            "description": "PDF text contains \"summer collection\" (replacing the original \"spring collection\").",
+            "testPattern": "cover says Summer Collection"
+          },
+          {
+            "id": "discount-updated",
+            "weight": 0.25,
+            "description": "PDF text contains \"15%\" and \"september\" and no longer contains the old 10% March 31 discount text.",
+            "testPattern": "discount updated.*15%.*September"
+          },
+          {
+            "id": "footer-updated",
+            "weight": 0.2,
+            "description": "PDF text contains \"q3 2026\" (replacing the Q1 2026 validity date).",
+            "testPattern": "footer updated.*Q3 2026"
+          },
+          {
+            "id": "content-preserved",
+            "weight": 0.2,
+            "description": "Original product names (monstera, fiddle leaf, snake plant, ceramic planter, bamboo plant stand) and ordering info are still present.",
+            "testPattern": "original product listings preserved"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to make targeted edits to a 4-page product catalog PDF: change 'Spring' to 'Summer' on the cover, update an expired discount on page 2, and update a date on page 3.\n\nCriterion 1: Edit Accuracy (Weight: 50%)\n1.0: All three edits are correctly applied — cover says 'Summer Collection', page 2 has the new 15% summer discount through September 30, page 3 footer references Q3 2026.\n0.7: Two of three edits are correctly applied.\n0.4: Only one edit is correctly applied.\n0: No edits were applied or the PDF is broken.\n\nCriterion 2: Content Preservation (Weight: 30%)\n1.0: All original content is preserved — plant listings, prices, accessory info, ordering details are intact. The document still has 4 pages with the same structure.\n0.5: Most content preserved but some items are missing or pages were lost.\n0: Significant content loss or the document was recreated from scratch with missing information.\n\nCriterion 3: Tool Usage (Weight: 20%)\n1.0: The agent used nano-pdf (or equivalent PDF-editing CLI) to edit the PDF directly, applying edits to specific pages.\n0.5: The agent used a PDF library to make edits but preserved the original structure.\n0: The agent recreated the PDF from scratch or failed to produce output.\n\nFinal score: weighted average of all criteria.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/nano-pdf",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "medium"
+}

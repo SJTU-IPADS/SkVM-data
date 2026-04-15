@@ -1,0 +1,90 @@
+{
+  "id": "regulatory-affairs-head_task_01",
+  "name": "Select FDA Regulatory Pathway and Build Submission Checklist",
+  "category": "regulatory_affairs",
+  "gradingType": "hybrid",
+  "prompt": "You are a regulatory affairs manager evaluating three new medical device products for FDA market clearance. For each product, determine the correct FDA regulatory pathway and produce structured output files.\n\nProducts to evaluate:\n\nProduct 1: SurgiGrip Clamp\n- Intended use: Surgical tissue clamp for general laparoscopic procedures\n- Device class: Class II\n- Predicate available: Yes (K193421, substantially equivalent intended use and technology)\n- Clinical data: Not required (standard bench testing available)\n- Technology: Standard mechanical; no software\n\nProduct 2: NeuralScan AI\n- Intended use: AI-based software to detect early-stage Alzheimer's from MRI scans (SaMD)\n- Device class: Class II\n- Predicate available: No (novel AI algorithm for this indication)\n- Risk level: Low-Moderate\n- Clinical data: May be required\n\nProduct 3: CardioValve Pro\n- Intended use: Transcatheter heart valve replacement for high-risk surgical patients\n- Device class: Class III\n- Predicate available: No\n- Clinical data: Required (IDE study needed)\n- Risk level: High\n\nStep 1: For each product, determine the FDA pathway (510(k), De Novo, or PMA) and save to pathway_analysis.json.\n\nFor each product include: product_id (P1, P2, P3), name, pathway (\"510(k)\" or \"De Novo\" or \"PMA\"), rationale (2-3 sentences explaining the selection), estimated_review_days (90 for 510k, 150 for De Novo, 180 for PMA), user_fee_category (\"~$22K\" for 510k, \"~$135K\" for De Novo, \"~$440K\" for PMA), and requires_presub_meeting (true/false — true if novel technology, uncertain predicate, or complex testing).\n\nSave as: { \"products\": [ { \"product_id\": \"...\", \"name\": \"...\", \"pathway\": \"...\", \"rationale\": \"...\", \"estimated_review_days\": N, \"user_fee_category\": \"...\", \"requires_presub_meeting\": bool }, ... ] }\n\nStep 2: For the 510(k) product only, generate a submission checklist and save to submission_checklist.json.\n\nThe checklist must include all 9 standard sections: Cover letter, Administrative information, Device description, Intended use and indications, Substantial equivalence comparison, Performance testing, Biocompatibility summary, Labeling, Summary and conclusion. For each section include: section_number (1-9), title, status (\"Required\"), and a brief description of what to include (1 sentence).\n\nSave as: { \"product\": \"SurgiGrip Clamp\", \"submission_type\": \"510(k)\", \"sections\": [ { \"section_number\": N, \"title\": \"...\", \"status\": \"Required\", \"description\": \"...\" }, ... ] }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "regulatory-affairs-head_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "pathway-exists",
+            "weight": 0.08,
+            "description": "pathway_analysis.json exists in the working directory.",
+            "testPattern": "pathway_analysis.json.*exists|file exists.*pathway"
+          },
+          {
+            "id": "three-products",
+            "weight": 0.08,
+            "description": "pathway_analysis.json products array contains exactly 3 entries with IDs P1, P2, and P3.",
+            "testPattern": "3 products|three products"
+          },
+          {
+            "id": "p1-510k",
+            "weight": 0.15,
+            "description": "Product P1 (SurgiGrip Clamp) has pathway '510(k)' and estimated_review_days of 90.",
+            "testPattern": "P1.*510|510.*P1|SurgiGrip.*510"
+          },
+          {
+            "id": "p2-denovo",
+            "weight": 0.15,
+            "description": "Product P2 (NeuralScan AI) has pathway 'De Novo' and estimated_review_days of 150.",
+            "testPattern": "P2.*De Novo|De Novo.*P2|NeuralScan.*De Novo"
+          },
+          {
+            "id": "p3-pma",
+            "weight": 0.15,
+            "description": "Product P3 (CardioValve Pro) has pathway 'PMA' and estimated_review_days of 180.",
+            "testPattern": "P3.*PMA|PMA.*P3|CardioValve.*PMA"
+          },
+          {
+            "id": "review-days",
+            "weight": 0.1,
+            "description": "Each product entry has a rationale string (>20 chars) and a boolean requires_presub_meeting field.",
+            "testPattern": "each product has rationale and requires_presub_meeting fields"
+          },
+          {
+            "id": "checklist-exists",
+            "weight": 0.08,
+            "description": "submission_checklist.json exists in the working directory.",
+            "testPattern": "submission_checklist.json.*exists|file exists.*checklist"
+          },
+          {
+            "id": "checklist-9-sections",
+            "weight": 0.13,
+            "description": "submission_checklist.json sections array contains exactly 9 entries numbered 1 through 9.",
+            "testPattern": "9 sections|nine sections|sections.*9"
+          },
+          {
+            "id": "checklist-fields",
+            "weight": 0.08,
+            "description": "Each checklist section has a title string, status='Required', and a non-empty description string; submission_type is '510(k)' and product matches 'SurgiGrip'.",
+            "testPattern": "section_number.*title|title.*status.*description"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent selected FDA regulatory pathways for three medical devices and built a 510(k) submission checklist.\n\nCriterion 1: Pathway Selection Correctness (Weight: 60%)\n1.0: P1=510(k) (predicate available, Class II, SE supportable), P2=De Novo (no predicate but low-moderate risk novel device), P3=PMA (Class III, high-risk, no predicate, clinical data required). Rationales are accurate and cite the correct factors. Review days and fees match the pathway.\n0.5: 2 of 3 pathway selections are correct with reasonable rationales.\n0: Pathway selections are wrong or rationales do not match the device facts.\n\nCriterion 2: Checklist Completeness (Weight: 40%)\n1.0: All 9 sections are present in the correct order with accurate titles and meaningful descriptions of required content per FDA 510(k) format.\n0.5: At least 7 sections present with mostly accurate descriptions.\n0: Fewer than 5 sections or sections do not correspond to 510(k) format.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/regulatory-affairs-head",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

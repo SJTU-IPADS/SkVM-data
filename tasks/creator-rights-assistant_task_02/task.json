@@ -1,0 +1,96 @@
+{
+  "id": "creator-rights-assistant_task_02",
+  "name": "Rights Lifecycle Tracker for a Multi-Asset Catalog",
+  "category": "creator_tools",
+  "gradingType": "hybrid",
+  "prompt": "A creator has a catalog of 4 assets with different license expiry dates and needs to organize a rights lifecycle tracking document. Here are the asset details:\n\n1. Asset ID: vid-2023-05-10-tutorial, Type: Video, License expires: 2025-05-10, Territory: US only, Usage: Educational non-commercial\n2. Asset ID: img-2024-01-15-banner, Type: Image, License expires: 2026-01-15, Territory: Worldwide, Usage: Commercial digital\n3. Asset ID: aud-2023-11-30-podcast, Type: Audio, License expires: 2024-11-30, Territory: Worldwide, Usage: Podcast distribution (already expired as of 2024-12-01)\n4. Asset ID: txt-2025-02-28-article, Type: Text, License expires: 2027-02-28, Territory: EU only, Usage: Online publication\n\nProduce a file called rights_lifecycle.json with exactly this structure:\n- \"catalog\": array of exactly 4 asset objects, each with keys: \"asset_id\" (string), \"asset_type\" (string), \"license_expires\" (string, ISO date), \"territory\" (string), \"usage_constraints\" (string), \"status\" (string: \"active\", \"expiring_soon\", or \"expired\"), \"days_until_expiry\" (number — negative means already expired; compute relative to 2025-04-11)\n- \"summary\": object with keys \"total_assets\" (number, must be 4), \"active_count\" (number), \"expiring_soon_count\" (number, assets expiring within 180 days from 2025-04-11), \"expired_count\" (number)\n- \"renewal_alerts\": array of asset_id strings for assets that are either expired or expiring within 180 days, sorted by license_expires ascending\n\nVerify your math: from reference date 2025-04-11, compute days_until_expiry for each asset. The audio asset (aud-2023-11-30-podcast) should have a negative value. The video asset (vid-2023-05-10-tutorial) expires 2025-05-10, which is about 29 days away — mark as expiring_soon.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "creator-rights-assistant_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "rights_lifecycle.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.07,
+            "description": "rights_lifecycle.json is valid JSON with required top-level keys: catalog, summary, and renewal_alerts.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "catalog-count",
+            "weight": 0.08,
+            "description": "The catalog array contains exactly 4 asset objects.",
+            "testPattern": "exactly 4 assets"
+          },
+          {
+            "id": "asset-fields",
+            "weight": 0.1,
+            "description": "Each asset has correctly typed fields: asset_id (string), asset_type (string), license_expires (string), territory (string), usage_constraints (string), status (active/expiring_soon/expired), and days_until_expiry (number).",
+            "testPattern": "required fields with correct types"
+          },
+          {
+            "id": "audio-expired",
+            "weight": 0.15,
+            "description": "Asset aud-2023-11-30-podcast has a negative days_until_expiry and status \"expired\".",
+            "testPattern": "aud-2023-11-30-podcast.*negative|negative.*aud-2023-11-30-podcast|audio asset.*expired"
+          },
+          {
+            "id": "video-expiring",
+            "weight": 0.15,
+            "description": "Asset vid-2023-05-10-tutorial has days_until_expiry between 24 and 34 and status \"expiring_soon\".",
+            "testPattern": "vid-2023-05-10-tutorial.*expiring|expiring.*vid-2023-05-10-tutorial|video asset.*expiring_soon"
+          },
+          {
+            "id": "active-assets",
+            "weight": 0.1,
+            "description": "Asset img-2024-01-15-banner has positive days_until_expiry and status \"active\".",
+            "testPattern": "img-2024-01-15-banner.*active|text asset.*active"
+          },
+          {
+            "id": "summary-total",
+            "weight": 0.1,
+            "description": "summary.total_assets equals 4 and the sum of active_count, expiring_soon_count, and expired_count also equals 4.",
+            "testPattern": "total_assets is 4"
+          },
+          {
+            "id": "summary-counts",
+            "weight": 0.1,
+            "description": "summary.active_count, expiring_soon_count, and expired_count each match the actual count of assets with that status in the catalog.",
+            "testPattern": "counts reflect actual"
+          },
+          {
+            "id": "renewal-alerts",
+            "weight": 0.1,
+            "description": "renewal_alerts contains both \"aud-2023-11-30-podcast\" and \"vid-2023-05-10-tutorial\" as the expired and expiring assets.",
+            "testPattern": "renewal_alerts contains"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent built a rights lifecycle tracker for a 4-asset catalog with specific expiry dates and had to compute days-until-expiry relative to 2025-04-11.\n\nCriterion 1: Date Calculation Accuracy (Weight: 60%)\n1.0: days_until_expiry values are mathematically correct (within ±2 days of expected). Audio asset is negative. Video asset is ~29 days. Status labels (active/expiring_soon/expired) are correctly assigned. Summary counts add up to 4.\n0.5: Most calculations are correct but 1-2 values are off or a status is mislabeled.\n0: Days calculations are wrong or missing, or status labels are clearly incorrect.\n\nCriterion 2: Organizational Clarity (Weight: 40%)\n1.0: renewal_alerts correctly includes expired and near-expiry assets sorted by date. The output is well-organized and would be practically useful for a creator managing license renewals.\n0.5: renewal_alerts exists but is incomplete or unsorted.\n0: renewal_alerts is missing or the summary counts are inconsistent with catalog data.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/creator-rights-assistant",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "medium"
+}

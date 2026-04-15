@@ -1,0 +1,90 @@
+{
+  "id": "eno_task_01",
+  "name": "Analyze a React Project's Architecture from Directory Structure",
+  "category": "code_analysis",
+  "gradingType": "hybrid",
+  "prompt": "You are given the following React project directory structure and package.json contents. Analyze the frontend architecture and write a structured evaluation report to arch_report.json.\n\nDirectory structure:\n```\nmy-app/\n  src/\n    App.tsx\n    index.tsx\n    components/\n      Header.tsx        (380 lines)\n      Footer.tsx        (45 lines)\n      UserProfile.tsx   (620 lines)\n      ProductList.tsx   (540 lines)\n    pages/\n      Home.tsx\n      Dashboard.tsx\n      Settings.tsx\n    store/\n      index.ts\n      userSlice.ts\n      productSlice.ts\n    utils/\n      api.ts\n      helpers.ts\n  public/\n  package.json\n```\n\npackage.json dependencies: react 17.0.2, redux 4.2.1, react-redux 8.0.5, axios 1.4.0. No TypeScript strict mode in tsconfig. No ESLint config file present. No test files present.\n\nWrite arch_report.json with exactly this structure:\n{\n  \"project_type\": \"React\",\n  \"scores\": {\n    \"tech_stack_health\": <integer 0-50>,\n    \"architecture_design\": <integer 0-35>,\n    \"engineering_maturity\": <integer 0-20>\n  },\n  \"total_score\": <integer 0-100>,\n  \"grade\": <one of: \"excellent\", \"good\", \"acceptable\", \"needs_improvement\", \"critical\">,\n  \"issues\": [<array of at least 3 strings describing specific problems found>],\n  \"recommendations\": [<array of at least 3 strings with actionable suggestions>]\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "eno_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "The file arch_report.json exists in the working directory.",
+            "testPattern": "arch_report.json.*exists|file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.08,
+            "description": "arch_report.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON|parses"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.12,
+            "description": "The JSON has all required fields: project_type, scores, total_score, grade, issues, recommendations.",
+            "testPattern": "required fields|project_type.*scores"
+          },
+          {
+            "id": "project-type",
+            "weight": 0.08,
+            "description": "project_type is exactly the string 'React'.",
+            "testPattern": "project_type.*React"
+          },
+          {
+            "id": "scores-range",
+            "weight": 0.15,
+            "description": "scores.tech_stack_health is 0-50, architecture_design is 0-35, engineering_maturity is 0-20.",
+            "testPattern": "scores.*range|tech_stack_health.*0-50|within valid range"
+          },
+          {
+            "id": "total-score-range",
+            "weight": 0.15,
+            "description": "total_score is an integer in the range 0-100.",
+            "testPattern": "total_score.*0-100|total score.*range"
+          },
+          {
+            "id": "grade-valid",
+            "weight": 0.12,
+            "description": "grade is one of: 'excellent', 'good', 'acceptable', 'needs_improvement', 'critical'.",
+            "testPattern": "grade.*valid|grade.*excellent.*good.*acceptable"
+          },
+          {
+            "id": "issues-count",
+            "weight": 0.1,
+            "description": "issues is an array with at least 3 non-empty string entries.",
+            "testPattern": "issues.*3|at least 3.*issues"
+          },
+          {
+            "id": "recommendations",
+            "weight": 0.1,
+            "description": "recommendations is an array with at least 3 entries.",
+            "testPattern": "recommendations.*3|at least 3.*recommendations"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed a React project with known issues (outdated React 17, large components >500 lines, no TypeScript strict mode, no tests, no ESLint) and wrote an architecture report.\n\nCriterion 1: Issue Detection Accuracy (Weight: 60%)\n1.0: The issues array correctly identifies the major problems visible in the structure: oversized components (UserProfile 620 lines, ProductList 540 lines), outdated React 17, missing TypeScript strict mode, missing tests, and missing ESLint. At least 3 are called out specifically.\n0.5: Some issues identified but misses obvious ones or is too vague (e.g., just 'code quality issues' with no specifics).\n0: Issues are fabricated, irrelevant, or the array is empty.\n\nCriterion 2: Score Plausibility (Weight: 40%)\n1.0: The numeric scores reflect the severity of found issues. Given outdated React, no tests, no ESLint, and god components, total_score should be below 70 and grade should be 'needs_improvement' or worse.\n0.5: Scores exist but are unrealistically high (>80) given the evident problems.\n0: Scores are missing, non-numeric, or out of range.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/eno",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

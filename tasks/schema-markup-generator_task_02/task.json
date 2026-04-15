@@ -1,0 +1,31 @@
+{
+  "id": "schema-markup-generator_task_02",
+  "name": "BreadcrumbList + FAQPage Combined JSON-LD Array",
+  "category": "seo_structured_data",
+  "gradingType": "hybrid",
+  "prompt": "A content team needs structured data markup for their running shoes guide page. You'll find the page details in `page_brief.json` at the workspace root. Generate the markup and write it to `combined_schema.json`.\n\nThe output must be a **JSON array** (not a single object) containing two schema objects in any order: a `BreadcrumbList` schema and a `FAQPage` schema. Both should be inside the same JSON array so they can be embedded in a single `<script type=\"application/ld+json\">` tag.\n\n**BreadcrumbList requirements:**\n\nUse the breadcrumbs array from `page_brief.json` (3 items). For each breadcrumb, create a `ListItem` object with these exact properties:\n- `@type`: `\"ListItem\"`\n- `position`: an integer starting at `1` and incrementing by 1 for each item (first item is `1`, second is `2`, third is `3`). Positions are 1-indexed, not 0-indexed.\n- `name`: the breadcrumb label string\n- `item`: the URL string for this breadcrumb destination. Use the property name `item`, not `url` — Schema.org's `ListItem` uses `item` for the destination URL.\n\nThe BreadcrumbList structure:\n```\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"BreadcrumbList\",\n  \"itemListElement\": [\n    { \"@type\": \"ListItem\", \"position\": 1, \"name\": \"...\", \"item\": \"...\" },\n    { \"@type\": \"ListItem\", \"position\": 2, \"name\": \"...\", \"item\": \"...\" },\n    { \"@type\": \"ListItem\", \"position\": 3, \"name\": \"...\", \"item\": \"...\" }\n  ]\n}\n```\n\n**FAQPage requirements:**\n\nUse the faqs array from `page_brief.json` (3 questions). For each FAQ, create a `Question` object:\n```\n{\n  \"@context\": \"https://schema.org\",\n  \"@type\": \"FAQPage\",\n  \"mainEntity\": [\n    {\n      \"@type\": \"Question\",\n      \"name\": \"<question text>\",\n      \"acceptedAnswer\": {\n        \"@type\": \"Answer\",\n        \"text\": \"<answer text>\"\n      }\n    }\n  ]\n}\n```\n\n**Key rules validated automatically:**\n1. The top-level output is a JSON array `[...]` containing both schema objects.\n2. `@context` in each schema must be exactly `https://schema.org` (https, no trailing slash).\n3. BreadcrumbList `itemListElement` has exactly 3 items with `@type='ListItem'`.\n4. Breadcrumb `position` values are `1`, `2`, `3` — starting at 1, not 0.\n5. Each `ListItem` uses `item` (not `url`) for the breadcrumb destination URL.\n6. Each `ListItem` has `name` matching the breadcrumb labels from the brief.\n7. FAQPage `mainEntity` has exactly 3 Question objects with `@type='Question'`.\n8. Each `acceptedAnswer` is an object with `@type='Answer'` and non-empty `text`.\n\nCopy all values from `page_brief.json` exactly. Do not add properties not listed above.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent read page_brief.json and wrote combined_schema.json — a JSON array containing BreadcrumbList and FAQPage schemas. The prompt required the output to be a top-level JSON array, BreadcrumbList positions to be 1-indexed, ListItem to use 'item' (not 'url') for the URL, and FAQPage to have properly nested Answer objects.\n\nCriterion 1: Output structure (Weight: 40%)\n1.0: combined_schema.json is a valid JSON array containing two distinct schema objects — one with @type='BreadcrumbList' and one with @type='FAQPage'. Both have @context='https://schema.org'.\n0.5: File exists and is valid JSON but structured as a single object rather than an array, or one of the two schemas is missing.\n0: File is missing, invalid JSON, or completely wrong structure.\n\nCriterion 2: BreadcrumbList correctness (Weight: 40%)\n1.0: itemListElement has exactly 3 ListItem objects, each with @type='ListItem', position (1-indexed integer: 1, 2, 3), name (matching the breadcrumb label), and item (the destination URL using the 'item' property key, not 'url').\n0.5: Structure mostly correct but one or two violations — position starting at 0, using 'url' instead of 'item', missing name, or wrong count.\n0: itemListElement missing, not an array, or ListItem structure fundamentally wrong.\n\nCriterion 3: FAQPage correctness (Weight: 20%)\n1.0: mainEntity has 3 Question objects each with @type='Question', name (the question text), and acceptedAnswer as an object with @type='Answer' and non-empty text.\n0.5: Most questions correct but one or two have acceptedAnswer as a plain string instead of an Answer object, or @type is missing.\n0: mainEntity missing, empty, or acceptedAnswer structure is completely wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/schema-markup-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "senior-computer-vision_task_02",
+  "name": "Generate Dataset Split Configuration and Augmentation Plan",
+  "category": "computer_vision",
+  "gradingType": "hybrid",
+  "prompt": "You are preparing a computer vision dataset for training an object detection model. Complete the following and save results to the specified files.\n\nDataset parameters:\n- Total images: 8500\n- Classes: [\"car\", \"pedestrian\", \"cyclist\", \"truck\", \"bus\"]\n- Class distribution (annotations): car=18000, pedestrian=12000, cyclist=4500, truck=3200, bus=2800\n\nTask 1: Compute train/val/test splits and save to `dataset_splits.json`:\n{\n  \"total_images\": 8500,\n  \"split_ratios\": { \"train\": 0.8, \"val\": 0.1, \"test\": 0.1 },\n  \"split_counts\": { \"train\": <integer>, \"val\": <integer>, \"test\": <integer> },\n  \"classes\": [\"car\", \"pedestrian\", \"cyclist\", \"truck\", \"bus\"],\n  \"class_distribution\": { \"car\": 18000, \"pedestrian\": 12000, \"cyclist\": 4500, \"truck\": 3200, \"bus\": 2800 },\n  \"most_common_class\": \"<class name>\",\n  \"least_common_class\": \"<class name>\",\n  \"imbalance_ratio\": <number rounded to 2 decimal places>\n}\nsplit_counts must sum to 8500. imbalance_ratio = max_count / min_count.\n\nTask 2: Create `augmentation_plan.json` containing an array of at least 5 augmentation entries. Each entry must have: `name` (string), `category` (one of: \"geometric\", \"color\", \"advanced\"), `probability` (number between 0 and 1), `recommended_for_detection` (boolean), and `rationale` (string explaining why it helps).\n\nSave both files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "senior-computer-vision_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "splits-exists",
+            "weight": 0.07,
+            "description": "dataset_splits.json exists in the working directory.",
+            "testPattern": "dataset_splits.json > file exists"
+          },
+          {
+            "id": "splits-structure",
+            "weight": 0.1,
+            "description": "dataset_splits.json contains all required fields: total_images, split_ratios, split_counts, classes, class_distribution, most_common_class, least_common_class, and imbalance_ratio.",
+            "testPattern": "has required top-level fields"
+          },
+          {
+            "id": "splits-sum",
+            "weight": 0.15,
+            "description": "dataset_splits.json split_counts.train + split_counts.val + split_counts.test equals exactly 8500.",
+            "testPattern": "split_counts sum to 8500"
+          },
+          {
+            "id": "splits-values",
+            "weight": 0.1,
+            "description": "dataset_splits.json split_counts are exactly train=6800, val=850, test=850 (80/10/10 split of 8500).",
+            "testPattern": "train=6800.*val=850|split counts are correct"
+          },
+          {
+            "id": "most-least-class",
+            "weight": 0.12,
+            "description": "dataset_splits.json most_common_class is 'car' (18000 annotations) and least_common_class is 'bus' (2800 annotations).",
+            "testPattern": "most_common_class.*car|least_common_class.*bus"
+          },
+          {
+            "id": "imbalance-ratio",
+            "weight": 0.13,
+            "description": "dataset_splits.json imbalance_ratio is approximately 6.43 (18000/2800, rounded to 2 decimal places).",
+            "testPattern": "imbalance_ratio is.*6.43|imbalance_ratio correct"
+          },
+          {
+            "id": "aug-exists",
+            "weight": 0.05,
+            "description": "augmentation_plan.json exists in the working directory.",
+            "testPattern": "augmentation_plan.json > file exists"
+          },
+          {
+            "id": "aug-count",
+            "weight": 0.08,
+            "description": "augmentation_plan.json is an array with at least 5 augmentation entries.",
+            "testPattern": "at least 5 augmentation entries"
+          },
+          {
+            "id": "aug-fields",
+            "weight": 0.1,
+            "description": "Each augmentation entry has name (string), category ('geometric'/'color'/'advanced'), probability (number), recommended_for_detection (boolean), and rationale (string).",
+            "testPattern": "each entry has required fields"
+          },
+          {
+            "id": "aug-probability-range",
+            "weight": 0.1,
+            "description": "Every augmentation entry's probability is a number strictly greater than 0 and at most 1, including at least one geometric and one color entry.",
+            "testPattern": "probability.*between 0 and 1"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a dataset split configuration and augmentation plan for object detection.\n\nCriterion 1: Augmentation Plan Quality (Weight: 50%)\n1.0: Augmentations are a good mix of geometric and color transforms. Probabilities are realistic (horizontal flip at 0.5, strong color at 0.3, etc.). Rationales clearly explain why each augmentation benefits detection (e.g., horizontal flip for orientation invariance, brightness for lighting robustness).\n0.5: Augmentations are listed but rationales are vague or probabilities are unrealistic.\n0: Plan is missing or entries lack meaningful technical reasoning.\n\nCriterion 2: Class Imbalance Awareness (Weight: 50%)\n1.0: The most_common_class and least_common_class are correctly identified, imbalance_ratio is correct, and the augmentation plan shows awareness of the imbalance (e.g., recommends augmenting rare classes or notes the issue).\n0.5: Classes are identified correctly but augmentation plan does not address the imbalance.\n0: Class analysis is incorrect or missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/senior-computer-vision",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

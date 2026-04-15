@@ -1,0 +1,96 @@
+{
+  "id": "code-generator_task_02",
+  "name": "Generate a REST API Endpoint Handler and Boilerplate",
+  "category": "code_generation",
+  "gradingType": "hybrid",
+  "prompt": "Generate a minimal REST API endpoint handler in Python using only the standard library (http.server module, no Flask/FastAPI).\n\nStep 1: Create a file called api_handler.py containing a class called TaskAPIHandler that extends http.server.BaseHTTPRequestHandler. It must handle these routes:\n- GET /tasks — returns a JSON list of all tasks\n- POST /tasks — reads a JSON body with {\"title\": str, \"done\": bool}, adds it to an in-memory list, returns the created task with an auto-incremented id field starting at 1\n- GET /tasks/{id} — returns the task with that id, or a 404 JSON response {\"error\": \"not found\"} if missing\n- GET /health — returns {\"status\": \"ok\"}\n\nAll responses must set Content-Type: application/json and return appropriate HTTP status codes (200 for success, 201 for POST creation, 404 for not found).\n\nThe in-memory task storage must be a module-level list called TASKS.\n\nStep 2: Create a file called api_spec.json with exactly these fields:\n- \"api_name\": \"Task API\"\n- \"language\": \"python\"\n- \"framework\": \"http.server\"\n- \"endpoints\": an array of 4 objects, each with \"method\" (string), \"path\" (string), and \"description\" (string)\n- \"storage\": \"in-memory\"\n- \"response_format\": \"JSON\"\n\nStep 3: Write a Python test script called test_api.py that tests the API without starting a real server. It must import TaskAPIHandler and TASKS from api_handler, then use unittest.mock or direct method calls to verify:\n- test_health_endpoint: manually simulate a GET /health request and verify the response includes \"ok\"\n- test_task_list_empty: TASKS is initially empty, verify GET /tasks returns an empty list\n- test_task_creation_schema: verify that a task dict has the keys \"id\", \"title\", \"done\"\n\nRun test_api.py with `python3 -m unittest test_api.py -v` and write the output to api_test_output.txt.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "code-generator_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "handler-exists",
+            "weight": 0.06,
+            "description": "api_handler.py file is present in the working directory.",
+            "testPattern": "api_handler.py > file exists"
+          },
+          {
+            "id": "handler-class",
+            "weight": 0.08,
+            "description": "api_handler.py contains a 'class TaskAPIHandler' declaration.",
+            "testPattern": "TaskAPIHandler class"
+          },
+          {
+            "id": "tasks-list",
+            "weight": 0.08,
+            "description": "api_handler.py contains a module-level TASKS variable initialized as an empty list.",
+            "testPattern": "TASKS module-level list"
+          },
+          {
+            "id": "routes-present",
+            "weight": 0.1,
+            "description": "api_handler.py references both '/tasks' and '/health' paths and defines do_GET and/or do_POST methods.",
+            "testPattern": "handles all 4 routes"
+          },
+          {
+            "id": "importable",
+            "weight": 0.12,
+            "description": "api_handler.py can be imported via 'from api_handler import TaskAPIHandler, TASKS' without raising any error.",
+            "testPattern": "is importable with no errors"
+          },
+          {
+            "id": "tasks-empty",
+            "weight": 0.1,
+            "description": "TASKS is an empty list [] immediately after import, before any requests are made.",
+            "testPattern": "TASKS starts as an empty list"
+          },
+          {
+            "id": "spec-keys",
+            "weight": 0.07,
+            "description": "api_spec.json contains all 6 required top-level keys: api_name, language, framework, endpoints, storage, response_format.",
+            "testPattern": "all required top-level keys"
+          },
+          {
+            "id": "spec-values",
+            "weight": 0.1,
+            "description": "api_spec.json has api_name='Task API', language='python', storage='in-memory', and response_format='JSON'.",
+            "testPattern": "fixed fields have correct values"
+          },
+          {
+            "id": "endpoints-count",
+            "weight": 0.12,
+            "description": "api_spec.json endpoints array has exactly 4 entries, each with method, path starting with '/', and description fields.",
+            "testPattern": "endpoints array has 4 entries"
+          },
+          {
+            "id": "api-tests-pass",
+            "weight": 0.17,
+            "description": "Running python3 -m unittest on test_api.py prints 'OK' and no 'FAILED' line.",
+            "testPattern": "all api tests pass"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to generate a Python REST API handler using only the standard library, an API spec JSON, and tests.\n\nCriterion 1: API Implementation Completeness (Weight: 60%)\n1.0: api_handler.py implements all 4 routes with correct HTTP methods, status codes, and JSON responses. TASKS is a module-level list. The handler is importable.\n0.5: Handler exists with most routes but missing one or has wrong status codes.\n0: Handler is missing or not importable.\n\nCriterion 2: Test Coverage and Spec Quality (Weight: 40%)\n1.0: test_api.py has all 3 required test methods and they pass. api_spec.json has all required fields with 4 endpoints.\n0.5: Tests or spec exist but are incomplete.\n0: Both are missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/code-generator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

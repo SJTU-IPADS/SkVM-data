@@ -1,0 +1,31 @@
+{
+  "id": "revenue-operations_task_02",
+  "name": "Pipeline Health Analysis: Per-Stage Aging Detection and Concentration Risk",
+  "category": "revenue_operations",
+  "gradingType": "hybrid",
+  "prompt": "The sales operations team has exported the current pipeline to `pipeline.json`. The VP of Sales needs a structured health report before the Monday QBR. Your job is to analyze the pipeline and produce `pipeline_report.json` at the workspace root.\n\n**Input file: `pipeline.json`**\n\nThe file contains:\n- `quota`: the current quarter's quota target\n- `stages`: the ordered list of pipeline stages\n- `average_cycle_days`: the overall average sales cycle length (a single summary number)\n- `stage_average_days`: a map of stage name to that stage's average cycle time (these per-stage averages are what you must use for aging detection — see below)\n- `deals`: a list of deal objects, each with `id`, `name`, `stage`, `value`, `age_days`, `close_date`, `owner`\n\n**Output: `pipeline_report.json`**\n\nProduce a JSON object with the following fields:\n\n**1. Deal classification**\n- `total_deals` (integer): total number of deals in the input\n- `open_deals` (integer): deals in any stage that is NOT `Closed Won`\n- `closed_won_deals` (integer): deals whose stage is exactly `Closed Won`\n\n**2. Pipeline coverage**\n- `open_pipeline_value` (integer): sum of `value` across open deals only (exclude Closed Won)\n- `quota` (integer): copy through from input\n- `pipeline_coverage_ratio` (float, 4 decimal places): `open_pipeline_value / quota`\n- `coverage_status` (string): `\"Healthy\"` if ratio ≥ 3.0, `\"At Risk\"` if ratio ≥ 2.0 but < 3.0, `\"Insufficient\"` if ratio < 2.0\n\n**3. Deal aging** — This is the key field where precision matters.\n\nA deal is aging if `age_days > 2 × stage_average_days[deal.stage]`. Use the per-stage average from `stage_average_days`, not the overall `average_cycle_days` summary. A deal in Discovery with a 10-day stage average has a threshold of 20 days; a deal in Negotiation with an 8-day stage average has a threshold of 16 days. The single `average_cycle_days` figure is a summary and must not be used as the aging threshold.\n\nReport:\n- `aging_deals` (list): one entry per aging open deal, each with `id`, `name`, `stage`, `value`, `age_days`, `threshold_days` (the 2× stage average that was applied), and `overage_days` (age_days minus threshold_days)\n- `aging_count` (integer): length of `aging_deals`\n- `healthy_count` (integer): open deals that are NOT aging\n\nInvariant: `aging_count + healthy_count == open_deals`\n\n**4. Concentration risk**\n- `concentration_risk` (boolean): `true` if any single open deal's `value` exceeds 40% of `open_pipeline_value`; `false` otherwise. This is a percentage of total open pipeline VALUE — not a percentage of deal count.\n- `concentration_deal` (object or null): if `concentration_risk` is true, include the highest-value open deal with `id`, `name`, `value`, and `pct_of_open_pipeline` (float, 2 decimal places, computed as `deal.value / open_pipeline_value * 100`)\n\n**5. Stage distribution**\n- `stage_distribution` (object): for every stage in the `stages` list, include a sub-object with `count` (open deals in that stage) and `value` (sum of their values). Include `Closed Won` in the distribution with `count: 0` and `value: 0`, since Closed Won deals are tracked but not part of open pipeline.\n\n**Invariants to preserve:**\n- `open_deals + closed_won_deals == total_deals`\n- `aging_count + healthy_count == open_deals`\n- Deal aging uses per-stage thresholds from `stage_average_days`, not the overall `average_cycle_days`\n- Concentration risk percentage uses `open_pipeline_value` as the denominator (not total pipeline including Closed Won)",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed pipeline.json and produced pipeline_report.json. The prompt requires excluding Closed Won from open pipeline, computing aging using per-stage thresholds (not the global average), and detecting concentration risk by pipeline VALUE percentage (not deal count).\n\nCriterion 1: Pipeline partitioning and coverage (Weight: 40%)\n1.0: pipeline_report.json correctly separates open deals (9) from Closed Won (2), computes open_pipeline_value=542000, pipeline_coverage_ratio=1.084, and labels coverage_status='Insufficient'. The Closed Won deals are NOT included in pipeline value or coverage.\n0.5: Deals are partially classified but Closed Won is included in open pipeline OR coverage ratio/status is wrong.\n0: pipeline_report.json missing or all deals treated as open.\n\nCriterion 2: Aging detection with per-stage thresholds (Weight: 40%)\n1.0: Exactly 3 deals are flagged as aging (Glacier Ind, Harbor Ltd, Ironclad Corp), each using its stage-specific threshold from stage_average_days (not the global average_cycle_days). Each aging entry includes threshold_days. aging_count + healthy_count == open_deals holds.\n0.5: Some aging deals identified but count is wrong, or the global average_cycle_days was used as threshold (finding 0 aging deals since no deal exceeds 90 days), or the invariant is violated.\n0: aging_deals missing or aging logic completely broken.\n\nCriterion 3: Concentration risk and spec adherence (Weight: 20%)\n1.0: concentration_risk=True identifying Frontier Tech at ~40.59% of open pipeline VALUE. The pct_of_open_pipeline uses open_pipeline_value (not total pipeline) as denominator. stage_distribution covers all 5 stages including Closed Won.\n0.5: Concentration risk detected but wrong deal identified, wrong percentage computed, or concentration measured as count fraction rather than value fraction.\n0: concentration_risk=False or concentration_deal missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/revenue-operations",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

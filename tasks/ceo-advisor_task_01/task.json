@@ -1,0 +1,96 @@
+{
+  "id": "ceo-advisor_task_01",
+  "name": "Generate Strategic Options Matrix for Market Expansion",
+  "category": "executive_strategy",
+  "gradingType": "hybrid",
+  "prompt": "You are helping a startup CEO evaluate a strategic decision. The company, TechFlow Inc., is a Series A SaaS startup with 18 months of runway, $2.4M ARR growing at 80% year-over-year, and 12 employees. They are considering three market expansion options:\n\n1. Expand into the European market (estimated $500K investment, 12-month payback, high regulatory complexity)\n2. Launch an enterprise tier (estimated $300K investment, 6-month payback, requires 2 new sales hires)\n3. Build a marketplace/partner ecosystem (estimated $200K investment, 18-month payback, high long-term upside)\n\nProduce a file called strategic_options_matrix.json with exactly this structure:\n- \"company_snapshot\": object with keys \"arr\", \"runway_months\", \"headcount\", \"arr_growth_pct\"\n- \"options\": array of exactly 3 objects, each with keys: \"name\" (string), \"investment_usd\" (number), \"payback_months\" (number), \"risk_level\" (string: \"low\", \"medium\", or \"high\"), \"upside\" (string: \"low\", \"medium\", or \"high\"), \"recommendation_score\" (number 1-10)\n- \"recommended_option\": the \"name\" of the highest-scored option\n- \"rationale\": a string of 50-200 words explaining the recommendation\n\nAlso produce a file called ceo_decision_summary.md containing a brief executive summary (at least 150 words) covering the three options, the recommended path, and the top two risks to watch.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "ceo-advisor_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "matrix-exists",
+            "weight": 0.07,
+            "description": "strategic_options_matrix.json file is present in the working directory.",
+            "testPattern": "strategic_options_matrix.json > file exists"
+          },
+          {
+            "id": "matrix-keys",
+            "weight": 0.08,
+            "description": "strategic_options_matrix.json contains all 4 required top-level keys: company_snapshot, options, recommended_option, rationale.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "snapshot-values",
+            "weight": 0.12,
+            "description": "company_snapshot has runway_months=18 and headcount=12 as numbers, matching the given company data.",
+            "testPattern": "company_snapshot has correct values"
+          },
+          {
+            "id": "options-count",
+            "weight": 0.08,
+            "description": "The options array contains exactly 3 entries.",
+            "testPattern": "exactly 3 entries"
+          },
+          {
+            "id": "options-fields",
+            "weight": 0.13,
+            "description": "Each option has string name, numeric investment_usd and payback_months, risk_level and upside in {low/medium/high}, and recommendation_score between 1 and 10.",
+            "testPattern": "required fields with correct types"
+          },
+          {
+            "id": "investment-values",
+            "weight": 0.12,
+            "description": "The three options' investment_usd values are exactly 200000, 300000, and 500000.",
+            "testPattern": "investment values match"
+          },
+          {
+            "id": "recommended-correct",
+            "weight": 0.15,
+            "description": "recommended_option equals the name of the option with the highest recommendation_score.",
+            "testPattern": "recommended_option matches highest"
+          },
+          {
+            "id": "rationale-length",
+            "weight": 0.1,
+            "description": "rationale is a string between 50 and 200 words explaining the recommendation.",
+            "testPattern": "rationale is a non-empty string"
+          },
+          {
+            "id": "summary-exists",
+            "weight": 0.05,
+            "description": "ceo_decision_summary.md file is present in the working directory.",
+            "testPattern": "ceo_decision_summary.md > file exists"
+          },
+          {
+            "id": "summary-content",
+            "weight": 0.1,
+            "description": "ceo_decision_summary.md text references all three options: European market, enterprise tier, and marketplace/ecosystem.",
+            "testPattern": "summary mentions all three options"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to analyze three strategic expansion options for a Series A SaaS startup and produce a structured JSON matrix plus a Markdown executive summary.\n\nCriterion 1: Strategic Reasoning Quality (Weight: 60%)\n1.0: The recommendation is logically consistent with the company's financials (runway, ARR growth, investment sizes). Risk levels and upside ratings are internally coherent. The rationale addresses key trade-offs.\n0.5: Recommendation exists but the reasoning has gaps or inconsistencies with the given data.\n0: No coherent reasoning or recommendation.\n\nCriterion 2: Executive Communication (Weight: 40%)\n1.0: The Markdown summary reads as a clear, actionable executive document. Risks are specific and relevant to a Series A startup in this situation.\n0.5: Summary exists but is vague or generic.\n0: Summary is missing or not useful.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ceo-advisor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,108 @@
+{
+  "id": "interview-system-designer_task_01",
+  "name": "Design Interview Loop for Senior Software Engineer",
+  "category": "interview_system_design",
+  "gradingType": "hybrid",
+  "prompt": "Design a complete interview loop for a Senior Software Engineer position (5-8 years experience) at a mid-size fintech company. Save all output to interview_loop.json.\n\nThe file must have this exact structure:\n{\n  \"role\": \"Senior Software Engineer\",\n  \"level\": \"Senior\",\n  \"company_context\": \"Fintech\",\n  \"rounds\": [\n    {\n      \"round_number\": 1,\n      \"name\": \"...\",\n      \"duration_minutes\": <int>,\n      \"focus_areas\": [\"...\"],\n      \"interviewer_requirements\": [\"...\"],\n      \"scorecard_dimensions\": [\"...\", \"...\"]\n    }\n  ],\n  \"total_rounds\": <int>,\n  \"total_duration_minutes\": <int>,\n  \"required_competencies\": [\n    {\"competency\": \"...\", \"level_required\": \"...\", \"assessed_in_rounds\": [<round_numbers>]}\n  ],\n  \"hiring_committee_size\": <int>,\n  \"pass_rate_target_percent\": <int>\n}\n\nRequirements:\n- Include exactly 4 rounds.\n- Round 1: Technical Phone Screen, 45 minutes. Round 2: System Design, 60 minutes. Round 3: Coding Excellence, 60 minutes. Round 4: Behavioral and Culture, 30 minutes.\n- total_rounds must equal 4.\n- total_duration_minutes must equal the sum of all round duration_minutes values.\n- Each round must have at least 2 focus_areas, 1 interviewer_requirement, and 2 scorecard_dimensions.\n- required_competencies must have at least 4 entries.\n- hiring_committee_size must be between 3 and 6 (inclusive).\n- pass_rate_target_percent must be between 10 and 30 (inclusive).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "interview-system-designer_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file_exists",
+            "weight": 0.07,
+            "description": "interview_loop.json file is present in the workspace.",
+            "testPattern": "interview_loop.json exists"
+          },
+          {
+            "id": "top_level_fields",
+            "weight": 0.07,
+            "description": "interview_loop.json contains all required top-level fields: role, level, rounds, total_rounds, total_duration_minutes, required_competencies, hiring_committee_size, and pass_rate_target_percent.",
+            "testPattern": "all required top-level fields"
+          },
+          {
+            "id": "role_level",
+            "weight": 0.07,
+            "description": "role is \"Senior Software Engineer\" and level is \"Senior\".",
+            "testPattern": "role is Senior Software Engineer"
+          },
+          {
+            "id": "rounds_count",
+            "weight": 0.08,
+            "description": "The rounds array contains exactly 4 entries.",
+            "testPattern": "exactly 4 entries"
+          },
+          {
+            "id": "round1_phone_screen",
+            "weight": 0.1,
+            "description": "Round 1 has duration_minutes=45 and a name containing \"phone\" (Technical Phone Screen).",
+            "testPattern": "round 1 is Technical Phone Screen"
+          },
+          {
+            "id": "round2_system_design",
+            "weight": 0.1,
+            "description": "Round 2 has duration_minutes=60 and a name containing \"system\" (System Design).",
+            "testPattern": "round 2 is System Design"
+          },
+          {
+            "id": "round3_coding",
+            "weight": 0.08,
+            "description": "Round 3 has duration_minutes=60 (Coding Excellence round).",
+            "testPattern": "round 3 is Coding"
+          },
+          {
+            "id": "round4_behavioral",
+            "weight": 0.08,
+            "description": "Round 4 has duration_minutes=30 (Behavioral and Culture round).",
+            "testPattern": "round 4 is Behavioral"
+          },
+          {
+            "id": "total_duration",
+            "weight": 0.1,
+            "description": "total_duration_minutes equals the sum of all round duration_minutes values (expected 195).",
+            "testPattern": "total_duration_minutes equals sum"
+          },
+          {
+            "id": "focus_scorecard",
+            "weight": 0.1,
+            "description": "Every round has at least 2 focus_areas and at least 2 scorecard_dimensions.",
+            "testPattern": "at least 2 focus_areas and 2 scorecard"
+          },
+          {
+            "id": "competencies",
+            "weight": 0.08,
+            "description": "required_competencies is an array with at least 4 entries.",
+            "testPattern": "at least 4 entries"
+          },
+          {
+            "id": "pass_rate",
+            "weight": 0.07,
+            "description": "pass_rate_target_percent is an integer between 10 and 30 inclusive.",
+            "testPattern": "pass_rate_target_percent"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent designed an interview loop for a Senior Software Engineer at a fintech company.\n\nCriterion 1: Interview Design Quality (Weight: 60%)\n1.0: Focus areas are relevant to each round's purpose (e.g., System Design round includes scalability, distributed systems, trade-off analysis; Coding round includes code quality, testing, problem decomposition). Scorecard dimensions are measurable and specific to fintech engineering concerns. Interviewer requirements specify relevant skills or seniority.\n0.5: Focus areas and scorecard dimensions are generic across rounds without specialization.\n0: Rounds are present but content is off-topic or not applicable to software engineering.\n\nCriterion 2: Competency Coverage (Weight: 40%)\n1.0: required_competencies covers diverse areas (technical and behavioral), each competency's assessed_in_rounds references appropriate round numbers, level_required descriptions are meaningful.\n0.5: Competencies are listed but assessed_in_rounds mapping doesn't match the round content.\n0: Competencies are missing or all point to the same round.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/interview-system-designer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

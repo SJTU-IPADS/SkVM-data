@@ -1,0 +1,96 @@
+{
+  "id": "dependency-auditor_task_01",
+  "name": "Audit JavaScript Package Dependencies for Vulnerabilities and Outdated Packages",
+  "category": "dependency_management",
+  "gradingType": "hybrid",
+  "prompt": "Create a file `input/package.json` with the following content:\n```json\n{\n  \"name\": \"sample-app\",\n  \"version\": \"1.0.0\",\n  \"dependencies\": {\n    \"express\": \"4.17.1\",\n    \"lodash\": \"4.17.15\",\n    \"axios\": \"0.19.0\",\n    \"moment\": \"2.24.0\",\n    \"jsonwebtoken\": \"8.5.1\",\n    \"bcrypt\": \"3.0.8\"\n  },\n  \"devDependencies\": {\n    \"jest\": \"24.9.0\",\n    \"eslint\": \"6.8.0\"\n  }\n}\n```\n\nAnalyze this package.json and produce `output/audit_report.json` with exactly these keys:\n- `package_name`: string, the name field from package.json\n- `total_dependencies`: integer, count of all dependencies (both dependencies and devDependencies)\n- `production_dependencies`: integer, count of entries in `dependencies`\n- `dev_dependencies`: integer, count of entries in `devDependencies`\n- `potentially_outdated`: array of objects, each with `name` (string) and `current_version` (string) and `concern` (string explaining why it may be outdated or have known issues) — include packages that were released before 2021 or have known historical CVEs\n- `risk_summary`: object with keys `high` (integer), `medium` (integer), `low` (integer) representing your risk level assessment counts\n- `recommendations`: array of strings, actionable upgrade or remediation recommendations",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "dependency-auditor_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "output/audit_report.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "output/audit_report.json can be parsed as valid JSON without throwing.",
+            "testPattern": "valid JSON format"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "output/audit_report.json has all seven required keys: package_name, total_dependencies, production_dependencies, dev_dependencies, potentially_outdated, risk_summary, and recommendations.",
+            "testPattern": "has all required keys"
+          },
+          {
+            "id": "package-name",
+            "weight": 0.1,
+            "description": "package_name equals exactly \"sample-app\" (from the input package.json name field).",
+            "testPattern": "package_name is sample-app"
+          },
+          {
+            "id": "total-deps",
+            "weight": 0.1,
+            "description": "total_dependencies equals exactly 8 (6 production + 2 dev).",
+            "testPattern": "total_dependencies is 8"
+          },
+          {
+            "id": "prod-deps",
+            "weight": 0.1,
+            "description": "production_dependencies equals exactly 6 (the count of entries in the dependencies object).",
+            "testPattern": "production_dependencies is 6"
+          },
+          {
+            "id": "dev-deps",
+            "weight": 0.1,
+            "description": "dev_dependencies equals exactly 2 (the count of entries in devDependencies).",
+            "testPattern": "dev_dependencies is 2"
+          },
+          {
+            "id": "outdated-structure",
+            "weight": 0.2,
+            "description": "potentially_outdated is a non-empty array of objects each with string fields: name, current_version, and concern.",
+            "testPattern": "potentially_outdated is a non-empty array"
+          },
+          {
+            "id": "risk-summary",
+            "weight": 0.1,
+            "description": "risk_summary has keys high, medium, and low, each a non-negative integer.",
+            "testPattern": "risk_summary has high, medium, low"
+          },
+          {
+            "id": "recommendations",
+            "weight": 0.1,
+            "description": "recommendations is a non-empty array of non-empty strings providing actionable upgrade or remediation steps.",
+            "testPattern": "recommendations is a non-empty array"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent audited a JavaScript package.json for dependency risks.\n\nCriterion 1: Audit accuracy (Weight: 60%)\n1.0: Correctly identifies outdated packages (all 8 packages are from 2019-2020 era), provides reasonable CVE/risk context for at least axios 0.19.0 (prototype pollution), lodash 4.17.15 (prototype pollution CVE), or jsonwebtoken 8.5.1 (known issues).\n0.5: Identifies some packages as outdated but misses key CVEs or mislabels risks.\n0: No meaningful vulnerability or outdated analysis.\n\nCriterion 2: Recommendation quality (Weight: 40%)\n1.0: Recommendations are specific and actionable (e.g., upgrade to specific newer versions or use alternatives).\n0.5: Recommendations present but generic.\n0: No recommendations or completely irrelevant.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/dependency-auditor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

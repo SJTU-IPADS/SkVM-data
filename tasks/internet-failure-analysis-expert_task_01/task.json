@@ -1,0 +1,96 @@
+{
+  "id": "internet-failure-analysis-expert_task_01",
+  "name": "Failure Analysis Report from Provided Incident Description",
+  "category": "failure_analysis",
+  "gradingType": "hybrid",
+  "prompt": "Analyze the following fictional infrastructure failure and produce a structured report. Do not fetch any URLs — all data is provided below.\n\nIncident Description:\nOn 2024-03-15, a fictional cloud platform called NovCloud experienced a major outage. Timeline of events:\n- 09:00 UTC: An engineer deployed a routine BGP routing configuration update to all edge routers simultaneously (no staged rollout).\n- 09:03 UTC: All edge routers started rejecting valid traffic due to an incorrect AS path filter in the new config.\n- 09:05 UTC: Monitoring alerts fired indicating 100% packet loss at all edge locations.\n- 09:08 UTC: The on-call team was paged but the engineer who made the change was in a different timezone and unreachable.\n- 09:15 UTC: The team began rolling back but had no automated rollback mechanism; manual rollback required SSH to 47 routers.\n- 10:42 UTC: All routers were manually reverted and service was restored.\nImpact: All NovCloud services were unavailable for 97 minutes. 450,000 users affected.\nOfficial root cause: Simultaneous deployment to all edge routers with an untested AS path filter.\n\nTask: Analyze this incident and save the results to analysis_report.json with this exact structure:\n{\n  \"incident_name\": \"NovCloud BGP Outage 2024-03-15\",\n  \"duration_minutes\": <int>,\n  \"users_affected\": <int>,\n  \"timeline\": [\n    {\"time\": \"HH:MM UTC\", \"event\": \"...\", \"impact\": \"...\", \"action\": \"...\"}\n  ],\n  \"trigger\": \"<one sentence describing the immediate trigger>\",\n  \"cascade_chain\": [\"step 1\", \"step 2\", ...],\n  \"root_causes\": {\n    \"human_factors\": [\"...\", \"...\"],\n    \"organizational_factors\": [\"...\", \"...\"]\n  },\n  \"recommendations\": [\n    {\"priority\": \"Urgent|Important|Long-term\", \"action\": \"...\", \"expected_effect\": \"...\"}\n  ],\n  \"mttd_minutes\": <int>,\n  \"mttr_minutes\": <int>\n}\nmttd_minutes = time from deployment (09:00) to first alert (09:05). mttr_minutes = time from first alert to full restoration (10:42). Include at least 5 timeline entries, at least 2 items each in human_factors and organizational_factors, and at least 3 recommendations.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "internet-failure-analysis-expert_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "report_exists",
+            "weight": 0.08,
+            "description": "analysis_report.json file is present in the workspace.",
+            "testPattern": "analysis_report.json exists"
+          },
+          {
+            "id": "report_keys",
+            "weight": 0.08,
+            "description": "analysis_report.json contains all required top-level keys: incident_name, duration_minutes, users_affected, timeline, trigger, cascade_chain, root_causes, recommendations, mttd_minutes, and mttr_minutes.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "duration",
+            "weight": 0.12,
+            "description": "duration_minutes is exactly 97 (09:00 to 10:42 UTC outage window).",
+            "testPattern": "duration_minutes is 97"
+          },
+          {
+            "id": "users_affected",
+            "weight": 0.12,
+            "description": "users_affected is exactly 450000 as stated in the incident description.",
+            "testPattern": "users_affected is 450000"
+          },
+          {
+            "id": "mttd",
+            "weight": 0.12,
+            "description": "mttd_minutes is exactly 5 (time from deployment at 09:00 to first alert at 09:05).",
+            "testPattern": "mttd_minutes is 5"
+          },
+          {
+            "id": "mttr",
+            "weight": 0.12,
+            "description": "mttr_minutes is exactly 97 (time from first alert at 09:05 to service restoration at 10:42).",
+            "testPattern": "mttr_minutes is 97"
+          },
+          {
+            "id": "timeline",
+            "weight": 0.1,
+            "description": "timeline is an array with at least 5 entries each having a time and event field.",
+            "testPattern": "at least 5 entries"
+          },
+          {
+            "id": "root_causes",
+            "weight": 0.1,
+            "description": "root_causes contains both human_factors and organizational_factors as non-empty arrays.",
+            "testPattern": "human_factors and organizational_factors"
+          },
+          {
+            "id": "recommendations",
+            "weight": 0.1,
+            "description": "recommendations is an array with at least 3 entries each having an action field and a valid priority (Urgent, Important, or Long-term).",
+            "testPattern": "at least 3 entries"
+          },
+          {
+            "id": "cascade_chain",
+            "weight": 0.06,
+            "description": "cascade_chain is a non-empty array describing the sequence of failure propagation steps.",
+            "testPattern": "cascade_chain is a non-empty"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed a fictional BGP outage with provided timeline data and wrote a structured JSON report.\n\nCriterion 1: Analysis Depth (Weight: 60%)\n1.0: Root causes correctly identify both human factors (unreachable engineer, no staged rollout testing) and organizational factors (no automated rollback, no change management process). Cascade chain logically flows from config error to traffic rejection to escalation to manual recovery. Recommendations are specific and directly address identified root causes.\n0.5: Analysis is present but shallow — root causes are generic without connecting to the specific incident details.\n0: Root causes are missing or do not relate to the incident description.\n\nCriterion 2: Metric Accuracy (Weight: 40%)\n1.0: mttd_minutes is 5, mttr_minutes is 97, duration_minutes is 97, users_affected is 450000 — all exactly matching the provided data.\n0.5: One metric is slightly off but others are correct.\n0: Multiple metrics are wrong or missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/internet-failure-analysis-expert",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

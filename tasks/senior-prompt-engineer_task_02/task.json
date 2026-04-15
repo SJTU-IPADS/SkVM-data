@@ -1,0 +1,96 @@
+{
+  "id": "senior-prompt-engineer_task_02",
+  "name": "Design Agent Configuration and Validate Tool Definitions",
+  "category": "prompt_engineering",
+  "gradingType": "hybrid",
+  "prompt": "You are designing an agentic system configuration. Complete the following and save results to the specified files.\n\nTask 1: Create an agent configuration file `agent_config.json` describing a research assistant agent:\n{\n  \"agent_name\": \"research_assistant\",\n  \"pattern\": \"ReAct\",\n  \"max_iterations\": 8,\n  \"tools\": [\n    {\n      \"name\": \"web_search\",\n      \"requires_config\": true,\n      \"config_keys\": [\"api_key\"],\n      \"description\": \"<string>\"\n    },\n    {\n      \"name\": \"calculator\",\n      \"requires_config\": false,\n      \"config_keys\": [],\n      \"description\": \"<string>\"\n    },\n    {\n      \"name\": \"file_reader\",\n      \"requires_config\": true,\n      \"config_keys\": [\"allowed_paths\"],\n      \"description\": \"<string>\"\n    },\n    {\n      \"name\": \"summarizer\",\n      \"requires_config\": false,\n      \"config_keys\": [],\n      \"description\": \"<string>\"\n    }\n  ],\n  \"estimated_tokens_per_run\": { \"min\": <integer>, \"max\": <integer> },\n  \"system_prompt\": \"<string>\"\n}\nThe system_prompt must be at least 50 characters and reference the agent's role.\n\nTask 2: Create a token cost estimation file `token_cost_estimate.json`:\n{\n  \"model\": \"gpt-4\",\n  \"input_price_per_1k\": 0.03,\n  \"output_price_per_1k\": 0.06,\n  \"estimated_input_tokens\": <integer between 1000 and 10000>,\n  \"estimated_output_tokens\": <integer between 200 and 3000>,\n  \"estimated_cost_usd\": <number rounded to 4 decimal places>,\n  \"cost_formula\": \"(input_tokens / 1000 * input_price) + (output_tokens / 1000 * output_price)\"\n}\nThe estimated_cost_usd must equal (estimated_input_tokens / 1000 * 0.03) + (estimated_output_tokens / 1000 * 0.06), rounded to 4 decimal places.\n\nSave both files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "senior-prompt-engineer_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "agent-config-exists",
+            "weight": 0.07,
+            "description": "agent_config.json exists as a readable file in the working directory.",
+            "testPattern": "agent_config.json > file exists"
+          },
+          {
+            "id": "agent-config-structure",
+            "weight": 0.1,
+            "description": "agent_config.json has all six required top-level fields: agent_name, pattern, max_iterations, tools, estimated_tokens_per_run, and system_prompt.",
+            "testPattern": "has required top-level fields"
+          },
+          {
+            "id": "agent-tools-count",
+            "weight": 0.1,
+            "description": "The tools array in agent_config.json contains exactly 4 tool objects.",
+            "testPattern": "exactly 4 tools"
+          },
+          {
+            "id": "agent-tool-fields",
+            "weight": 0.1,
+            "description": "Every tool object has all four required fields: name, requires_config (boolean), config_keys (array), and description (string).",
+            "testPattern": "each tool has required fields"
+          },
+          {
+            "id": "agent-config-keys",
+            "weight": 0.1,
+            "description": "web_search tool includes 'api_key' in its config_keys, and file_reader includes 'allowed_paths' in its config_keys.",
+            "testPattern": "web_search has api_key.*file_reader has allowed_paths|config_keys are correct"
+          },
+          {
+            "id": "system-prompt-length",
+            "weight": 0.08,
+            "description": "The system_prompt string is at least 50 characters long.",
+            "testPattern": "system_prompt is at least 50 characters long"
+          },
+          {
+            "id": "cost-exists",
+            "weight": 0.07,
+            "description": "token_cost_estimate.json exists as a readable file in the working directory.",
+            "testPattern": "token_cost_estimate.json > file exists"
+          },
+          {
+            "id": "cost-fields",
+            "weight": 0.08,
+            "description": "token_cost_estimate.json has all seven required fields including model, input_price_per_1k, output_price_per_1k, estimated_input_tokens, estimated_output_tokens, estimated_cost_usd, and cost_formula.",
+            "testPattern": "has required cost fields"
+          },
+          {
+            "id": "cost-calculation",
+            "weight": 0.2,
+            "description": "estimated_cost_usd equals (estimated_input_tokens / 1000 * 0.03) + (estimated_output_tokens / 1000 * 0.06), rounded to 4 decimal places.",
+            "testPattern": "estimated_cost_usd matches formula|cost calculation is correct"
+          },
+          {
+            "id": "cost-formula-string",
+            "weight": 0.1,
+            "description": "cost_formula is a non-empty string of at least 10 characters describing the computation.",
+            "testPattern": "cost_formula is a non-empty string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to design an agent configuration and token cost estimate.\n\nCriterion 1: Agent Configuration Quality (Weight: 60%)\n1.0: Tool descriptions are specific and informative (not just the tool name repeated). The system_prompt clearly establishes the agent's persona and capabilities. max_iterations and estimated_tokens_per_run values are realistic for a ReAct research agent.\n0.5: Configuration is complete but tool descriptions are minimal or the system_prompt is generic.\n0: Configuration is incomplete or tool descriptions are absent.\n\nCriterion 2: Cost Calculation Accuracy (Weight: 40%)\n1.0: The estimated_cost_usd exactly matches the formula applied to the given token counts. The cost_formula field accurately describes the computation.\n0.5: Formula is stated correctly but the computed value has a minor rounding error.\n0: Cost calculation is missing or significantly incorrect.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/senior-prompt-engineer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

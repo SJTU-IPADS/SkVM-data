@@ -1,0 +1,119 @@
+{
+  "quota": 500000,
+  "stages": [
+    "Discovery",
+    "Qualification",
+    "Proposal",
+    "Negotiation",
+    "Closed Won"
+  ],
+  "average_cycle_days": 45,
+  "stage_average_days": {
+    "Discovery": 10,
+    "Qualification": 12,
+    "Proposal": 12,
+    "Negotiation": 8,
+    "Closed Won": 3
+  },
+  "deals": [
+    {
+      "id": "D1001",
+      "name": "Acme Corp",
+      "stage": "Discovery",
+      "value": 45000,
+      "age_days": 8,
+      "close_date": "2025-05-15",
+      "owner": "rep_1"
+    },
+    {
+      "id": "D1002",
+      "name": "Beacon Inc",
+      "stage": "Qualification",
+      "value": 62000,
+      "age_days": 10,
+      "close_date": "2025-05-20",
+      "owner": "rep_2"
+    },
+    {
+      "id": "D1003",
+      "name": "Centurion LLC",
+      "stage": "Proposal",
+      "value": 38000,
+      "age_days": 15,
+      "close_date": "2025-06-01",
+      "owner": "rep_1"
+    },
+    {
+      "id": "D1004",
+      "name": "Delphi Systems",
+      "stage": "Negotiation",
+      "value": 29000,
+      "age_days": 7,
+      "close_date": "2025-04-30",
+      "owner": "rep_3"
+    },
+    {
+      "id": "D1005",
+      "name": "Epsilon Co",
+      "stage": "Qualification",
+      "value": 41000,
+      "age_days": 20,
+      "close_date": "2025-05-25",
+      "owner": "rep_2"
+    },
+    {
+      "id": "D1006",
+      "name": "Frontier Tech",
+      "stage": "Proposal",
+      "value": 220000,
+      "age_days": 18,
+      "close_date": "2025-06-15",
+      "owner": "rep_3"
+    },
+    {
+      "id": "D1007",
+      "name": "Glacier Ind",
+      "stage": "Discovery",
+      "value": 32000,
+      "age_days": 25,
+      "close_date": "2025-05-30",
+      "owner": "rep_1"
+    },
+    {
+      "id": "D1008",
+      "name": "Harbor Ltd",
+      "stage": "Negotiation",
+      "value": 48000,
+      "age_days": 19,
+      "close_date": "2025-04-25",
+      "owner": "rep_2"
+    },
+    {
+      "id": "D1009",
+      "name": "Ironclad Corp",
+      "stage": "Proposal",
+      "value": 27000,
+      "age_days": 30,
+      "close_date": "2025-06-10",
+      "owner": "rep_3"
+    },
+    {
+      "id": "D1010",
+      "name": "Jasper Energy",
+      "stage": "Closed Won",
+      "value": 75000,
+      "age_days": 2,
+      "close_date": "2025-03-31",
+      "owner": "rep_1"
+    },
+    {
+      "id": "D1011",
+      "name": "Kestrel Inc",
+      "stage": "Closed Won",
+      "value": 55000,
+      "age_days": 1,
+      "close_date": "2025-03-15",
+      "owner": "rep_2"
+    }
+  ]
+}

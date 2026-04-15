@@ -1,0 +1,90 @@
+{
+  "id": "eno_task_02",
+  "name": "Compare Two Build Config Approaches and Produce Recommendations",
+  "category": "code_analysis",
+  "gradingType": "hybrid",
+  "prompt": "You are given two Vite configuration files for a Vue 3 project. Compare their engineering quality and write a structured comparison report to build_comparison.json.\n\nConfig A (vite.config.a.ts):\n```typescript\nimport { defineConfig } from 'vite'\nimport vue from '@vitejs/plugin-vue'\nexport default defineConfig({\n  plugins: [vue()]\n})\n```\n\nConfig B (vite.config.b.ts):\n```typescript\nimport { defineConfig } from 'vite'\nimport vue from '@vitejs/plugin-vue'\nimport { resolve } from 'path'\nexport default defineConfig({\n  plugins: [vue()],\n  resolve: { alias: { '@': resolve(__dirname, 'src') } },\n  build: {\n    rollupOptions: {\n      output: {\n        manualChunks: { vendor: ['vue', 'vue-router', 'pinia'] }\n      }\n    },\n    minify: 'esbuild',\n    sourcemap: false\n  },\n  server: { port: 3000, open: true }\n})\n```\n\nWrite build_comparison.json with exactly this structure:\n{\n  \"winner\": \"A\" or \"B\",\n  \"config_a_score\": <integer 0-100>,\n  \"config_b_score\": <integer 0-100>,\n  \"config_a_strengths\": [<array of strings>],\n  \"config_a_weaknesses\": [<array of at least 2 strings>],\n  \"config_b_strengths\": [<array of at least 3 strings>],\n  \"config_b_weaknesses\": [<array of strings>],\n  \"missing_in_both\": [<array of at least 2 strings naming features absent from both configs>]\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "eno_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "The file build_comparison.json exists in the working directory.",
+            "testPattern": "build_comparison.json.*exists|file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.08,
+            "description": "build_comparison.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON|parses"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.12,
+            "description": "The JSON has all required fields: winner, config_a_score, config_b_score, and all four strengths/weaknesses arrays.",
+            "testPattern": "required fields|winner.*config_a_score"
+          },
+          {
+            "id": "winner-is-B",
+            "weight": 0.15,
+            "description": "winner is exactly 'B', correctly identifying Config B as the superior configuration.",
+            "testPattern": "winner.*B|winner is B"
+          },
+          {
+            "id": "scores-range",
+            "weight": 0.12,
+            "description": "Both config_a_score and config_b_score are integers in the range 0-100.",
+            "testPattern": "scores.*0-100|config_a_score.*config_b_score.*range"
+          },
+          {
+            "id": "b-score-higher",
+            "weight": 0.15,
+            "description": "config_b_score is strictly greater than config_a_score.",
+            "testPattern": "config_b_score.*higher|B.*score.*greater"
+          },
+          {
+            "id": "a-weaknesses",
+            "weight": 0.1,
+            "description": "config_a_weaknesses contains at least 2 non-empty string entries.",
+            "testPattern": "config_a_weaknesses.*2|at least 2.*a_weaknesses"
+          },
+          {
+            "id": "b-strengths",
+            "weight": 0.1,
+            "description": "config_b_strengths contains at least 3 non-empty string entries.",
+            "testPattern": "config_b_strengths.*3|at least 3.*b_strengths"
+          },
+          {
+            "id": "missing-in-both",
+            "weight": 0.08,
+            "description": "missing_in_both contains at least 2 strings naming features absent from both configs.",
+            "testPattern": "missing_in_both.*2|at least 2.*missing"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent compared a minimal Vite config (A) with a more complete one (B) and produced a JSON comparison report.\n\nCriterion 1: Analysis Correctness (Weight: 60%)\n1.0: winner is 'B', config_b_score is higher than config_a_score, config_b_strengths accurately identifies features like alias resolution, manual chunks for vendor splitting, minification, and dev server config. config_a_weaknesses notes the absence of optimizations.\n0.5: Winner is correct but the detailed strengths/weaknesses are partially wrong or too vague.\n0: Winner is 'A' or the analysis is clearly wrong about which config is more complete.\n\nCriterion 2: Missing Features Insight (Weight: 40%)\n1.0: missing_in_both identifies real features that both configs lack — e.g., environment variable handling, CSS preprocessing config, proxy setup, build target specification, or PWA plugin. Entries are specific and actionable.\n0.5: Some entries are valid but others are vague or not actually missing.\n0: missing_in_both is empty or lists features that are actually present in Config B.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/eno",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

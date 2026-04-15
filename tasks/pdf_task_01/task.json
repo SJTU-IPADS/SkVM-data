@@ -1,0 +1,31 @@
+{
+  "id": "pdf_task_01",
+  "name": "Extract Structured Data from a Two-Column Academic PDF",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "An internal technical team has given you `invoice_analysis.pdf`, an academic-style report on an automated invoice processing system. The report uses a two-column layout across pages 2 and 3, and includes a structured data table in the appendix on page 4.\n\nYour task is to extract specific statistics from the report and write them to `report.json` at the workspace root. The JSON must have the following top-level keys:\n\n- `page_count` (integer): total number of pages in the PDF\n- `data_collection` (object): statistics from the Data Collection section of the report\n  - `total_invoices` (integer): total number of invoices processed\n  - `mean_items_per_invoice` (float): mean line items per invoice\n- `classification_accuracy` (object): from the Performance Metrics section\n  - `overall_pct` (float): overall item-level accuracy percentage\n  - `lowest_pct` (float): accuracy percentage of the lowest-performing category\n  - `highest_pct` (float): accuracy percentage of the highest-performing category\n- `anomaly_detection` (object): from the Anomaly Detection section\n  - `flag_rate_pct` (float): flag rate as a percentage of all items processed\n  - `precision` (float): anomaly detection precision (a fraction between 0 and 1)\n  - `recall` (float): anomaly detection recall estimate\n- `cost_categories` (object): from the Cost Category Distribution section\n  - `raw_materials_pct` (float): percentage of line items classified as raw materials\n  - `office_supplies_pct` (float): percentage classified as office supplies\n- `processing_time` (object): from the Processing Time Analysis section\n  - `manual_minutes` (float): mean processing time under manual baseline (minutes)\n  - `automated_minutes` (float): mean processing time under automated pipeline (minutes)\n  - `reduction_pct` (float): percentage reduction in mean processing time\n- `regional_table` (object): extracted from the Appendix A table on the final page. Keys are the four region names (North, South, East, West). Each value is an object with: `invoices` (integer), `line_items` (integer), `anomalies` (integer), `anomaly_rate_pct` (float), `accuracy_pct` (float)\n- `highest_anomaly_rate_region` (string): the region name with the highest anomaly rate according to the Appendix A table\n- `lowest_anomaly_rate_region` (string): the region name with the lowest anomaly rate according to the Appendix A table\n- `table_total_invoices` (integer): the sum of invoice counts across all four regions from the table\n\nImportant extraction notes:\n- The report body (pages 2-3) uses a two-column layout. The sections are numbered sequentially: sections 1-6 appear on page 2 (left column sections 1-3, right column sections 4-6) and sections 7-12 appear on page 3 (left column sections 7-9, right column sections 10-12). When extracting text, read the full left column of a page before the full right column — do not interleave by vertical position.\n- The Appendix A table on page 4 is the authoritative source for regional statistics. Derive `highest_anomaly_rate_region` and `lowest_anomaly_rate_region` by computing from the `anomaly_rate_pct` values in the table, not from narrative text in the body.\n- `table_total_invoices` must equal the sum of `invoices` for all four regions — it is a consistency invariant you should verify before writing the file.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent extracted statistics from a two-column academic PDF (invoice_analysis.pdf) and wrote report.json. The PDF has a two-column layout on pages 2-3, with body text sections alternating between left and right columns. The appendix on page 4 contains a structured table.\n\nCriterion 1: Extraction correctness (Weight: 40%)\n1.0: report.json exists with the correct schema. Numeric values for data_collection, classification_accuracy, anomaly_detection, cost_categories, and processing_time match the report body to within reasonable precision. The agent correctly identified the column sources (left column vs right column) and did not mix values from the wrong column.\n0.5: JSON exists but 2-4 numeric values are wrong or missing, likely due to column-order confusion.\n0: JSON missing, wrong schema, or most values are incorrect.\n\nCriterion 2: Table extraction and ranking (Weight: 40%)\n1.0: regional_table contains all four regions with accurate invoices, line_items, anomalies, anomaly_rate_pct, and accuracy_pct values. highest_anomaly_rate_region and lowest_anomaly_rate_region are correctly derived from the table, and table_total_invoices matches the sum of regional invoice counts.\n0.5: Table is partially extracted but 1-2 regions have wrong values, or the highest/lowest region was taken from narrative text instead of computed from the table.\n0: regional_table missing or all values wrong.\n\nCriterion 3: Protocol compliance (Weight: 20%)\n1.0: The agent followed the column-reading instruction explicitly (left column before right on each page), verified the table_total_invoices invariant, and used the Appendix A table as the authoritative source for regional rankings. The JSON structure matches the specification with all required keys.\n0.5: Most requirements met but the agent skipped invariant verification or used narrative text for regional rankings.\n0: Agent ignored the extraction protocol, produced unstructured output, or did not attempt column-aware extraction.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/pdf",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

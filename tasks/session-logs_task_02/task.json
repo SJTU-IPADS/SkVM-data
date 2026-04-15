@@ -1,0 +1,103 @@
+{
+  "id": "session-logs_task_02",
+  "name": "Multi-Session Cross Analysis",
+  "category": "agent_behavior",
+  "gradingType": "hybrid",
+  "prompt": "Create 3 separate JSONL session files (session_a.jsonl, session_b.jsonl, session_c.jsonl) each with at least 15 messages simulating different conversations (one about coding, one about data analysis, one about writing). Each message line should be a JSON object with: type (\"message\"), timestamp (ISO 8601), message.role (\"user\"|\"assistant\"|\"toolResult\"), message.content (array with objects having type:\"text\" and text field), and for assistant messages include message.usage.cost.total (a number between 0.001 and 0.05). Then analyze all 3 sessions together and produce `cross_session_report.json` with:\n1. sessions (array of objects, each with: filename, message_count, duration_minutes, total_cost, topic_keywords as array of strings)\n2. total_messages (number - sum across all sessions)\n3. total_cost (number - sum across all sessions)\n4. most_expensive_session (string - filename of session with highest total cost)\n5. longest_session (string - filename of session with longest duration)\n6. tool_usage (object mapping tool names to call counts extracted from toolResult messages - can be empty object if no tool calls found)",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "session-logs_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "session-a-exists",
+            "weight": 0.05,
+            "description": "session_a.jsonl exists as a readable file in the working directory.",
+            "testPattern": "session_a.jsonl > file exists"
+          },
+          {
+            "id": "session-b-exists",
+            "weight": 0.05,
+            "description": "session_b.jsonl exists as a readable file in the working directory.",
+            "testPattern": "session_b.jsonl > file exists"
+          },
+          {
+            "id": "session-c-exists",
+            "weight": 0.05,
+            "description": "session_c.jsonl exists as a readable file in the working directory.",
+            "testPattern": "session_c.jsonl > file exists"
+          },
+          {
+            "id": "sessions-valid",
+            "weight": 0.1,
+            "description": "Every line in each session JSONL file parses as valid JSON without throwing.",
+            "testPattern": "each line is valid JSON"
+          },
+          {
+            "id": "sessions-fields",
+            "weight": 0.1,
+            "description": "Every message object in each session has type, timestamp, and message fields with a valid role (user, assistant, or toolResult).",
+            "testPattern": "required fields"
+          },
+          {
+            "id": "sessions-line-count",
+            "weight": 0.1,
+            "description": "Each of the three session JSONL files has at least 15 non-empty lines.",
+            "testPattern": "at least 15 lines"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.05,
+            "description": "cross_session_report.json exists as a readable file in the working directory.",
+            "testPattern": "cross_session_report.json > file exists"
+          },
+          {
+            "id": "report-sessions-array",
+            "weight": 0.15,
+            "description": "cross_session_report.json has a sessions array with exactly 3 entries, each containing filename, message_count, duration_minutes, total_cost, and non-empty topic_keywords.",
+            "testPattern": "sessions array with 3 entries"
+          },
+          {
+            "id": "report-totals",
+            "weight": 0.15,
+            "description": "total_messages is at least 45 (sum across 3 sessions of 15+ each) and total_cost is a positive number.",
+            "testPattern": "total_messages and total_cost"
+          },
+          {
+            "id": "report-comparisons",
+            "weight": 0.1,
+            "description": "most_expensive_session and longest_session are both valid filenames (session_a.jsonl, session_b.jsonl, or session_c.jsonl).",
+            "testPattern": "most_expensive_session and longest_session"
+          },
+          {
+            "id": "report-tool-usage",
+            "weight": 0.1,
+            "description": "cross_session_report.json has a tool_usage field that is an object (can be empty if no tool calls were found).",
+            "testPattern": "tool_usage field"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent created 3 JSONL session files with different conversation topics and produced a cross-session analysis report.\n\nCriterion 1: Session File Quality (Weight: 40%)\n1.0: All 3 JSONL files exist, each with 15+ valid messages. Conversations have distinct topics (coding, data analysis, writing). Timestamps and fields are realistic.\n0.5: Files exist but some have fewer messages, invalid JSON, or topics are not clearly distinct.\n0: Files missing or mostly invalid.\n\nCriterion 2: Cross-Analysis Quality (Weight: 60%)\n1.0: Report has all 6 top-level fields. sessions array has 3 entries with correct per-session stats. total_messages and total_cost are accurate sums. most_expensive_session and longest_session reference valid filenames. topic_keywords are relevant to each session.\n0.5: Most fields present but some calculation errors or missing sub-fields.\n0: Report missing or major structural errors.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/session-logs",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "medium"
+}

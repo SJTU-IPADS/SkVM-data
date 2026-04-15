@@ -1,0 +1,90 @@
+{
+  "id": "data-analyst-cn_task_01",
+  "name": "Sales Data Aggregation and Report Generation",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "Create a file `input/sales_data.csv` with the following content:\n```\ndate,category,sales,profit\n2024-01-01,Food,1200,300\n2024-01-02,Food,800,200\n2024-01-03,Electronics,3000,600\n2024-01-04,Electronics,2500,500\n2024-01-05,Food,1500,375\n2024-01-06,Clothing,700,140\n2024-01-07,Clothing,900,180\n2024-01-08,Electronics,4000,800\n2024-01-09,Food,600,150\n2024-01-10,Clothing,1100,220\n```\n\nUsing Python, analyze the data and produce `output/sales_report.json` with exactly these keys:\n- `total_sales`: number, sum of all sales values\n- `total_profit`: number, sum of all profit values\n- `profit_margin`: number, total_profit / total_sales rounded to 4 decimal places\n- `category_summary`: object where each key is a category name, and the value is an object with keys `total_sales` (number), `total_profit` (number), and `item_count` (integer)\n- `top_category_by_sales`: string, name of the category with the highest total sales\n\nAll monetary values must be plain numbers (not strings).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "data-analyst-cn_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "output/sales_report.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "output/sales_report.json can be parsed as valid JSON without throwing.",
+            "testPattern": "valid JSON format"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "output/sales_report.json has all five required top-level keys: total_sales, total_profit, profit_margin, category_summary, and top_category_by_sales.",
+            "testPattern": "has all required top-level keys"
+          },
+          {
+            "id": "total-sales",
+            "weight": 0.15,
+            "description": "total_sales equals exactly 16300 (sum of all sales column values).",
+            "testPattern": "total_sales is 16300"
+          },
+          {
+            "id": "total-profit",
+            "weight": 0.15,
+            "description": "total_profit equals exactly 3465 (sum of all profit column values).",
+            "testPattern": "total_profit is 3465"
+          },
+          {
+            "id": "profit-margin",
+            "weight": 0.15,
+            "description": "profit_margin equals approximately 0.2125 (3465/16300, within 0.001 tolerance).",
+            "testPattern": "profit_margin is approximately"
+          },
+          {
+            "id": "category-keys",
+            "weight": 0.1,
+            "description": "category_summary contains keys for all three categories: Food, Electronics, and Clothing.",
+            "testPattern": "category_summary has correct categories"
+          },
+          {
+            "id": "electronics-totals",
+            "weight": 0.15,
+            "description": "category_summary.Electronics has total_sales=9500, total_profit=1900, and item_count=3.",
+            "testPattern": "Electronics category totals"
+          },
+          {
+            "id": "top-category",
+            "weight": 0.1,
+            "description": "top_category_by_sales equals exactly \"Electronics\" (highest total sales at 9500).",
+            "testPattern": "top_category_by_sales is Electronics"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent analyzed a Chinese-context sales CSV and produced a JSON report.\n\nCriterion 1: Numerical accuracy (Weight: 60%)\n1.0: All totals, margins, and per-category figures are exactly correct.\n0.5: Minor rounding or off-by-one errors in some values.\n0: Most values are incorrect.\n\nCriterion 2: Code quality and approach (Weight: 40%)\n1.0: Clean Python/pandas code, logical structure, no unnecessary complexity.\n0.5: Functional but awkward or verbose.\n0: No code produced or completely wrong approach.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/data-analyst-cn",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "on-page-seo-auditor_task_02",
+  "name": "Generate a Header Structure Audit and Keyword Placement Report",
+  "category": "seo",
+  "gradingType": "hybrid",
+  "prompt": "Analyze the content structure below and produce a header and keyword placement audit. Target keyword: \"home office ergonomic chair\". Save results to header_audit.json.\n\nContent to analyze (page outline only — no full HTML needed):\n- Page title: \"Chairs for Your Space\"\n- H1: \"Comfortable Seating Solutions\"\n- H2s: \"Types of Office Chairs\", \"How to Choose\", \"Our Best Sellers\", \"Customer Reviews\"\n- H3s under \"How to Choose\": \"Price Range\", \"Material Options\", \"Adjustability Features\"\n- Meta description: \"Find chairs for every budget. Shop our collection today.\"\n- Primary keyword appears 0 times in title, 0 times in H1, 1 time in H2s (none), 0 times in meta description\n- Word count: 850 words\n- Internal links: 2\n- Images: 5, of which 2 have no alt text\n\nheader_audit.json must have exactly this structure:\n{\n  \"target_keyword\": \"home office ergonomic chair\",\n  \"header_analysis\": {\n    \"h1_count\": 1,\n    \"h1_contains_keyword\": false,\n    \"h2_count\": 4,\n    \"h2_keyword_count\": <integer: number of H2s containing the keyword>,\n    \"hierarchy_valid\": <boolean>,\n    \"header_score\": <integer 0-10>\n  },\n  \"keyword_placement\": {\n    \"in_title\": false,\n    \"in_h1\": false,\n    \"in_meta\": false,\n    \"in_first_paragraph\": <boolean — your assessment>,\n    \"keyword_score\": <integer 0-10>\n  },\n  \"priority_fixes\": [\n    { \"priority\": 1, \"element\": \"<element>\", \"current\": \"<current text>\", \"suggested\": \"<suggested text>\" }\n  ],\n  \"overall_score\": <integer 0-10>\n}\n\nRequirements: h1_count must be 1; h2_count must be 4; h1_contains_keyword must be false; in_title must be false; in_meta must be false; priority_fixes must have at least 3 entries sorted by priority (1 = highest); overall_score must be between 0 and 10.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "on-page-seo-auditor_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "header_audit.json file is present in the working directory.",
+            "testPattern": "header_audit.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "header_audit.json parses as valid JSON without errors.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "header-analysis",
+            "weight": 0.12,
+            "description": "header_analysis object has h1_count, h1_contains_keyword, h2_count, h2_keyword_count, hierarchy_valid, and header_score fields.",
+            "testPattern": "header_analysis has required fields"
+          },
+          {
+            "id": "h1-h2-counts",
+            "weight": 0.12,
+            "description": "h1_count is exactly 1 and h2_count is exactly 4, matching the provided content structure.",
+            "testPattern": "h1_count is 1.*h2_count is 4|h1_count and h2_count"
+          },
+          {
+            "id": "boolean-fields",
+            "weight": 0.1,
+            "description": "h1_contains_keyword is false and hierarchy_valid is a boolean, reflecting the keyword-free headings.",
+            "testPattern": "h1_contains_keyword.*false|in_title.*false"
+          },
+          {
+            "id": "keyword-placement",
+            "weight": 0.1,
+            "description": "keyword_placement object has in_title, in_h1, in_meta, in_first_paragraph, and keyword_score fields.",
+            "testPattern": "keyword_placement has required fields"
+          },
+          {
+            "id": "priority-fixes-count",
+            "weight": 0.13,
+            "description": "priority_fixes array contains at least 3 fix entries.",
+            "testPattern": "at least 3 priority fixes"
+          },
+          {
+            "id": "priority-fix-fields",
+            "weight": 0.1,
+            "description": "Each fix has numeric priority, and string fields element, current, and suggested.",
+            "testPattern": "each fix has priority.*element.*current.*suggested"
+          },
+          {
+            "id": "priority-ordering",
+            "weight": 0.08,
+            "description": "priority_fixes are sorted in ascending priority order (1 = highest priority first).",
+            "testPattern": "fixes are sorted by priority"
+          },
+          {
+            "id": "overall-score-range",
+            "weight": 0.07,
+            "description": "overall_score is an integer between 0 and 10.",
+            "testPattern": "overall_score is integer 0-10"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent audited header structure and keyword placement for a page targeting 'home office ergonomic chair'.\n\nCriterion 1: Fix Suggestions Quality (Weight: 60%)\n1.0: priority_fixes include optimized H1, title tag, and meta description that all naturally incorporate the target keyword; suggested texts are specific (not placeholder), the H1 suggestion improves on 'Comfortable Seating Solutions', and the title suggestion improves on 'Chairs for Your Space'.\n0.5: Suggestions include the keyword but are generic or templated rather than tailored to the page context.\n0: Suggestions are missing, do not include the keyword, or are identical to the current text.\n\nCriterion 2: Score Calibration (Weight: 40%)\n1.0: header_score and keyword_score reflect the poor optimization state (keyword absent from title, H1, and meta) — both scores should be 3 or below. overall_score is consistent with component scores.\n0.5: Scores are present but too generous (above 5) for a page with keyword absent from all major elements.\n0: Scores are missing or all at maximum (10).",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/on-page-seo-auditor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "remind-me-pro_task_02",
+  "name": "Process Ambiguous Reminder Requests and Identify Missing Information",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "You are analyzing a batch of reminder requests to determine which are ready to create immediately and which need clarification before proceeding.\n\nFor each request, classify it and produce structured output.\n\nClassification rules:\n- READY: All three required fields are clear (WHAT to remind, WHEN/HOW OFTEN, implied delivery channel). Schedule can be directly mapped to a schedule string.\n- NEEDS_CLARIFICATION: One or more fields are missing or ambiguous and cannot be reasonably inferred.\n\nFor READY requests also generate the schedule_string (using at:/every:/cron: format).\nFor NEEDS_CLARIFICATION requests, specify which field is unclear and provide the exact clarification question to ask.\n\nRequests to process:\n1. id: REQ-A — \"Remind me to call John\" (no time/frequency given)\n2. id: REQ-B — \"Remind me every day at 7 AM to do my morning workout\"\n3. id: REQ-C — \"Remind me often to drink water\" (ambiguous frequency)\n4. id: REQ-D — \"In 45 minutes send me a message to check the oven\"\n5. id: REQ-E — \"Every Monday and Wednesday at 2 PM remind me about the team sync\"\n6. id: REQ-F — \"Remind me regularly\" (no WHAT, no WHEN)\n\nSave analysis to reminder_analysis.json as:\n{ \"requests\": [ { \"id\": \"REQ-A\", \"raw_request\": \"...\", \"status\": \"READY\" or \"NEEDS_CLARIFICATION\", \"missing_field\": null or \"WHEN\" or \"WHAT\" or \"BOTH\", \"clarification_question\": null or \"...\", \"schedule_string\": null or \"...\", \"what\": null or \"...\" }, ... ] }\n\nAlso write a summary to reminder_summary.json:\n{ \"total\": 6, \"ready_count\": N, \"needs_clarification_count\": N, \"ready_ids\": [...], \"clarification_ids\": [...] }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "remind-me-pro_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "analysis-exists",
+            "weight": 0.08,
+            "description": "reminder_analysis.json exists in the working directory.",
+            "testPattern": "reminder_analysis.json.*exists|file exists.*reminder_analysis"
+          },
+          {
+            "id": "six-requests",
+            "weight": 0.08,
+            "description": "reminder_analysis.json requests array contains exactly 6 entries.",
+            "testPattern": "has requests array with 6 entries"
+          },
+          {
+            "id": "req-a-clarify",
+            "weight": 0.12,
+            "description": "REQ-A status is 'NEEDS_CLARIFICATION' (missing timing/frequency in 'Remind me to call John').",
+            "testPattern": "REQ-A.*NEEDS_CLARIFICATION|NEEDS_CLARIFICATION.*REQ-A"
+          },
+          {
+            "id": "req-b-ready",
+            "weight": 0.12,
+            "description": "REQ-B status is 'READY' ('Remind me every day at 7 AM to do my morning workout' is unambiguous).",
+            "testPattern": "REQ-B.*READY|READY.*REQ-B"
+          },
+          {
+            "id": "req-c-clarify",
+            "weight": 0.1,
+            "description": "REQ-C status is 'NEEDS_CLARIFICATION' ('Remind me often to drink water' has an ambiguous frequency).",
+            "testPattern": "REQ-C.*NEEDS_CLARIFICATION|NEEDS_CLARIFICATION.*REQ-C"
+          },
+          {
+            "id": "req-d-ready",
+            "weight": 0.12,
+            "description": "REQ-D status is 'READY' ('In 45 minutes send me a message to check the oven' has a clear one-shot schedule).",
+            "testPattern": "REQ-D.*READY|READY.*REQ-D"
+          },
+          {
+            "id": "req-f-clarify",
+            "weight": 0.1,
+            "description": "REQ-F status is 'NEEDS_CLARIFICATION' ('Remind me regularly' is missing both WHAT and WHEN).",
+            "testPattern": "REQ-F.*NEEDS_CLARIFICATION|NEEDS_CLARIFICATION.*REQ-F"
+          },
+          {
+            "id": "schedule-at-45m",
+            "weight": 0.1,
+            "description": "REQ-D schedule_string equals the exact string 'at:45m'.",
+            "testPattern": "REQ-D.*at:45m|at:45m.*REQ-D"
+          },
+          {
+            "id": "summary-exists",
+            "weight": 0.08,
+            "description": "reminder_summary.json exists in the working directory.",
+            "testPattern": "reminder_summary.json.*exists|file exists.*reminder_summary"
+          },
+          {
+            "id": "summary-counts",
+            "weight": 0.1,
+            "description": "reminder_summary.json has total=6, and ready_count + needs_clarification_count = 6, with ready_ids and clarification_ids as arrays.",
+            "testPattern": "ready_count|needs_clarification_count|summary.*count"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent classified reminder requests as ready-to-create or needing clarification, and generated schedule strings for complete requests.\n\nCriterion 1: Classification Accuracy (Weight: 60%)\n1.0: REQ-A=NEEDS_CLARIFICATION (missing WHEN), REQ-B=READY (cron:0 7 * * *), REQ-C=NEEDS_CLARIFICATION (ambiguous frequency), REQ-D=READY (at:45m), REQ-E=READY (two cron entries or combined expression for Mon+Wed 2PM), REQ-F=NEEDS_CLARIFICATION (missing BOTH). All 6 correctly classified.\n0.5: At least 4 of 6 correctly classified.\n0: Fewer than 3 correct classifications.\n\nCriterion 2: Clarification Questions and Schedule Strings (Weight: 40%)\n1.0: NEEDS_CLARIFICATION requests have specific, appropriate clarification questions (e.g., asking about timing for REQ-A, frequency for REQ-C). READY requests have correct schedule strings. REQ-D uses at:45m, REQ-B uses cron with daily 7AM.\n0.5: Questions are present but generic; most schedule strings are correct.\n0: Clarification questions are missing or schedule strings are absent for READY requests.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/remind-me-pro",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

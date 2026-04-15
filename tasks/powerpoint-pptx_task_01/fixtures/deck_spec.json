@@ -1,0 +1,57 @@
+{
+  "title": "Meridian Analytics Platform",
+  "subtitle": "Product Overview — Q1 2026",
+  "slides": [
+    {
+      "slide_index": 0,
+      "layout": "Title Slide",
+      "title": "Meridian Analytics Platform",
+      "subtitle": "Product Overview — Q1 2026",
+      "notes": "Welcome attendees. This deck covers the three core modules."
+    },
+    {
+      "slide_index": 1,
+      "layout": "Title and Content",
+      "title": "Executive Summary",
+      "bullets": [
+        "Real-time dashboards for 500+ data sources",
+        "Sub-second query latency at 10 TB scale",
+        "SOC-2 Type II certified"
+      ],
+      "notes": "Emphasise the latency improvement over legacy BI tools."
+    },
+    {
+      "slide_index": 2,
+      "layout": "Title Only",
+      "title": "Pricing Tiers",
+      "table": {
+        "position": {"left_emu": 457200, "top_emu": 1371600, "width_emu": 8229600, "height_emu": 2286000},
+        "rows": [
+          ["Tier", "Monthly Price", "Data Volume", "Seats"],
+          ["Starter", "$299", "100 GB", "5"],
+          ["Growth", "$899", "1 TB", "25"],
+          ["Enterprise", "Custom", "Unlimited", "Unlimited"]
+        ]
+      },
+      "notes": ""
+    },
+    {
+      "slide_index": 3,
+      "layout": "Title and Content",
+      "title": "Roadmap Highlights",
+      "bullets": [
+        "Q2 2026: Native Snowflake connector",
+        "Q3 2026: AI-assisted anomaly detection",
+        "Q4 2026: Self-serve embedding API"
+      ],
+      "notes": "AI anomaly detection is the most-requested feature."
+    },
+    {
+      "slide_index": 4,
+      "layout": "Title Slide",
+      "title": "Thank You",
+      "subtitle": "questions@meridian.io  |  +1-800-555-0192",
+      "notes": ""
+    }
+  ]
+}

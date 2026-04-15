@@ -1,0 +1,90 @@
+{
+  "id": "poetry_task_02",
+  "name": "Compose Three Classical Ci Poems on Different Seasons",
+  "category": "creative_writing",
+  "gradingType": "hybrid",
+  "prompt": "Compose three original classical Chinese ci (词) poems — one for each of three different seasons: spring (春), summer (夏), and winter (冬). Save the results to ci_collection.json.\n\nRequirements for each ci poem:\n- Use the ci pattern 临江仙 (Lin Jiang Xian): this pattern has two stanzas. The first stanza has 6 lines with character counts 6-6-5-3-6-5. The second stanza also has 6 lines with character counts 6-6-5-3-6-5. (Total 12 lines per poem.)\n- The poem must reflect the season in its imagery\n- Do NOT copy any existing famous ci poem\n\nSave to ci_collection.json with this exact structure:\n{\n  \"pattern\": \"临江仙\",\n  \"poems\": [\n    {\n      \"season\": \"春\",\n      \"title\": \"<title in Chinese>\",\n      \"stanza1\": [\"<line1>\", \"<line2>\", \"<line3>\", \"<line4>\", \"<line5>\", \"<line6>\"],\n      \"stanza2\": [\"<line1>\", \"<line2>\", \"<line3>\", \"<line4>\", \"<line5>\", \"<line6>\"],\n      \"annotation\": \"<English summary of imagery and mood, 15-50 words>\"\n    },\n    { \"season\": \"夏\", ... },\n    { \"season\": \"冬\", ... }\n  ]\n}\n\nEach poem must have exactly 3 seasons in the array in this order: 春, 夏, 冬.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "poetry_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "ci_collection.json exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "has-fields",
+            "weight": 0.08,
+            "description": "ci_collection.json is valid JSON with a pattern field (string) and a poems field (array).",
+            "testPattern": "has pattern and poems fields"
+          },
+          {
+            "id": "correct-pattern",
+            "weight": 0.1,
+            "description": "The pattern field equals the exact string 临江仙.",
+            "testPattern": "pattern is 临江仙"
+          },
+          {
+            "id": "poem-count",
+            "weight": 0.12,
+            "description": "The poems array contains exactly 3 entries.",
+            "testPattern": "exactly 3 entries"
+          },
+          {
+            "id": "seasons-order",
+            "weight": 0.15,
+            "description": "The three poems have season values 春, 夏, 冬 in that exact order (index 0, 1, 2).",
+            "testPattern": "seasons are 春.*夏.*冬|春, 夏, 冬 in order"
+          },
+          {
+            "id": "poem-fields",
+            "weight": 0.12,
+            "description": "Each poem object contains title, stanza1, stanza2, and annotation fields.",
+            "testPattern": "title.*stanza1.*stanza2|stanza1, stanza2, annotation"
+          },
+          {
+            "id": "stanza-lines",
+            "weight": 0.15,
+            "description": "Both stanza1 and stanza2 of every poem are arrays of exactly 6 lines.",
+            "testPattern": "exactly 6 lines per stanza"
+          },
+          {
+            "id": "lines-nonempty",
+            "weight": 0.12,
+            "description": "Every stanza line across all poems is a non-empty string containing at least one Chinese character.",
+            "testPattern": "non-empty strings with at least 1 Chinese"
+          },
+          {
+            "id": "annotation",
+            "weight": 0.08,
+            "description": "Every poem's annotation is a non-empty English string longer than 10 characters.",
+            "testPattern": "non-empty English string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent composed three ci poems in the 临江仙 pattern covering three seasons.\n\nCriterion 1: Seasonal Imagery Distinctiveness (Weight: 50%)\n1.0: Each poem uses distinctly different and seasonally appropriate imagery — spring has blossoms/warmth, summer has heat/lotus/cicadas, winter has snow/cold/bare trees. The three poems feel noticeably different from each other.\n0.5: Two poems have appropriate imagery but one is generic or seasonal imagery overlaps significantly.\n0: Poems share the same imagery or seasonal references are absent.\n\nCriterion 2: Poetic Coherence (Weight: 50%)\n1.0: Each poem reads as a cohesive whole with consistent emotional tone, and the two stanzas connect thematically. Language is classical and elegant.\n0.5: Poems are mostly coherent but some lines feel disconnected or language is too modern.\n0: Poems are fragmented or incoherent.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/poetry",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

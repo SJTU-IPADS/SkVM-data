@@ -1,0 +1,31 @@
+{
+  "id": "pdf_task_02",
+  "name": "Extract Department Budgets from a Multi-Page Financial PDF",
+  "category": "document_office",
+  "gradingType": "hybrid",
+  "prompt": "The finance team has provided `budget_report.pdf`, a 7-page annual budget report for Meridian Technologies Inc. covering FY 2026. The document structure is:\n\n- Page 1: Cover page (no budget data)\n- Page 2: Engineering Department budget table (contains a SUBTOTAL row for personnel costs, followed by more line items)\n- Page 3: Marketing Department budget table\n- Pages 4-5: Operations Department budget table, which spans two pages — the first 6 line items are on page 4, the remaining 6 plus the DEPARTMENT TOTAL row appear on page 5\n- Page 6: Human Resources Department budget table\n- Page 7: Company-wide roll-up summary (DO NOT use this page for extraction — it is a management summary, not a primary source)\n\nEach department table has columns: Category, Q1, Q2, Q3, Q4, Annual.\n\nExtract the department budget data and write `summary.json` at the workspace root with the following structure:\n\n```json\n{\n  \"page_count\": <integer — total pages in the PDF>,\n  \"departments\": {\n    \"Engineering\":      { \"annual_budget\": <int>, \"line_item_count\": <int>, \"source_pages\": [<int>, ...], \"subtotal_rows_present\": <int> },\n    \"Marketing\":        { \"annual_budget\": <int>, \"line_item_count\": <int>, \"source_pages\": [<int>, ...], \"subtotal_rows_present\": <int> },\n    \"Operations\":       { \"annual_budget\": <int>, \"line_item_count\": <int>, \"source_pages\": [<int>, ...], \"subtotal_rows_present\": <int> },\n    \"Human Resources\":  { \"annual_budget\": <int>, \"line_item_count\": <int>, \"source_pages\": [<int>, ...], \"subtotal_rows_present\": <int> }\n  },\n  \"grand_total\": <integer>\n}\n```\n\nField definitions:\n- `annual_budget`: the value from the DEPARTMENT TOTAL row's Annual column, in dollars as a plain integer (no currency symbols or commas). This is the authoritative figure — do NOT compute it by summing Annual values from individual line items.\n- `line_item_count`: count of actual budget line items in this department. Exclude any SUBTOTAL rows (rows whose Category begins with \"SUBTOTAL\") and the DEPARTMENT TOTAL row itself and any continuation markers.\n- `source_pages`: list of PDF page numbers (1-indexed) that contain this department's table rows. For Operations, this must be [4, 5] since the table spans both pages.\n- `subtotal_rows_present`: count of rows in this department whose Category begins with \"SUBTOTAL\". For Engineering this is 1; for all others it is 0.\n- `grand_total`: sum of all four departments' annual_budget values. Compute this yourself — do not read it from the page 7 roll-up.\n\nInvariants you must satisfy before writing the file:\n1. `grand_total` == `Engineering.annual_budget` + `Marketing.annual_budget` + `Operations.annual_budget` + `Human Resources.annual_budget`\n2. `Operations.source_pages` must include both 4 and 5 (the budget spans two pages).\n3. `Engineering.subtotal_rows_present` must be 1 — there is one SUBTOTAL row in the Engineering table that must not be counted as a line item and must not be included in the budget sum.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent extracted department annual budgets from a 7-page financial PDF (budget_report.pdf) and wrote summary.json. Key challenges: (1) Engineering has a SUBTOTAL row that must be excluded from the budget total computation; (2) the Operations budget spans two pages (4 and 5); (3) page 7 is a roll-up summary the agent must not use.\n\nCriterion 1: Budget extraction correctness (Weight: 40%)\n1.0: All four department annual_budget values are correct integers matching the DEPARTMENT TOTAL rows in the PDF tables. Engineering is $2,019,000 (not $3,059,000 which includes the SUBTOTAL), Operations is $2,266,000 (from the DEPARTMENT TOTAL on page 5). grand_total equals the sum of the four department budgets.\n0.5: 2-3 department budgets are correct but at least one is wrong (likely Engineering due to the SUBTOTAL trap, or Operations due to the two-page span).\n0: All or most budget values are wrong, or the agent read from page 7 instead of department pages.\n\nCriterion 2: Structural metadata accuracy (Weight: 40%)\n1.0: line_item_count values match the actual line item counts (Engineering=10, Marketing=8, Operations=12, HR=6). Operations.source_pages includes both 4 and 5. Engineering.subtotal_rows_present is 1. The JSON structure matches the specification with all required fields.\n0.5: line_item_counts are mostly correct but 1-2 are wrong; or source_pages for Operations is missing page 4 or 5.\n0: Structural metadata largely missing or incorrect.\n\nCriterion 3: Protocol compliance (Weight: 20%)\n1.0: The agent used the DEPARTMENT TOTAL row (not line-item sums) for each department's annual_budget, verified the grand_total invariant by summing from departments (not from page 7), and correctly identified both pages for Operations. The output satisfies all three stated invariants.\n0.5: Most invariants satisfied but the agent either summed line items or read grand_total from page 7 without verifying.\n0: Agent ignored the protocol, summed line items including SUBTOTAL, or produced output with fundamental structural errors.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/pdf",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

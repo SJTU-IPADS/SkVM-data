@@ -1,0 +1,96 @@
+{
+  "id": "information-security-manager-iso27001_task_01",
+  "name": "ISO 27001 Risk Register Generation",
+  "category": "information_security",
+  "gradingType": "hybrid",
+  "prompt": "You are performing a security risk assessment for a fictional healthcare SaaS company called MedVault. Complete the following tasks and save all output to files.\n\nStep 1: Create an asset inventory file named assets.json with exactly 5 assets. Each asset must have these fields: id (A001-A005), name, type (one of: Information, Software, Hardware, Service, People), owner, classification (one of: Confidential, Critical, High, Medium, Low). Include at least one asset of each of these types: Information, Software, Hardware.\n\nStep 2: Perform a risk assessment. For each asset, identify one risk and save all risks to risk_register.json. Each risk entry must have: id (R001-R005), asset_id, threat, vulnerability, likelihood (integer 1-5), impact (integer 1-5), risk_score (= likelihood * impact), risk_level (one of: Critical 20-25, High 15-19, Medium 10-14, Low 5-9, Minimal 1-4), treatment (one of: Mitigate, Accept, Transfer, Avoid), recommended_control.\n\nStep 3: Identify all risks with risk_level Critical or High and save them to high_priority_risks.json as an array of risk IDs.\n\nStep 4: Write a summary to risk_summary.json with this exact structure:\n{\n  \"company\": \"MedVault\",\n  \"total_assets\": <int>,\n  \"total_risks\": <int>,\n  \"critical_count\": <int>,\n  \"high_count\": <int>,\n  \"medium_count\": <int>,\n  \"low_count\": <int>,\n  \"minimal_count\": <int>\n}\nAll counts must be consistent with the risk_register.json contents.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "information-security-manager-iso27001_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "assets_exist",
+            "weight": 0.08,
+            "description": "assets.json file is present in the workspace.",
+            "testPattern": "assets.json exists"
+          },
+          {
+            "id": "assets_count",
+            "weight": 0.08,
+            "description": "assets.json is an array containing exactly 5 asset objects.",
+            "testPattern": "exactly 5 assets"
+          },
+          {
+            "id": "assets_fields",
+            "weight": 0.07,
+            "description": "Every asset object contains the fields id, name, type, owner, and classification.",
+            "testPattern": "required fields"
+          },
+          {
+            "id": "assets_types",
+            "weight": 0.07,
+            "description": "Every asset's type field is one of the valid enum values: Information, Software, Hardware, Service, or People.",
+            "testPattern": "asset types are valid"
+          },
+          {
+            "id": "risk_register_exist",
+            "weight": 0.08,
+            "description": "risk_register.json file is present in the workspace.",
+            "testPattern": "risk_register.json exists"
+          },
+          {
+            "id": "risk_count",
+            "weight": 0.08,
+            "description": "risk_register.json is an array containing exactly 5 risk objects.",
+            "testPattern": "exactly 5 risks"
+          },
+          {
+            "id": "risk_fields",
+            "weight": 0.1,
+            "description": "Every risk object has id, asset_id, threat, vulnerability, numeric likelihood, numeric impact, numeric risk_score, a valid risk_level, and a valid treatment.",
+            "testPattern": "required fields with correct types"
+          },
+          {
+            "id": "risk_score_calc",
+            "weight": 0.15,
+            "description": "risk_score equals likelihood multiplied by impact for every risk entry.",
+            "testPattern": "risk_score equals"
+          },
+          {
+            "id": "risk_level_bands",
+            "weight": 0.15,
+            "description": "risk_level is assigned correctly by score band: Critical (20-25), High (15-19), Medium (10-14), Low (5-9), Minimal (1-4) for every risk.",
+            "testPattern": "risk_level matches score band"
+          },
+          {
+            "id": "summary_consistent",
+            "weight": 0.14,
+            "description": "risk_summary.json critical_count and high_count match the actual count of those risk_levels in risk_register.json, with total_assets=5 and total_risks=5.",
+            "testPattern": "totals are consistent"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent performed a security risk assessment for a healthcare SaaS company and produced structured JSON files.\n\nCriterion 1: Risk Assessment Quality (Weight: 60%)\n1.0: Threats and vulnerabilities are realistic for a healthcare SaaS context, risk scores are logical (appropriate likelihood/impact for the threat type), recommended controls are relevant ISO 27002 controls.\n0.5: Threats are generic, scores are assigned arbitrarily, or some controls are not applicable.\n0: Threats are nonsensical, risk scores don't make sense for the context, or controls are missing.\n\nCriterion 2: Data Consistency (Weight: 40%)\n1.0: All counts in risk_summary.json match the actual contents of risk_register.json exactly, risk_levels correctly match the score bands, high_priority_risks.json contains exactly the right IDs.\n0.5: Minor inconsistency in one count or one misclassified risk level.\n0: Multiple inconsistencies between files.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/information-security-manager-iso27001",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

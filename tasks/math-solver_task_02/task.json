@@ -1,0 +1,90 @@
+{
+  "id": "math-solver_task_02",
+  "name": "Formula Reference and Practice Problem Generation",
+  "category": "math",
+  "gradingType": "hybrid",
+  "prompt": "Complete the following tasks and save results to formula_practice.json.\n\nTask 1 — Formula reference: Provide the formulas for these 4 geometry topics: (1) area of a circle, (2) volume of a cylinder, (3) surface area of a sphere, (4) Pythagorean theorem.\n\nTask 2 — Apply the formulas with concrete numbers:\n- Circle: radius = 7. Calculate the area. Use π = 3.14159265. Round to 4 decimal places.\n- Cylinder: radius = 3, height = 10. Calculate the volume. Use π = 3.14159265. Round to 4 decimal places.\n- Sphere: radius = 5. Calculate the surface area. Use π = 3.14159265. Round to 4 decimal places.\n- Right triangle: legs a = 6, b = 8. Calculate the hypotenuse c.\n\nTask 3 — Generate exactly 3 practice problems (with answers) on the topic of quadratic equations.\n\nSave to formula_practice.json with this exact structure:\n{\n  \"formulas\": [\n    { \"topic\": \"<name>\", \"formula\": \"<formula string>\", \"variables\": {\"<var>\": \"<description>\"} }\n  ],\n  \"calculations\": {\n    \"circle_area\": <number>,\n    \"cylinder_volume\": <number>,\n    \"sphere_surface_area\": <number>,\n    \"triangle_hypotenuse\": <number>\n  },\n  \"practice_problems\": [\n    { \"id\": <1-3>, \"problem\": \"<problem text>\", \"answer\": \"<answer>\" }\n  ]\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "math-solver_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.07,
+            "description": "formula_practice.json file is present in the workspace.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.07,
+            "description": "formula_practice.json is parseable JSON without throwing.",
+            "testPattern": "valid JSON|parseable"
+          },
+          {
+            "id": "formula-count",
+            "weight": 0.1,
+            "description": "formula_practice.json formulas array contains exactly 4 entries (circle area, cylinder volume, sphere surface area, Pythagorean theorem).",
+            "testPattern": "4 formula|exactly 4"
+          },
+          {
+            "id": "formula-fields",
+            "weight": 0.1,
+            "description": "Every formula entry has non-empty topic (string), formula (string), and variables (object).",
+            "testPattern": "formula fields|topic.*formula.*variables"
+          },
+          {
+            "id": "circle-area",
+            "weight": 0.15,
+            "description": "calculations.circle_area is ≈153.938 (π×7²=153.9380, within 0.01).",
+            "testPattern": "circle area|153.938"
+          },
+          {
+            "id": "cylinder-volume",
+            "weight": 0.15,
+            "description": "calculations.cylinder_volume is ≈282.743 (π×9×10=282.7433, within 0.01).",
+            "testPattern": "cylinder volume|282.743"
+          },
+          {
+            "id": "sphere-surface",
+            "weight": 0.13,
+            "description": "calculations.sphere_surface_area is ≈314.159 (4π×25=314.1593, within 0.01).",
+            "testPattern": "sphere surface|314.159"
+          },
+          {
+            "id": "hypotenuse",
+            "weight": 0.08,
+            "description": "calculations.triangle_hypotenuse is exactly 10.0 (√(6²+8²)=10, within 0.001).",
+            "testPattern": "hypotenuse.*10|triangle hypotenuse"
+          },
+          {
+            "id": "practice-problems",
+            "weight": 0.15,
+            "description": "practice_problems is an array of exactly 3 objects each with numeric id, non-empty problem string, and non-empty answer string.",
+            "testPattern": "practice_problems contains exactly 3 problems with id, problem, and answer"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent provided geometry formulas, applied them to concrete values, and generated practice problems.\n\nCriterion 1: Formula Completeness (Weight: 50%)\n1.0: All 4 formula entries include the formula string and a variables map explaining each symbol used. Formulas are mathematically correct.\n0.5: Formulas are present but variables map is missing or incomplete for some entries.\n0: Formulas are wrong, missing, or not organized per spec.\n\nCriterion 2: Practice Problem Quality (Weight: 50%)\n1.0: All 3 practice problems are clearly stated quadratic equation problems with correct answers. Problems vary in difficulty or form (e.g., factoring, completing the square, quadratic formula).\n0.5: Problems are present but answers are incomplete or problems are too similar.\n0: Fewer than 3 problems or answers are wrong.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/math-solver",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

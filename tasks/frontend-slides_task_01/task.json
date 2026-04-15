@@ -1,0 +1,31 @@
+{
+  "id": "frontend-slides_task_01",
+  "name": "Render a Spec-Driven HTML Presentation from deck_spec.json",
+  "category": "frontend_slides",
+  "gradingType": "hybrid",
+  "prompt": "You have been handed `deck_spec.json`, a machine-readable content manifest for a product pitch deck. Your job is to turn it into a polished, self-contained HTML presentation.\n\nProduce two files at the workspace root:\n\n**1. `presentation.html`** — a single HTML5 file with no external dependencies (no CDN links, no external stylesheets, no external scripts — everything inline). It must satisfy:\n- Starts with `<!DOCTYPE html>`.\n- Contains exactly 6 `.slide` elements — one per entry in `deck_spec.json`.\n- Each `.slide` element carries the `id` from its matching spec entry (e.g. `id=\"slide-title\"`, `id=\"slide-problem\"`, `id=\"slide-solution\"`, `id=\"slide-features\"`, `id=\"slide-metrics\"`, `id=\"slide-cta\"`).\n- Every heading in the HTML matches the `heading` field from the spec verbatim — do not paraphrase or shorten any title.\n- The CSS must apply `height: 100vh; height: 100dvh; overflow: hidden;` to every `.slide` — this is the mandatory viewport lock that prevents inter-slide content bleed.\n- The feature-grid slide (`id=\"slide-features\"`) must render exactly 4 cards, one per entry in the `cards` array. Each card title must appear verbatim (\"Smart Routing\", \"Zero-Trust Security\", \"Live Observability\", \"SDK-First\").\n- The CTA slide (`id=\"slide-cta\"`) must contain a `<button>` or `<a>` element with `id=\"cta-button\"` and the label text \"Request Early Access\".\n- Keyboard navigation must be implemented in JavaScript: pressing `ArrowRight`, `ArrowLeft`, or `Space` advances or retreats slides.\n- Navigation dots (one per slide) must be visible; each dot element must carry a `data-index` attribute indicating which slide it represents.\n\n**2. `deck_manifest.json`** — a JSON file summarising the presentation:\n```json\n{\n  \"slide_count\": 6,\n  \"slide_ids\": [\"slide-title\", \"slide-problem\", \"slide-solution\", \"slide-features\", \"slide-metrics\", \"slide-cta\"],\n  \"output_file\": \"presentation.html\"\n}\n```\nThe `slide_count` in this manifest must equal the number of `.slide` elements actually rendered — do not hardcode a guess.\n\n**Invariants to preserve:**\n- `slide_count` in `deck_manifest.json` == number of `.slide` elements in `presentation.html` == 6.\n- Number of `data-index` dots == number of slides == 6.\n\nDo not reference any internal tool path or skill directory in your output. Treat this like a frontend engineering ticket.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent read deck_spec.json and produced presentation.html (a 6-slide HTML pitch deck) and deck_manifest.json. The task pinned specific ids, headings, viewport CSS, dot navigation, and CTA element requirements.\n\nCriterion 1: Artifact completeness and correctness (Weight: 40%)\n1.0: Both files exist and are non-trivial. presentation.html has 6 distinct slides that visually correspond to the spec (title, problem, solution, feature grid, metrics, CTA). deck_manifest.json is valid JSON with correct structure. The CTA slide has a visually prominent button.\n0.5: One file is missing or one slide is empty/placeholder.\n0: presentation.html missing or unparseable.\n\nCriterion 2: Visual polish and spec fidelity (Weight: 40%)\n1.0: The presentation is visually styled (not default-browser HTML), headings are clearly differentiated from body text, the feature-grid slide has a grid or column layout for the 4 cards, the title slide is visually distinct, and all text from the spec appears faithfully.\n0.5: Styling is minimal but at least one slide has clear visual structure (card grid or styled list).\n0: No CSS styling beyond browser defaults.\n\nCriterion 3: Navigation and interactivity quality (Weight: 20%)\n1.0: Keyboard navigation is evident in the JS, navigation dots are present with clear visual styling, slide transitions use CSS (not instant jumps), reduced-motion consideration or animation is visible.\n0.5: Navigation exists but dots are absent or transitions are instant.\n0: No interactivity implemented.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/frontend-slides",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

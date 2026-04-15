@@ -1,0 +1,31 @@
+{
+  "id": "cantian-bazi_task_02",
+  "name": "BaZi Comparison Chart for Two Siblings — Mixed Solar and Lunar Inputs",
+  "category": "chinese_calendar",
+  "gradingType": "hybrid",
+  "prompt": "A researcher is documenting the Four Pillars (BaZi) charts for two siblings in a family archive. The records she holds use different calendar systems for each sibling:\n\n- **Sibling A (older brother):** born on **the 15th day of the 5th lunar month of 1988, at 08:30 AM**. Gender: male. Use sect=2.\n- **Sibling B (younger sister):** born on **March 20, 2001 at 10:15 AM** (Gregorian/solar calendar). Gender: female. Use sect=2.\n\nGenerate the BaZi Four Pillars chart for each sibling using the appropriate calendar input method, then write `bazi_comparison.json` to the current directory.\n\n`bazi_comparison.json` must be a JSON object with exactly two top-level keys: `\"sibling_a\"` and `\"sibling_b\"`. Each value is an object with these fields:\n- `input_type`: the string `\"lunar\"` for Sibling A, `\"solar\"` for Sibling B\n- `input_datetime`: the exact datetime string passed to the tool (for Sibling A: `\"1988-05-15T08:30:00\"`; for Sibling B: `\"2001-03-20T10:15:00\"`)\n- `gender`: `\"male\"` or `\"female\"`\n- `year_pillar`: Year Pillar in Chinese characters (2 chars: heavenly stem + earthly branch)\n- `month_pillar`: Month Pillar in Chinese characters\n- `day_pillar`: Day Pillar in Chinese characters\n- `hour_pillar`: Hour Pillar in Chinese characters\n- `bazi_string`: the full eight-character BaZi notation (4 pillars separated by single spaces)\n- `day_master`: the Day Stem character (1 Chinese character, equals first char of `day_pillar`)\n\nImportant notes:\n- Sibling A's date is given in the **lunar (农历) calendar**, so use the lunar-input variant of the charting tool.\n- Sibling B's date is given in the **Gregorian (solar/阳历) calendar**, so use the solar-input variant.\n- Using the wrong calendar input for either sibling will produce an incorrect chart — the year and month pillars will be visibly wrong.\n\nInvariants the output must satisfy:\n1. For each sibling, `bazi_string` must equal `year_pillar + \" \" + month_pillar + \" \" + day_pillar + \" \" + hour_pillar`.\n2. For each sibling, `day_master` must equal the first character of `day_pillar`.\n3. Each pillar field must be exactly 2 Chinese characters (one heavenly stem followed by one earthly branch).",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to generate BaZi charts for two siblings using mixed calendar inputs — Sibling A's birth date is lunar (农历) and Sibling B's is solar (Gregorian). The results must be combined into bazi_comparison.json.\n\nCriterion 1: Artifact correctness (Weight: 40%)\n1.0: bazi_comparison.json exists, parses as valid JSON, has exactly two keys 'sibling_a' and 'sibling_b', and each sibling object contains all 9 required fields as non-empty strings with valid Chinese characters in the pillar fields.\n0.5: File exists and parses, but one sibling's data is missing or has fewer than 7 of the 9 required fields.\n0: File is missing, unparseable, or lacks the required top-level structure.\n\nCriterion 2: Calendar system discrimination (Weight: 40%)\n1.0: The agent used the lunar input tool for Sibling A (input_type='lunar') and the solar input tool for Sibling B (input_type='solar'). Sibling A's correct BaZi (戊辰 戊午 甲寅 戊辰, using the lunar date) differs substantially from what solar input would produce (戊辰 丁巳 庚午 庚辰) — using the wrong tool is detectable from the month and day pillars alone.\n0.5: One sibling's calendar input was handled correctly but the other used the wrong tool.\n0: Both siblings were processed with the solar tool, ignoring the lunar calendar specification for Sibling A.\n\nCriterion 3: Internal consistency of BaZi string and day master (Weight: 20%)\n1.0: For both siblings, bazi_string equals the concatenation of the four pillar fields, and day_master equals the first character of day_pillar. The agent demonstrated that BaZi output was faithfully parsed into structured fields.\n0.5: One sibling's bazi_string or day_master is inconsistent with the individual pillar fields.\n0: Both siblings have inconsistent bazi_string or day_master fields.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/cantian-bazi",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

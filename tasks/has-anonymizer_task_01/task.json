@@ -1,0 +1,96 @@
+{
+  "id": "has-anonymizer_task_01",
+  "name": "Scan Text Files for PII and Produce a Privacy Report",
+  "category": "privacy_security",
+  "gradingType": "hybrid",
+  "prompt": "You need to simulate a privacy scanning workflow without calling any external model or network. Complete the following steps.\n\nStep 1: Create a directory called input_docs/ and write three text files into it:\n\ninput_docs/report_a.txt:\n\"Alice Johnson submitted her expense report. She can be reached at alice.johnson@company.com or +1-555-0101. Her employee ID is EMP-4821.\"\n\ninput_docs/report_b.txt:\n\"The meeting on March 5th was attended by Bob Smith (bob.smith@company.com) and Carol Davis. Bob's phone is +1-555-0202.\"\n\ninput_docs/report_c.txt:\n\"Server logs from 2024-03-01 show 142 requests. No personal information is present in this log entry.\"\n\nStep 2: Write a Python script called scan_pii.py that scans each file in input_docs/ for the following PII patterns using regex only (no LLM, no network):\n- email addresses (pattern: word chars/dots/hyphens @ word chars/dots)\n- phone numbers (pattern: +1-NXX-XXXX or NXX-XXXX)\n- names following the pattern 'by [A-Z][a-z]+ [A-Z][a-z]+' or 'by [A-Z][a-z]+'\n\nThe script must write its output to scan_results.json with this structure:\n{\n  \"scanned_files\": 3,\n  \"results\": [\n    {\n      \"file\": \"report_a.txt\",\n      \"emails\": [\"alice.johnson@company.com\"],\n      \"phones\": [\"+1-555-0101\"],\n      \"pii_found\": true\n    },\n    ...\n  ],\n  \"summary\": {\n    \"files_with_pii\": <count of files where pii_found is true>,\n    \"total_emails\": <total email count across all files>,\n    \"total_phones\": <total phone count across all files>\n  }\n}\n\nStep 3: Run the script with: python3 scan_pii.py\n\nThe output file scan_results.json must reflect the actual PII found in the three input files.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "has-anonymizer_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "input-files",
+            "weight": 0.1,
+            "description": "input_docs/ directory exists and contains exactly 3 files including report_a.txt with alice.johnson@company.com.",
+            "testPattern": "input_docs directory.*3 files|input files exist"
+          },
+          {
+            "id": "script-exists",
+            "weight": 0.08,
+            "description": "scan_pii.py exists and imports 're' but does not import requests, openai, or urllib.",
+            "testPattern": "scan_pii.py exists"
+          },
+          {
+            "id": "results-exists",
+            "weight": 0.08,
+            "description": "The file scan_results.json exists in the working directory.",
+            "testPattern": "scan_results.json > file exists"
+          },
+          {
+            "id": "results-structure",
+            "weight": 0.1,
+            "description": "scan_results.json has the three required top-level fields: scanned_files, results, summary.",
+            "testPattern": "has scanned_files, results, summary"
+          },
+          {
+            "id": "scanned-count",
+            "weight": 0.1,
+            "description": "scanned_files is exactly 3.",
+            "testPattern": "scanned_files is 3"
+          },
+          {
+            "id": "results-array",
+            "weight": 0.08,
+            "description": "results is an array of exactly 3 entries each with file, emails, phones, and pii_found fields.",
+            "testPattern": "results array has 3 entries"
+          },
+          {
+            "id": "report-a-pii",
+            "weight": 0.14,
+            "description": "The report_a entry has pii_found=true and emails containing 'alice.johnson@company.com'.",
+            "testPattern": "report_a.*pii_found true|report_a has email and phone"
+          },
+          {
+            "id": "report-c-clean",
+            "weight": 0.12,
+            "description": "The report_c entry has pii_found=false with empty emails and phones arrays.",
+            "testPattern": "report_c.*pii_found false|report_c has no pii"
+          },
+          {
+            "id": "summary-counts",
+            "weight": 0.1,
+            "description": "summary.total_emails is at least 2 and summary.total_phones is at least 2.",
+            "testPattern": "summary total_emails|total_phones"
+          },
+          {
+            "id": "files-with-pii",
+            "weight": 0.1,
+            "description": "summary.files_with_pii is exactly 2 (report_a and report_b have PII; report_c does not).",
+            "testPattern": "files_with_pii is 2"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create sample text files, write a PII scanning script, run it, and produce a structured JSON report.\n\nCriterion 1: Detection Accuracy (Weight: 60%)\n1.0: scan_results.json correctly identifies emails and phones in report_a and report_b, report_c is flagged as no PII, summary counts are accurate.\n0.5: Most detections are correct but one file has a missed or false detection, or summary counts are slightly off.\n0: Multiple detection errors or the report does not reflect the actual file contents.\n\nCriterion 2: Script and Report Quality (Weight: 40%)\n1.0: scan_pii.py uses regex only (no LLM calls), is runnable with python3, and produces valid well-structured JSON.\n0.5: Script runs and produces output but has minor structural issues or uses an approach other than regex.\n0: Script is missing, does not run, or produces invalid output.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/has-anonymizer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

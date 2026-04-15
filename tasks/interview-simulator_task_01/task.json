@@ -1,0 +1,102 @@
+{
+  "id": "interview-simulator_task_01",
+  "name": "Generate Mock Interview Scorecard for Backend Engineer",
+  "category": "interview_simulation",
+  "gradingType": "hybrid",
+  "prompt": "You are conducting a mock interview simulation. Based on the candidate answers provided below, evaluate them and produce a structured scorecard.\n\nRole: Senior Backend Engineer\nLevel: Senior\nFocus: Distributed Systems\n\nQuestion 1 (System Design): Design a distributed rate limiter that can handle 1 million requests per second across 100 servers.\nCandidate Answer: \"I would use a token bucket algorithm stored in Redis. Each server checks Redis before allowing a request. We'd use a Lua script in Redis to make it atomic. We'd partition by user ID to reduce contention.\"\n\nQuestion 2 (Behavioral): Tell me about a time you had to make a critical technical decision under time pressure.\nCandidate Answer: \"During a production outage, our primary database was at 100% CPU. I decided to immediately enable read replicas to offload read traffic, even though it introduced eventual consistency. It reduced CPU to 40% within 5 minutes. Later we added caching to prevent recurrence.\"\n\nQuestion 3 (Domain Knowledge): What are the tradeoffs between strong consistency and eventual consistency in distributed systems?\nCandidate Answer: \"Strong consistency ensures all nodes see the same data at all times but has higher latency due to coordination. Eventual consistency allows higher availability and lower latency but risks stale reads. Examples: Zookeeper uses strong consistency, Cassandra uses eventual. The choice depends on business requirements.\"\n\nTask: Evaluate each answer and save a scorecard to interview_scorecard.json with this exact structure:\n{\n  \"role\": \"Senior Backend Engineer\",\n  \"level\": \"Senior\",\n  \"focus\": \"Distributed Systems\",\n  \"questions\": [\n    {\n      \"number\": 1,\n      \"module\": \"System Design\",\n      \"score\": <int 1-10>,\n      \"strengths\": [\"...\"],\n      \"improvements\": [\"...\"],\n      \"missed_key_points\": [\"...\"]\n    },\n    { \"number\": 2, \"module\": \"Behavioral\", ... },\n    { \"number\": 3, \"module\": \"Domain Knowledge\", ... }\n  ],\n  \"overall_score\": <float, average of 3 scores rounded to 1 decimal>,\n  \"verdict\": \"Strong Hire|Hire|Lean Hire|Lean No Hire|No Hire\",\n  \"key_strengths\": [\"...\", \"...\"],\n  \"areas_for_improvement\": [\"...\", \"...\"],\n  \"recommended_study_topics\": [\"...\", \"...\"]\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "interview-simulator_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "scorecard_exists",
+            "weight": 0.08,
+            "description": "interview_scorecard.json file is present in the workspace.",
+            "testPattern": "interview_scorecard.json exists"
+          },
+          {
+            "id": "top_level_fields",
+            "weight": 0.08,
+            "description": "interview_scorecard.json contains the keys role, level, focus, questions, overall_score, verdict, key_strengths, areas_for_improvement, and recommended_study_topics.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "role_level_focus",
+            "weight": 0.1,
+            "description": "role is \"Senior Backend Engineer\", level is \"Senior\", and focus is \"Distributed Systems\".",
+            "testPattern": "role, level, focus match"
+          },
+          {
+            "id": "questions_count",
+            "weight": 0.1,
+            "description": "The questions array contains exactly 3 entries.",
+            "testPattern": "exactly 3 entries"
+          },
+          {
+            "id": "question_fields",
+            "weight": 0.12,
+            "description": "Each question has number, module, score (integer 1-10), strengths, and improvements fields.",
+            "testPattern": "required fields with valid types"
+          },
+          {
+            "id": "question_numbers",
+            "weight": 0.08,
+            "description": "The question number values are 1, 2, and 3 (sorted).",
+            "testPattern": "question numbers are 1, 2, 3"
+          },
+          {
+            "id": "overall_score",
+            "weight": 0.15,
+            "description": "overall_score equals the arithmetic mean of the three question scores within ±0.5 tolerance.",
+            "testPattern": "average of question scores"
+          },
+          {
+            "id": "verdict_valid",
+            "weight": 0.1,
+            "description": "verdict is one of: Strong Hire, Hire, Lean Hire, Lean No Hire, or No Hire.",
+            "testPattern": "valid enum value"
+          },
+          {
+            "id": "key_strengths",
+            "weight": 0.07,
+            "description": "key_strengths is an array with at least 2 entries.",
+            "testPattern": "key_strengths has at least 2"
+          },
+          {
+            "id": "improvements",
+            "weight": 0.07,
+            "description": "areas_for_improvement is an array with at least 2 entries.",
+            "testPattern": "areas_for_improvement has at least 2"
+          },
+          {
+            "id": "study_topics",
+            "weight": 0.05,
+            "description": "recommended_study_topics is an array with at least 2 entries.",
+            "testPattern": "recommended_study_topics has at least 2"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent evaluated three candidate answers and produced an interview scorecard.\n\nCriterion 1: Evaluation Quality (Weight: 70%)\n1.0: Scores are appropriate for the answer quality (all three answers are reasonable senior-level answers, scores should be 6-8 range). Strengths correctly identify what the candidate did well. Improvements and missed key points are relevant and specific — for Q1 should note missing: network partition tolerance, what happens if Redis goes down, single point of failure. For Q3 should credit CAP theorem reference.\n0.5: Scores are present but evaluation is shallow or misidentifies strengths/weaknesses.\n0: Scores are wildly inappropriate (e.g., 1-2 for clearly competent answers) or evaluation is absent.\n\nCriterion 2: Scorecard Completeness (Weight: 30%)\n1.0: All required fields are present, overall_score is the correct mathematical average, verdict is consistent with overall_score (6-8 average should be Hire or Lean Hire), all arrays have at least 1 item.\n0.5: Minor inconsistency in one field.\n0: Multiple required fields missing or overall_score does not match the average.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/interview-simulator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "copywriter-cn_task_01",
+  "name": "AIDA Framework Copy for a Productivity App",
+  "category": "copywriting",
+  "gradingType": "hybrid",
+  "prompt": "Write marketing copy for a productivity app called \"FocusFlow\" using the AIDA framework. The app helps remote workers eliminate distractions and track deep work sessions. It costs $9/month and has a 14-day free trial.\n\nProduce a file called aida_copy.json with exactly this structure:\n- \"product\": string (must be \"FocusFlow\")\n- \"framework\": string (must be \"AIDA\")\n- \"attention\": string — headline that grabs attention, 10-20 words\n- \"interest\": string — 2-4 sentences building interest by describing the problem and how FocusFlow addresses it\n- \"desire\": string — 2-4 sentences creating desire by highlighting specific benefits (mention deep work sessions and distraction elimination)\n- \"action\": string — call-to-action sentence that mentions the 14-day free trial\n- \"headline_variants\": array of exactly 3 alternative headlines using different formulas (e.g., number-based, question, \"how to\")\n- \"word_count\": object with keys \"attention\" (number), \"interest\" (number), \"desire\" (number), \"action\" (number) — each counting words in the respective section\n\nAlso produce a file called copy_brief.md containing the full assembled AIDA copy as a single flowing piece (combine all four sections in order), followed by the 3 headline variants listed as a numbered list.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "copywriter-cn_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "aida_copy.json file is present in the working directory.",
+            "testPattern": "aida_copy.json > file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.08,
+            "description": "aida_copy.json is valid JSON with all required top-level keys: product, framework, attention, interest, desire, action, headline_variants, and word_count.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "product-framework",
+            "weight": 0.1,
+            "description": "The product field equals exactly \"FocusFlow\" and the framework field equals exactly \"AIDA\".",
+            "testPattern": "product is FocusFlow"
+          },
+          {
+            "id": "attention-words",
+            "weight": 0.1,
+            "description": "The attention headline is a string whose word count is between 10 and 20 inclusive.",
+            "testPattern": "10-20 words"
+          },
+          {
+            "id": "sections-content",
+            "weight": 0.1,
+            "description": "Both interest and desire are non-empty strings longer than 50 characters.",
+            "testPattern": "interest and desire"
+          },
+          {
+            "id": "action-trial",
+            "weight": 0.15,
+            "description": "The action field contains a reference to the free trial or 14-day trial.",
+            "testPattern": "free trial"
+          },
+          {
+            "id": "headline-variants",
+            "weight": 0.12,
+            "description": "headline_variants is an array of exactly 3 non-empty strings.",
+            "testPattern": "exactly 3 entries"
+          },
+          {
+            "id": "variants-distinct",
+            "weight": 0.1,
+            "description": "All 4 headlines (attention + 3 variants) are distinct from each other when compared case-insensitively.",
+            "testPattern": "distinct from each other"
+          },
+          {
+            "id": "word-count",
+            "weight": 0.1,
+            "description": "word_count is an object with keys attention, interest, desire, and action, each a positive number.",
+            "testPattern": "word_count"
+          },
+          {
+            "id": "brief-exists",
+            "weight": 0.1,
+            "description": "copy_brief.md file is present in the working directory.",
+            "testPattern": "copy_brief.md > file exists"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent wrote AIDA framework marketing copy for a productivity app called FocusFlow.\n\nCriterion 1: AIDA Framework Adherence (Weight: 50%)\n1.0: Each section clearly fulfills its AIDA role — Attention hooks immediately, Interest describes the remote work distraction problem, Desire highlights tangible benefits, Action has a clear CTA with the free trial. The 3 headline variants are genuinely different formulas.\n0.5: Most sections are present but one section is weak or off-framework (e.g., Action section doesn't mention the trial).\n0: AIDA structure is missing or sections are misassigned.\n\nCriterion 2: Copywriting Quality (Weight: 50%)\n1.0: Copy is persuasive, specific to remote workers, mentions deep work sessions and distractions, and the CTA is compelling. Headline variants demonstrate different formula types.\n0.5: Copy is generic or misses key selling points (deep work, distraction elimination).\n0: Copy is low quality, off-topic, or missing key product details.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/copywriter-cn",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

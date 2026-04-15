@@ -1,0 +1,54 @@
+{
+  "skill_name": "internet-failure-analysis-expert",
+  "purposes": [
+    {
+      "id": "fetch-cve-official-data",
+      "description": "Retrieve CVE details from NVD API and scrape official vendor advisories",
+      "current_path": {
+        "primitives": [
+          {"id": "tool.exec", "min_level": "L2", "evidence": "run scripts/fetch_cve_data.py with CVE ID argument"},
+          {"id": "tool.web", "min_level": "L2", "evidence": "scrape official vendor announcement pages referenced in CVE data"},
+          {"id": "reason.analysis", "min_level": "L1", "evidence": "parse JSON output identifying CVSS, CWE, affected products"}
+        ]
+      },
+      "alternative_paths": []
+    },
+    {
+      "id": "locate-and-extract-incident-report",
+      "description": "Search for and extract official post-mortem or incident reports from vendor blogs",
+      "current_path": {
+        "primitives": [
+          {"id": "tool.web", "min_level": "L2", "evidence": "multiple searches with 'incident report', 'post-mortem', 'official statement' keywords"},
+          {"id": "tool.exec", "min_level": "L1", "evidence": "run scripts/extract_webpage.py to get full page text"},
+          {"id": "reason.analysis", "min_level": "L2", "evidence": "identify official vs unofficial sources, find authoritative report"}
+        ]
+      },
+      "alternative_paths": []
+    },
+    {
+      "id": "analyze-failure-timeline-and-rootcause",
+      "description": "Decompose failure timeline, cascade chain, and root causes from official report",
+      "current_path": {
+        "primitives": [
+          {"id": "reason.analysis", "min_level": "L3", "evidence": "trace multi-file cascade: initial trigger → propagation → amplification"},
+          {"id": "reason.planning", "min_level": "L2", "evidence": "identify decision delays and response action sequences"},
+          {"id": "gen.text.structured", "min_level": "L3", "evidence": "9-section structured report with timeline table, cascade chart, recommendations"}
+        ]
+      },
+      "alternative_paths": []
+    },
+    {
+      "id": "generate-improvement-recommendations",
+      "description": "Produce prioritized technical and organizational improvement recommendations",
+      "current_path": {
+        "primitives": [
+          {"id": "gen.text.long", "min_level": "L3", "evidence": "comprehensive improvement list across tech and management dimensions"},
+          {"id": "reason.logic", "min_level": "L2", "evidence": "prioritize by urgency/importance, explain implementation difficulty"},
+          {"id": "follow.format", "min_level": "L2", "evidence": "specific 9-section report schema"}
+        ]
+      },
+      "alternative_paths": []
+    }
+  ],
+  "unmatched_requirements": []
+}

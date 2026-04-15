@@ -1,0 +1,90 @@
+{
+  "id": "file-operations_task_02",
+  "name": "Search and Replace Config Values Across Project",
+  "category": "file_operations",
+  "gradingType": "hybrid",
+  "prompt": "You are updating a project's configuration from development to production settings. Complete both steps and save a change log.\n\nStep 1: Create the following files with the given content.\n\n`config/database.yml`:\n```\nhost: localhost\nport: 5432\nname: dev_db\nuser: admin\n```\n\n`config/app.conf`:\n```\nlog_level=DEBUG\napi_url=http://localhost:8080/api\nenv=development\n```\n\n`config/worker.conf`:\n```\nlog_level=DEBUG\nqueue_host=localhost\nworkers=2\n```\n\nStep 2: Apply these exact replacements across all three config files:\n- `localhost` → `prod-db.example.com` (everywhere it appears)\n- `dev_db` → `production_db`\n- `DEBUG` → `WARNING`\n- `development` → `production`\n\nStep 3: Write `change_log.json` with this exact structure:\n```json\n{\n  \"replacements_applied\": [\n    {\"from\": \"localhost\", \"to\": \"prod-db.example.com\", \"occurrences\": 3},\n    {\"from\": \"dev_db\", \"to\": \"production_db\", \"occurrences\": 1},\n    {\"from\": \"DEBUG\", \"to\": \"WARNING\", \"occurrences\": 2},\n    {\"from\": \"development\", \"to\": \"production\", \"occurrences\": 1}\n  ],\n  \"files_modified\": [\"config/app.conf\", \"config/database.yml\", \"config/worker.conf\"]\n}\n```\n`files_modified` must be sorted alphabetically.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "file-operations_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "changelog-exists",
+            "weight": 0.08,
+            "description": "The file change_log.json exists in the working directory.",
+            "testPattern": "change_log.json exists"
+          },
+          {
+            "id": "changelog-parse",
+            "weight": 0.07,
+            "description": "change_log.json parses as valid JSON with replacements_applied and files_modified arrays.",
+            "testPattern": "parses as JSON|valid JSON"
+          },
+          {
+            "id": "localhost-replaced",
+            "weight": 0.15,
+            "description": "All 3 occurrences of 'localhost' are replaced with 'prod-db.example.com' across database.yml, app.conf, and worker.conf.",
+            "testPattern": "localhost.*replaced|prod-db"
+          },
+          {
+            "id": "debug-replaced",
+            "weight": 0.12,
+            "description": "Both occurrences of 'DEBUG' are replaced with 'WARNING' in app.conf and worker.conf.",
+            "testPattern": "DEBUG.*replaced|WARNING"
+          },
+          {
+            "id": "devdb-replaced",
+            "weight": 0.12,
+            "description": "'dev_db' is replaced with 'production_db' in database.yml and no 'dev_db' remains.",
+            "testPattern": "dev_db.*replaced|production_db"
+          },
+          {
+            "id": "dev-env-replaced",
+            "weight": 0.1,
+            "description": "app.conf env setting is changed from 'development' to 'production' with no leftover 'env=development'.",
+            "testPattern": "development.*replaced|env.*production"
+          },
+          {
+            "id": "occurrences-count",
+            "weight": 0.15,
+            "description": "change_log.json replacements_applied has 4 entries with correct occurrence counts: localhost=3, DEBUG=2, dev_db=1, development=1.",
+            "testPattern": "occurrences"
+          },
+          {
+            "id": "files-modified",
+            "weight": 0.11,
+            "description": "files_modified has exactly 3 entries sorted alphabetically: [config/app.conf, config/database.yml, config/worker.conf].",
+            "testPattern": "files_modified.*sorted|files modified"
+          },
+          {
+            "id": "all-files-exist",
+            "weight": 0.1,
+            "description": "All three config files exist: config/database.yml, config/app.conf, and config/worker.conf.",
+            "testPattern": "config files exist|database.yml|app.conf"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent updated config files from development to production values and logged the changes.\n\nCriterion 1: Replacement Accuracy (Weight: 70%)\n1.0: All four replacements are applied correctly in all files — no leftover 'localhost', 'DEBUG', 'dev_db', or 'development' strings. Production values are present.\n0.5: Most replacements applied but one value was missed in one file.\n0: Replacements were not applied or files are missing.\n\nCriterion 2: Change Log Completeness (Weight: 30%)\n1.0: change_log.json has all entries with correct occurrence counts and files_modified sorted alphabetically.\n0.5: Change log exists but counts are off or files_modified is not sorted.\n0: Change log is absent or empty.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/file-operations",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

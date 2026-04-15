@@ -1,0 +1,17 @@
+{
+  "name": "ArcticGrip Pro Hiking Boots",
+  "description": "Waterproof leather hiking boots with Vibram outsole, rated for temperatures down to -20°C. Available in sizes EU 38-48.",
+  "sku": "AGP-HB-001",
+  "brand": "TrailForge",
+  "currency": "USD",
+  "price": "189.99",
+  "price_valid_until": "2026-12-31",
+  "availability": "in stock",
+  "condition": "new",
+  "rating_value": 4.6,
+  "rating_count": 312,
+  "best_rating": 5,
+  "worst_rating": 1,
+  "product_url": "https://trailforge.example.com/products/arcticgrip-pro",
+  "image_url": "https://trailforge.example.com/images/arcticgrip-pro.jpg"
+}

@@ -1,0 +1,31 @@
+{
+  "id": "document-pdf_task_02",
+  "name": "Extract and Reconcile PDF Ledger Transactions with Deduplication",
+  "category": "document_processing",
+  "gradingType": "hybrid",
+  "prompt": "The finance team has handed you `ledger.pdf`, a 2-page PDF containing quarterly transaction tables. Each page has a header row (Txn ID, Date, Description, Amount, Category) followed by data rows. The Amount column uses currency formatting like `$1,234.56` — you must strip the `$` and commas before parsing. Some rows have an empty Description field; treat those as valid rows with an empty string for description.\n\nThe two pages intentionally contain duplicate transaction IDs — some `txn_id` values appear on both pages. Apply **first-occurrence deduplication**: when a `txn_id` appears more than once, keep the row from the earlier page only and discard all subsequent rows with the same `txn_id`.\n\nProduce two output files at the workspace root:\n\n**1. `ledger_report.json`** — a JSON report with these top-level keys:\n- `total_rows_extracted` (integer): total data rows found across both pages *before* deduplication\n- `duplicate_count` (integer): number of rows removed as duplicates\n- `duplicate_txn_ids` (array of strings): the txn_id values that were duplicated, sorted alphabetically\n- `accepted_count` (integer): number of rows after deduplication\n- `total_amount` (number, 2 decimal places): sum of `amount` across accepted rows only\n- `top_category` (string): the category with the highest total amount across accepted rows\n- `by_category` (object): one entry per category, each with `count` (integer) and `total` (number, 2 decimal places)\n\n**2. `reconciliation_report.md`** — a markdown report with markdown section headers for at minimum: `Summary`, `Category Breakdown`, and `Data Quality`. The Data Quality section must name the specific duplicate txn_ids that were removed.\n\n**Invariants that must hold:**\n- `accepted_count` + `duplicate_count` == `total_rows_extracted`\n- `sum(by_category[*].total)` == `total_amount` (within 0.02)\n\nUse `pdfplumber` to extract text from the PDF. Parse each line: transaction rows begin with a pattern like `TXN-NNNN`. Lines that do not match are headers or footers and should be skipped.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "python-grade",
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was given ledger.pdf (2 pages of financial transaction tables with currency-formatted amounts and duplicate txn_ids across pages) and asked to extract, deduplicate, and reconcile the data into ledger_report.json and reconciliation_report.md.\n\nCriterion 1: Artifact correctness (Weight: 40%)\n1.0: ledger_report.json exists with all required keys. Counts and amounts are numerically consistent. duplicate_txn_ids names the actual duplicated IDs. Invariants hold: accepted + duplicates == total.\n0.5: JSON exists but key values are wrong — amounts may include duplicates, or currency wasn't stripped, or counts are off.\n0: ledger_report.json missing or unparseable.\n\nCriterion 2: Spec adherence — dedup and currency parsing (Weight: 40%)\n1.0: First-occurrence dedup by txn_id was applied correctly (page-1 occurrence kept). Currency amounts were stripped of $ and commas before summing. total_amount reflects only accepted rows.\n0.5: Dedup was attempted but wrong rows were kept, or currency parsing failed for some rows.\n0: No dedup applied or amounts are wildly incorrect.\n\nCriterion 3: Report quality and data quality disclosure (Weight: 20%)\n1.0: reconciliation_report.md has Summary, Category Breakdown, and Data Quality sections. Data Quality section names the specific duplicate txn_ids removed. Report reads like a professional reconciliation document.\n0.5: Report exists but missing a required section or doesn't name the specific duplicate IDs.\n0: Report missing or has fewer than 50 characters of content.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/document-pdf",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "hard"
+}

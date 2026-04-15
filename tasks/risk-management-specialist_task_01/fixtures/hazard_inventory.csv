@@ -1,0 +1,13 @@
+hazard_id,description,hazard_category,probability_label,severity_label
+H-005,Thermal burn from heated probe surface,Thermal,P5,S3
+H-004,Biocompatibility reaction from device coating,Biological,P1,S2
+H-008,Battery depletion without warning during procedure,Electrical,P3,S3
+H-009,Chemical leachable from sterilization process,Chemical,P1,S3
+H-010,EMC interference causing display malfunction,Environment,P3,S2
+H-002,Software incorrect dosage calculation,Software,P4,S5
+H-011,Locking mechanism failure during active use,Mechanical,P4,S4
+H-006,Radiation overexposure during imaging mode,Radiation,P2,S4
+H-012,Alarm system failure on patient threshold breach,Software,P5,S4
+H-007,User error: incorrect patient data entry,Use Error,P4,S2
+H-001,Electrical shock from exposed terminal contact,Electrical,P3,S4
+H-003,Mechanical entrapment during calibration cycle,Mechanical,P2,S3

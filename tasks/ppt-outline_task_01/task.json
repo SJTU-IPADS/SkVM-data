@@ -1,0 +1,90 @@
+{
+  "id": "ppt-outline_task_01",
+  "name": "Generate a Business Pitch Deck Outline",
+  "category": "presentation",
+  "gradingType": "hybrid",
+  "prompt": "Generate a structured pitch deck outline for a startup and save it to pitch_outline.json.\n\nStartup description: A B2B SaaS platform called \"FlowSync\" that automates invoice reconciliation for mid-size accounting teams, reducing manual work by 80%.\n\nRequirements:\n- Create a pitch deck outline following the standard structure: Problem, Solution, Market Size, Product Demo, Business Model, Traction, Team, Ask\n- Exactly 8 sections, one per structural element listed above\n- Each section must have: a \"title\" string, a \"slide_count\" integer (1 or 2), and a \"talking_points\" array of 2-4 bullet strings\n- talking_points must be concrete and specific to FlowSync (mention actual numbers, features, or claims — not generic placeholders)\n\nSave to pitch_outline.json:\n{\n  \"company\": \"FlowSync\",\n  \"deck_type\": \"pitch\",\n  \"total_slides\": <sum of all slide_count values>,\n  \"sections\": [\n    {\n      \"title\": \"<section title>\",\n      \"slide_count\": <1 or 2>,\n      \"talking_points\": [\"...\", \"...\"]\n    },\n    ... (8 sections total)\n  ]\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "ppt-outline_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.06,
+            "description": "pitch_outline.json exists in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "top-level-fields",
+            "weight": 0.1,
+            "description": "pitch_outline.json contains all four required top-level fields: company, deck_type, total_slides, and sections.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "company-deck",
+            "weight": 0.1,
+            "description": "The company field equals 'FlowSync' and the deck_type field equals 'pitch'.",
+            "testPattern": "FlowSync.*pitch|company is FlowSync"
+          },
+          {
+            "id": "section-count",
+            "weight": 0.14,
+            "description": "The sections array contains exactly 8 elements.",
+            "testPattern": "exactly 8 elements"
+          },
+          {
+            "id": "section-fields",
+            "weight": 0.12,
+            "description": "Each section object contains title, slide_count, and talking_points fields.",
+            "testPattern": "title.*slide_count.*talking_points|section has title"
+          },
+          {
+            "id": "slide-count-range",
+            "weight": 0.12,
+            "description": "Every section's slide_count is the integer 1 or 2.",
+            "testPattern": "slide_count is 1 or 2"
+          },
+          {
+            "id": "total-slides",
+            "weight": 0.12,
+            "description": "The total_slides field equals the sum of all sections' slide_count values.",
+            "testPattern": "total_slides equals sum"
+          },
+          {
+            "id": "talking-points",
+            "weight": 0.12,
+            "description": "Each section's talking_points array has between 2 and 4 non-empty strings (each longer than 5 characters).",
+            "testPattern": "2 to 4 talking points"
+          },
+          {
+            "id": "required-sections",
+            "weight": 0.12,
+            "description": "Section titles include (case-insensitive) all four required keywords: 'problem', 'solution', 'team', and 'ask'.",
+            "testPattern": "problem.*solution.*team.*ask|required pitch sections"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a pitch deck outline for a B2B SaaS startup called FlowSync.\n\nCriterion 1: Specificity and Relevance (Weight: 60%)\n1.0: Talking points are specific to FlowSync's value proposition (invoice reconciliation, accounting teams, 80% reduction claim), include concrete numbers or claims, and would actually persuade an investor. Each section's talking points are differentiated from the others.\n0.5: Talking points are partially specific but some are generic filler (e.g., 'our product is great', 'large market opportunity' without numbers).\n0: Talking points are entirely generic and could apply to any startup.\n\nCriterion 2: Structural Logic (Weight: 40%)\n1.0: The 8 sections flow in a logical investor narrative order. Slide counts are reasonable (Problem gets 1-2 slides, Team gets 1). The Ask section includes a funding amount or use-of-funds reference.\n0.5: Most sections are in order but one or two are misplaced or the Ask is vague.\n0: Sections are in random order or key investor sections are missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ppt-outline",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

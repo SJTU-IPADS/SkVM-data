@@ -1,0 +1,90 @@
+{
+  "id": "srs-support_task_01",
+  "name": "Write SRS Protocol Comparison Report",
+  "category": "technical_writing",
+  "gradingType": "hybrid",
+  "prompt": "Write a technical comparison of streaming protocols used by SRS media server and save the result as protocol_comparison.json in the current directory.\n\nThe file must be a valid JSON object with exactly these top-level fields:\n- \"protocols\": an array of objects, one per protocol. Each object must have:\n  - \"name\": string (protocol name, e.g. \"RTMP\")\n  - \"transport\": string — either \"TCP\" or \"UDP\"\n  - \"role\": string — one or more of \"publish\", \"play\", or \"both\"\n  - \"latency\": string — one of \"low\", \"medium\", or \"high\"\n- \"summary\": a string (50–300 characters) explaining the tradeoffs between TCP-based and UDP-based protocols in terms of latency and scalability\n\nThe protocols array must include at least these 5 protocols: RTMP, HLS, WebRTC, SRT, HTTP-FLV.\n\nFor each protocol, the transport and role fields must be technically accurate:\n- RTMP: TCP, publish+play\n- HLS: TCP, play only\n- WebRTC: UDP, publish+play\n- SRT: UDP, publish+play\n- HTTP-FLV: TCP, play only\n\nDo not use internet access. Base the content on general knowledge of these streaming protocols.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "srs-support_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "protocol_comparison.json exists as a readable file in the working directory.",
+            "testPattern": "protocol_comparison.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.1,
+            "description": "protocol_comparison.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "protocol_comparison.json has both required top-level keys: protocols and summary.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "protocols-array",
+            "weight": 0.1,
+            "description": "The protocols field is an array containing at least 5 protocol objects.",
+            "testPattern": "protocols is an array of at least 5"
+          },
+          {
+            "id": "protocol-fields",
+            "weight": 0.15,
+            "description": "Every protocol object has all four required string fields: name, transport, role, and latency.",
+            "testPattern": "each protocol has name, transport, role, latency"
+          },
+          {
+            "id": "transport-values",
+            "weight": 0.15,
+            "description": "The transport field for every protocol is exactly 'TCP' or 'UDP' (no other values allowed).",
+            "testPattern": "transport is TCP or UDP"
+          },
+          {
+            "id": "rtmp-correct",
+            "weight": 0.1,
+            "description": "The RTMP protocol entry has transport set to 'TCP'.",
+            "testPattern": "RTMP is TCP"
+          },
+          {
+            "id": "webrtc-correct",
+            "weight": 0.1,
+            "description": "The WebRTC protocol entry has transport set to 'UDP'.",
+            "testPattern": "WebRTC is UDP"
+          },
+          {
+            "id": "summary-present",
+            "weight": 0.1,
+            "description": "The summary field is a non-empty string of more than 20 characters.",
+            "testPattern": "summary is a non-empty string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a protocol comparison and save it as structured JSON.\n\nCriterion 1: Technical Accuracy (Weight: 60%)\n1.0: Transport and role fields are correct for all 5 required protocols; summary accurately describes TCP vs UDP tradeoffs (latency, scalability).\n0.5: Mostly correct but one protocol has a wrong transport or role, or the summary is vague.\n0: Multiple protocol facts are wrong or summary is absent/nonsensical.\n\nCriterion 2: Summary Quality (Weight: 40%)\n1.0: Summary is clear, concise (50-300 chars), and correctly explains why UDP protocols have lower latency while TCP protocols handle more concurrent connections.\n0.5: Summary touches on tradeoffs but is imprecise or too brief.\n0: Summary is missing or does not address the tradeoffs.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/srs-support",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

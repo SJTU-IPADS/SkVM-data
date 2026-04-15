@@ -1,0 +1,96 @@
+{
+  "id": "web-research_task_02",
+  "name": "Research and Compare Programming Languages from Public Data",
+  "category": "web_research",
+  "gradingType": "hybrid",
+  "prompt": "Research the following three programming languages using available web sources and produce a structured comparison report.\n\nLanguages to research: Python, Rust, Go\n\nFor each language, gather the following information (use web fetch or your knowledge if sources are unavailable — note the data source):\n- creator (original creator/author name)\n- year_created (year first released)\n- primary_use_case (one sentence)\n- typing (\"static\" or \"dynamic\")\n- memory_management (\"manual\", \"gc\" for garbage collected, or \"ownership\" for Rust-style ownership)\n- notable_feature (one distinctive technical feature, max 15 words)\n\nSave to language_comparison.json with this exact structure:\n{\n  \"languages\": [\n    {\n      \"name\": \"Python\",\n      \"creator\": \"<string>\",\n      \"year_created\": <number>,\n      \"primary_use_case\": \"<string>\",\n      \"typing\": \"<static|dynamic>\",\n      \"memory_management\": \"<manual|gc|ownership>\",\n      \"notable_feature\": \"<string>\"\n    },\n    { \"name\": \"Rust\", ... },\n    { \"name\": \"Go\", ... }\n  ],\n  \"oldest_language\": \"<name of language with lowest year_created>\",\n  \"data_source\": \"<live or knowledge>\"\n}\n\nAlso save a markdown comparison table to comparison_table.md with columns: Language, Creator, Year, Typing, Memory, Notable Feature. Include a header row and one row per language.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "web-research_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "json-exists",
+            "weight": 0.08,
+            "description": "language_comparison.json exists in the working directory.",
+            "testPattern": "language_comparison.json > file exists"
+          },
+          {
+            "id": "table-exists",
+            "weight": 0.07,
+            "description": "comparison_table.md exists in the working directory.",
+            "testPattern": "comparison_table.md > file exists"
+          },
+          {
+            "id": "three-languages",
+            "weight": 0.1,
+            "description": "languages array contains exactly 3 entries.",
+            "testPattern": "exactly 3 languages|three languages"
+          },
+          {
+            "id": "language-names",
+            "weight": 0.08,
+            "description": "Language names in the array are exactly \"Python\", \"Rust\", and \"Go\".",
+            "testPattern": "Python.*Rust.*Go|language names"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.1,
+            "description": "Each language has creator, year_created, primary_use_case, typing, memory_management, and notable_feature fields.",
+            "testPattern": "creator.*year_created|required fields"
+          },
+          {
+            "id": "typing-values",
+            "weight": 0.1,
+            "description": "typing field for each language is one of the allowed values: \"static\" or \"dynamic\".",
+            "testPattern": "typing values.*static.*dynamic|typing field"
+          },
+          {
+            "id": "memory-values",
+            "weight": 0.1,
+            "description": "memory_management field for each language is one of \"manual\", \"gc\", or \"ownership\" (Rust must be \"ownership\").",
+            "testPattern": "memory_management values|gc.*ownership"
+          },
+          {
+            "id": "oldest-language",
+            "weight": 0.12,
+            "description": "oldest_language field equals \"Python\", the language with the earliest year_created (1991).",
+            "testPattern": "oldest_language is Python"
+          },
+          {
+            "id": "python-year",
+            "weight": 0.1,
+            "description": "Python's year_created equals 1991.",
+            "testPattern": "Python year.*1991|year_created.*1991"
+          },
+          {
+            "id": "table-structure",
+            "weight": 0.15,
+            "description": "comparison_table.md is a markdown table with a header row containing Language and Creator columns, a separator row, and 3 data rows.",
+            "testPattern": "markdown table.*header|table has header"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent researched and compared three programming languages.\n\nCriterion 1: Factual Accuracy (Weight: 60%)\n1.0: All factual fields are correct — Python by Guido van Rossum (1991), Rust by Graydon Hoare (2010), Go by Google/Rob Pike et al. (2009); typing and memory_management values are correct; oldest_language is Python.\n0.5: Most facts correct but one or two minor errors (e.g. wrong year by 1-2).\n0: Multiple key facts are wrong.\n\nCriterion 2: Markdown Table Quality (Weight: 40%)\n1.0: comparison_table.md has a valid markdown table with header row, separator row, and three data rows; all six columns present; content is readable and accurate.\n0.5: Table exists but formatting is broken or a column is missing.\n0: Table file is missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/web-research",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

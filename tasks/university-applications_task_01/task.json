@@ -1,0 +1,96 @@
+{
+  "id": "university-applications_task_01",
+  "name": "Build a University Admissions Record Manager with Validation",
+  "category": "data_management",
+  "gradingType": "hybrid",
+  "prompt": "Create a Python 3 script named `admissions_manager.py` that manages structured university admissions records.\n\nThe script must store records in a file `admissions.json` with this top-level structure:\n```json\n{\"programs\": [], \"collected_date\": \"YYYY-MM-DD\", \"total_count\": 0}\n```\n\nEach program record must have these fields: `university_abbr` (string), `program_name_en` (string), `degree_type` (string, one of: MSc, MA, MBA, MEd, MFA, LLM, Other), `study_mode` (string, one of: Full-time, Part-time, Full-time & Part-time), `tuition_fee_total` (string, format `HKD XXX,XXX`), `application_deadline_main` (string), `english_req_ielts` (string), `official_url` (string).\n\nThe script must support:\n- `python3 admissions_manager.py init` — create `admissions.json` with empty programs list. Print: `Storage initialized`\n- `python3 admissions_manager.py add <json_file>` — read a JSON object from `<json_file>` and append it to the programs list, incrementing total_count. Print: `Added: <program_name_en>`\n- `python3 admissions_manager.py validate` — check all records for required fields and valid degree_type/study_mode values. Print `Valid: <N> programs` if all pass, or print each invalid record's program_name_en prefixed with `Invalid: `\n- `python3 admissions_manager.py export_tsv > output.tsv` — export all records as a tab-separated file with a header row containing the 8 field names\n\nCreate three program JSON files and add them:\n1. `prog1.json`: {\"university_abbr\": \"HKU\", \"program_name_en\": \"MSc Computer Science\", \"degree_type\": \"MSc\", \"study_mode\": \"Full-time\", \"tuition_fee_total\": \"HKD 180,000\", \"application_deadline_main\": \"30 November 2025\", \"english_req_ielts\": \"Overall 6.5\", \"official_url\": \"https://www.cs.hku.hk/programmes/msc\"}\n2. `prog2.json`: {\"university_abbr\": \"CUHK\", \"program_name_en\": \"MA Linguistics\", \"degree_type\": \"MA\", \"study_mode\": \"Full-time & Part-time\", \"tuition_fee_total\": \"HKD 120,000\", \"application_deadline_main\": \"15 January 2026\", \"english_req_ielts\": \"Overall 6.0\", \"official_url\": \"https://www.lin.cuhk.edu.hk/ma\"}\n3. `prog3.json`: {\"university_abbr\": \"HKUST\", \"program_name_en\": \"MBA\", \"degree_type\": \"MBA\", \"study_mode\": \"Full-time\", \"tuition_fee_total\": \"HKD 580,000\", \"application_deadline_main\": \"1 December 2025\", \"english_req_ielts\": \"Overall 7.0\", \"official_url\": \"https://mba.ust.hk\"}\n\nRun in order: init, add prog1.json, add prog2.json, add prog3.json, validate, then save TSV to `programs.tsv`.\n\nRequired output files: `admissions_manager.py`, `admissions.json`, `programs.tsv`.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "university-applications_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.06,
+            "description": "admissions_manager.py exists in the working directory.",
+            "testPattern": "admissions_manager.py > file exists|admissions_manager exists"
+          },
+          {
+            "id": "admissions-exists",
+            "weight": 0.08,
+            "description": "admissions.json exists in the working directory.",
+            "testPattern": "admissions.json > file exists|admissions\\.json exists"
+          },
+          {
+            "id": "program-count",
+            "weight": 0.12,
+            "description": "admissions.json has programs array with 3 entries and total_count equal to 3.",
+            "testPattern": "total_count is 3|three programs|program count"
+          },
+          {
+            "id": "hku-program",
+            "weight": 0.1,
+            "description": "HKU program record is present with program_name_en \"MSc Computer Science\" and degree_type \"MSc\".",
+            "testPattern": "HKU.*MSc Computer Science|MSc Computer Science"
+          },
+          {
+            "id": "cuhk-program",
+            "weight": 0.1,
+            "description": "CUHK program record is present with program_name_en \"MA Linguistics\" and degree_type \"MA\".",
+            "testPattern": "CUHK.*MA Linguistics|MA Linguistics"
+          },
+          {
+            "id": "hkust-program",
+            "weight": 0.1,
+            "description": "HKUST program record is present with tuition_fee_total exactly \"HKD 580,000\".",
+            "testPattern": "HKUST.*MBA|HKUST.*580,000"
+          },
+          {
+            "id": "tuition-format",
+            "weight": 0.1,
+            "description": "All programs have tuition_fee_total matching the pattern \"HKD XXX,XXX\" (e.g. HKD 180,000).",
+            "testPattern": "tuition.*HKD|tuition format"
+          },
+          {
+            "id": "tsv-exists",
+            "weight": 0.08,
+            "description": "programs.tsv exists in the working directory.",
+            "testPattern": "programs.tsv > file exists|programs\\.tsv exists"
+          },
+          {
+            "id": "tsv-header",
+            "weight": 0.12,
+            "description": "programs.tsv header row has exactly 8 tab-separated field names including university_abbr, program_name_en, and official_url.",
+            "testPattern": "TSV header has 8 fields|university_abbr.*program_name_en|tsv header"
+          },
+          {
+            "id": "tsv-rows",
+            "weight": 0.14,
+            "description": "programs.tsv has at least 4 non-empty lines (1 header + 3 data rows for HKU, CUHK, HKUST).",
+            "testPattern": "TSV has 3 data rows|three data rows|tsv rows"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to build an admissions record manager that stores, validates, and exports structured program data.\n\nCriterion 1: Data Integrity (Weight: 60%)\n1.0: admissions.json contains all 3 programs with correct field values matching the specified data. total_count is 3. programs.tsv has a valid header row with all 8 field names and 3 data rows with correct values including 'HKD 180,000', 'HKD 120,000', 'HKD 580,000'.\n0.5: Most data is correct but one program is missing or has wrong field values.\n0: admissions.json or programs.tsv is missing or empty.\n\nCriterion 2: Script Functionality (Weight: 40%)\n1.0: All 4 subcommands are implemented correctly. validate correctly identifies valid records. export_tsv uses tabs as separators with correct header names matching the 8 required fields.\n0.5: Most commands work but one fails or TSV format is wrong (e.g., comma-separated instead of tab-separated).\n0: Script is missing or most commands fail.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/university-applications",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

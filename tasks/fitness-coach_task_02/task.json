@@ -1,0 +1,90 @@
+{
+  "id": "fitness-coach_task_02",
+  "name": "Generate 4-Week Muscle Gain Gym Program",
+  "category": "fitness_coaching",
+  "gradingType": "hybrid",
+  "prompt": "A beginner wants a 4-week gym muscle gain program. Generate the program and save it to `muscle_program.json`.\n\nUser profile:\n- Fitness level: beginner\n- Goal: muscle gain\n- Training location: gym\n- Equipment: barbell, dumbbells, cable machine, bench\n- Days per week: 4\n- Session length: 45 minutes\n- No injuries\n\nThe output file `muscle_program.json` must have this exact top-level structure:\n```json\n{\n  \"program_name\": \"4-Week Beginner Muscle Gain\",\n  \"duration_weeks\": 4,\n  \"days_per_week\": 4,\n  \"goal\": \"muscle gain\",\n  \"weeks\": [\n    {\n      \"week\": 1,\n      \"focus\": \"<string describing week focus>\",\n      \"workouts\": [\n        {\n          \"day\": \"<e.g. Monday>\",\n          \"name\": \"<workout name>\",\n          \"exercises\": [\n            {\"name\": \"<string>\", \"sets\": <int>, \"reps\": \"<string>\", \"rest_seconds\": <int>}\n          ]\n        }\n      ]\n    }\n  ],\n  \"progression_notes\": [\"<string>\"],\n  \"recovery_guidance\": \"<string>\"\n}\n```\n\nRequirements:\n- `weeks` must contain exactly 4 week objects (week 1 through week 4).\n- Each week must have at least `week` (integer), `focus` (string), and `workouts` (array).\n- Each week must contain exactly 4 workout objects.\n- Each workout must have `day`, `name`, and `exercises` (array of at least 3 exercises).\n- Each exercise must have `name`, `sets` (integer >= 1), `reps` (string), `rest_seconds` (integer >= 60).\n- `progression_notes` must be an array of at least 2 strings.\n- `recovery_guidance` must be a non-empty string.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "fitness-coach_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "program-exists",
+            "weight": 0.08,
+            "description": "The file muscle_program.json exists in the working directory.",
+            "testPattern": "muscle_program.json exists"
+          },
+          {
+            "id": "program-parse",
+            "weight": 0.07,
+            "description": "muscle_program.json parses as valid JSON.",
+            "testPattern": "parses as JSON|valid JSON"
+          },
+          {
+            "id": "top-fields",
+            "weight": 0.1,
+            "description": "Top-level fields program_name, duration_weeks, days_per_week, goal, weeks, progression_notes, recovery_guidance are all present.",
+            "testPattern": "top-level required keys"
+          },
+          {
+            "id": "duration-weeks",
+            "weight": 0.1,
+            "description": "duration_weeks is 4 and days_per_week is 4.",
+            "testPattern": "duration_weeks.*4|4 weeks"
+          },
+          {
+            "id": "weeks-count",
+            "weight": 0.15,
+            "description": "weeks array contains exactly 4 week objects with week numbers 1 through 4.",
+            "testPattern": "exactly 4 week objects"
+          },
+          {
+            "id": "workouts-per-week",
+            "weight": 0.15,
+            "description": "Each week object has exactly 4 workout objects, each with at least 3 exercises.",
+            "testPattern": "4 workout.*week|workouts per week"
+          },
+          {
+            "id": "exercise-fields",
+            "weight": 0.15,
+            "description": "Each exercise has name, sets (integer >=1), reps (string), and rest_seconds (integer >=60) fields.",
+            "testPattern": "exercise.*name.*sets|exercise has required"
+          },
+          {
+            "id": "progression-notes",
+            "weight": 0.1,
+            "description": "progression_notes is an array of at least 2 non-empty strings.",
+            "testPattern": "progression_notes"
+          },
+          {
+            "id": "recovery-guidance",
+            "weight": 0.1,
+            "description": "recovery_guidance is a non-empty string.",
+            "testPattern": "recovery_guidance"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a 4-week beginner muscle gain gym program.\n\nCriterion 1: Program Quality (Weight: 60%)\n1.0: Exercises are appropriate for muscle gain (compound lifts like squats, bench press, rows), sets/reps are in hypertrophy range (3-4 sets, 8-12 reps), week focuses show progressive overload concept, rest times are suitable (60-120s).\n0.5: Exercises are adequate but progression across weeks is not evident or rep ranges are too low/high.\n0: Exercises are not suitable for gym muscle gain or program structure ignores progression.\n\nCriterion 2: Progression and Guidance (Weight: 40%)\n1.0: Progression notes give specific advice (e.g. increase weight when completing all reps), recovery guidance is practical.\n0.5: Notes and guidance are present but vague.\n0: Progression or recovery guidance is missing or empty.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/fitness-coach",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

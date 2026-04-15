@@ -1,0 +1,96 @@
+{
+  "id": "short-drama-writer_task_02",
+  "name": "Plan a Multi-Episode Drama Arc with Plot Structure",
+  "category": "creative_writing",
+  "gradingType": "hybrid",
+  "prompt": "Plan a short-form drama series and produce a structured plot outline. Save results to the specified files.\n\nDrama premise: A street food vendor who is secretly a disgraced Michelin-starred chef must reclaim their reputation without revealing their past.\nGenre: Redemption drama\nTotal episodes: 6\n\nTask 1: Save a series plan to `series_plan.json`:\n{\n  \"title\": \"<series title string>\",\n  \"premise\": \"<one sentence>\",\n  \"genre\": \"redemption drama\",\n  \"total_episodes\": 6,\n  \"structure\": \"three-act\",\n  \"acts\": [\n    {\n      \"act\": 1,\n      \"episodes\": [1, 2],\n      \"label\": \"Setup\",\n      \"goal\": \"<string: what act 1 establishes>\"\n    },\n    {\n      \"act\": 2,\n      \"episodes\": [3, 4],\n      \"label\": \"Confrontation\",\n      \"goal\": \"<string: what act 2 develops>\"\n    },\n    {\n      \"act\": 3,\n      \"episodes\": [5, 6],\n      \"label\": \"Resolution\",\n      \"goal\": \"<string: how act 3 resolves>\"\n    }\n  ]\n}\n\nTask 2: Save an episode outline to `episode_outline.json` as an array of exactly 6 objects, one per episode:\n{\n  \"episode\": <integer 1-6>,\n  \"title\": \"<string>\",\n  \"hook\": \"<string: opening scene description in one sentence>\",\n  \"conflict\": \"<string: main conflict of the episode>\",\n  \"resolution\": \"<string: how the episode ends>\",\n  \"cliffhanger\": <boolean: true if episode ends with unresolved tension>\n}\nEpisodes 1-5 must have cliffhanger=true. Episode 6 must have cliffhanger=false.\n\nTask 3: Write the dialogue for a key scene from Episode 1 and save to `key_scene.md`. The scene must:\n- Start with `SCENE:` followed by a location description\n- Include at least 5 lines of dialogue in `NAME: text` format\n- Include at least one stage direction in parentheses like `(stage direction)`\n- End with a `[TO BE CONTINUED]` tag on its own line\n\nSave all files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "short-drama-writer_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "series-plan-exists",
+            "weight": 0.07,
+            "description": "series_plan.json exists as a readable file in the working directory.",
+            "testPattern": "series_plan.json > file exists"
+          },
+          {
+            "id": "series-plan-structure",
+            "weight": 0.1,
+            "description": "series_plan.json has an acts array with exactly 3 entries labeled 'Setup', 'Confrontation', and 'Resolution'.",
+            "testPattern": "acts array has exactly 3 acts|setup.*confrontation.*resolution"
+          },
+          {
+            "id": "series-total-episodes",
+            "weight": 0.08,
+            "description": "series_plan.json has total_episodes equal to 6 and structure equal to 'three-act'.",
+            "testPattern": "total_episodes is 6"
+          },
+          {
+            "id": "outline-exists",
+            "weight": 0.07,
+            "description": "episode_outline.json exists as a readable file in the working directory.",
+            "testPattern": "episode_outline.json > file exists"
+          },
+          {
+            "id": "outline-count",
+            "weight": 0.1,
+            "description": "episode_outline.json is a JSON array containing exactly 6 episode objects with episode numbers 1 through 6.",
+            "testPattern": "exactly 6 episode objects"
+          },
+          {
+            "id": "outline-fields",
+            "weight": 0.1,
+            "description": "Every episode object has all six required fields: episode (integer), title, hook, conflict, resolution, and cliffhanger (boolean).",
+            "testPattern": "each episode has required fields"
+          },
+          {
+            "id": "cliffhanger-pattern",
+            "weight": 0.15,
+            "description": "Episodes 1 through 5 have cliffhanger set to true, and episode 6 has cliffhanger set to false.",
+            "testPattern": "episodes 1-5 have cliffhanger"
+          },
+          {
+            "id": "scene-exists",
+            "weight": 0.06,
+            "description": "key_scene.md exists as a readable file in the working directory.",
+            "testPattern": "key_scene.md > file exists"
+          },
+          {
+            "id": "scene-dialogue",
+            "weight": 0.12,
+            "description": "key_scene.md contains at least 5 lines in 'UPPERCASE_NAME: dialogue text' format.",
+            "testPattern": "at least 5 lines of dialogue"
+          },
+          {
+            "id": "scene-tags",
+            "weight": 0.15,
+            "description": "key_scene.md contains at least one stage direction in parentheses and the '[TO BE CONTINUED]' tag.",
+            "testPattern": "stage direction in parentheses|TO BE CONTINUED"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to plan a 6-episode drama about a disgraced chef running a street food stall.\n\nCriterion 1: Series Structure Coherence (Weight: 50%)\n1.0: The three-act structure is meaningful — Act 1 genuinely sets up the secret, Act 2 creates escalating pressure to reveal it, Act 3 resolves the redemption arc. Episode titles across all 6 episodes suggest a clear progression. The cliffhangers in episodes 1-5 are narratively linked to the next episode.\n0.5: Structure is present but act goals are vague or episodes feel disconnected.\n0: Structure is absent or the drama's central premise is not woven through the episodes.\n\nCriterion 2: Scene Writing Quality (Weight: 50%)\n1.0: The key scene dialogue is engaging and reveals character while hinting at the secret. Stage directions add visual context appropriate for a vertical short-form format. The ending `[TO BE CONTINUED]` creates genuine anticipation.\n0.5: Scene exists and follows format but dialogue is flat or stage directions are missing.\n0: Scene is absent or does not contain dialogue.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/short-drama-writer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

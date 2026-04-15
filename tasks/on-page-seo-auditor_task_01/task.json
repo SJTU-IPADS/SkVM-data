@@ -1,0 +1,96 @@
+{
+  "id": "on-page-seo-auditor_task_01",
+  "name": "Audit On-Page SEO of a Provided HTML Page and Output a Scored Report",
+  "category": "seo",
+  "gradingType": "hybrid",
+  "prompt": "Perform an on-page SEO audit of the HTML content below. Target keyword: \"noise-cancelling headphones under 100\". Save your audit results to seo_audit.json.\n\nHTML content to audit:\n```html\n<!DOCTYPE html>\n<html lang=\"en\">\n<head>\n  <title>Best Headphones Guide 2026</title>\n  <meta name=\"description\" content=\"We review headphones.\">\n</head>\n<body>\n  <h1>Headphones You Should Buy</h1>\n  <h2>Top Picks</h2>\n  <p>Looking for great sound? We've tested dozens of models to bring you the top recommendations. Whether you want bass-heavy beats or crystal-clear vocals, there's something for everyone. Our team spent 200 hours testing 40+ models this year.</p>\n  <h2>Budget Options</h2>\n  <p>You don't need to spend a lot to get good audio quality. Several models under $100 deliver excellent performance. Check our picks below.</p>\n  <img src=\"headphones-1.jpg\">\n  <img src=\"product-shot.jpg\" alt=\"Sony WH-CH520\">\n  <a href=\"/reviews\">Read reviews</a>\n  <a href=\"/compare\">Compare models</a>\n</body>\n</html>\n```\n\nseo_audit.json must have exactly this structure:\n{\n  \"target_keyword\": \"noise-cancelling headphones under 100\",\n  \"scores\": {\n    \"title_tag\": <integer 0-10>,\n    \"meta_description\": <integer 0-10>,\n    \"h1\": <integer 0-10>,\n    \"images\": <integer 0-10>,\n    \"overall\": <number 0-10, one decimal place>\n  },\n  \"issues\": [\n    { \"element\": \"<element name>\", \"severity\": \"critical|important|minor\", \"description\": \"<issue>\", \"recommendation\": \"<fix>\" }\n  ],\n  \"optimized_title\": \"<suggested title tag, 50-60 chars>\",\n  \"optimized_meta_description\": \"<suggested meta description, 150-160 chars>\"\n}\n\nRequirements: issues array must have at least 4 entries; each issue must have all 4 fields; overall score must be the average of the 4 component scores (rounded to 1 decimal); optimized_title must be 50-60 characters; optimized_meta_description must be 140-165 characters.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "on-page-seo-auditor_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "seo_audit.json file is present in the working directory.",
+            "testPattern": "seo_audit.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.08,
+            "description": "seo_audit.json parses as valid JSON without errors.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "scores-fields",
+            "weight": 0.12,
+            "description": "scores object contains title_tag, meta_description, h1, images, and overall fields.",
+            "testPattern": "scores has all required fields"
+          },
+          {
+            "id": "scores-range",
+            "weight": 0.1,
+            "description": "title_tag, meta_description, h1, and images scores are all integers between 0 and 10.",
+            "testPattern": "all component scores are integers 0-10"
+          },
+          {
+            "id": "overall-average",
+            "weight": 0.15,
+            "description": "overall score equals the arithmetic average of title_tag, meta_description, h1, and images within 0.2 tolerance.",
+            "testPattern": "overall is average of the 4 component scores"
+          },
+          {
+            "id": "issues-count",
+            "weight": 0.12,
+            "description": "issues array contains at least 4 entries.",
+            "testPattern": "at least 4 issues"
+          },
+          {
+            "id": "issue-fields",
+            "weight": 0.1,
+            "description": "Each issue object has element, severity, description, and recommendation fields.",
+            "testPattern": "each issue has element.*severity.*description.*recommendation"
+          },
+          {
+            "id": "issue-severity",
+            "weight": 0.08,
+            "description": "Every issue severity is one of: critical, important, or minor.",
+            "testPattern": "severity values are valid"
+          },
+          {
+            "id": "optimized-title",
+            "weight": 0.08,
+            "description": "optimized_title string is between 50 and 60 characters long.",
+            "testPattern": "optimized_title is 50-60 chars"
+          },
+          {
+            "id": "optimized-meta",
+            "weight": 0.07,
+            "description": "optimized_meta_description string is between 140 and 165 characters long.",
+            "testPattern": "optimized_meta_description length"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent audited an HTML page targeting 'noise-cancelling headphones under 100' and produced a scored SEO report.\n\nCriterion 1: Issue Identification Accuracy (Weight: 60%)\n1.0: Issues correctly identify: title does not contain target keyword, meta description is too short and lacks keyword, H1 does not contain target keyword, first image has no alt text. Severity levels are appropriate (missing keyword in title = critical or important).\n0.5: At least 3 of the 4 main issues are identified but severity labels are inconsistent.\n0: Fewer than 2 real issues identified, or issues are fabricated.\n\nCriterion 2: Optimization Suggestions Quality (Weight: 40%)\n1.0: optimized_title naturally includes the target keyword near the front and is compelling; optimized_meta_description includes the keyword, has a call-to-action, and accurately describes the page content.\n0.5: Both optimizations include the keyword but feel generic or awkward.\n0: Optimizations are missing or do not include the target keyword.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/on-page-seo-auditor",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

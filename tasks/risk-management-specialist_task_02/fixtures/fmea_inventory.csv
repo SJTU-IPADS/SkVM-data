@@ -1,0 +1,9 @@
+component_id,component,failure_mode,severity,occurrence,detectability,after_severity,after_occurrence,after_detectability
+C-007,Pressure Sensor,Sensor reads 15% above actual pressure,7,3,5,7,2,3
+C-008,Catheter Seal,Seal rupture during high-pressure delivery,8,2,4,8,2,4
+C-004,Battery Pack,Battery depletes without critical warning,7,5,6,7,3,5
+C-005,SW Controller,Dose calculation error in edge case,10,2,3,10,1,2
+C-006,Pump Actuator,Pump delivers wrong flow rate,9,2,2,9,1,1
+C-002,Alarm Module,Alarm fails to activate on threshold breach,8,2,7,8,2,4
+C-001,Power Supply Unit,Voltage spike to patient circuit,9,3,4,9,2,3
+C-003,Display Unit,Incorrect value displayed to operator,6,4,5,6,2,3

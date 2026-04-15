@@ -1,0 +1,96 @@
+{
+  "id": "ux-researcher-designer_task_02",
+  "name": "Plan a Usability Test and Synthesize Research Findings",
+  "category": "ux_research",
+  "gradingType": "hybrid",
+  "prompt": "You are a senior UX researcher. Complete two tasks and save results to JSON files.\n\nTask A: Plan a usability test for a mobile checkout flow redesign. Save to usability_plan.json with this exact structure:\n{\n  \"research_questions\": [\"<string>\", \"<string>\", \"<string>\"],\n  \"method\": \"<string — one of: moderated_remote, unmoderated_remote, guerrilla>\",\n  \"participant_count\": <number>,\n  \"session_duration_minutes\": <number>,\n  \"tasks\": [\n    {\"id\": \"T1\", \"scenario\": \"<string>\", \"goal\": \"<string>\", \"success_criteria\": \"<string>\"},\n    {\"id\": \"T2\", \"scenario\": \"<string>\", \"goal\": \"<string>\", \"success_criteria\": \"<string>\"},\n    {\"id\": \"T3\", \"scenario\": \"<string>\", \"goal\": \"<string>\", \"success_criteria\": \"<string>\"}\n  ],\n  \"success_metrics\": {\n    \"completion_rate_target\": <number between 0 and 1>,\n    \"error_rate_max\": <number between 0 and 1>,\n    \"satisfaction_min\": <number between 1 and 5>\n  }\n}\n\nUse moderated_remote method with 5-8 participants and 45-60 minute sessions. All three research questions must be testable (not vague). Each task must have a scenario, a goal, and a success criterion.\n\nTask B: Synthesize these interview findings and save to synthesis.json:\nRaw observations from 6 participants:\n- P1, P3, P5, P6: struggled to find the promo code field during checkout\n- P2, P4, P6: completed checkout in under 2 minutes\n- P1, P2, P3, P4: expected order confirmation email within 1 minute\n- P5, P6: confused by the 'Continue' vs 'Place Order' button labels\n- P1, P3, P4, P5: did not notice the shipping estimate until after payment\n\nsynthesis.json structure:\n{\n  \"findings\": [\n    {\"theme\": \"<string>\", \"frequency\": <number out of 6>, \"severity\": <1-4>, \"recommendation\": \"<string>\"}\n  ],\n  \"top_priority_theme\": \"<string — theme with highest frequency × severity score>\"\n}",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "ux-researcher-designer_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "plan-exists",
+            "weight": 0.07,
+            "description": "usability_plan.json exists in the working directory.",
+            "testPattern": "usability_plan.json > file exists"
+          },
+          {
+            "id": "plan-method",
+            "weight": 0.1,
+            "description": "method field equals \"moderated_remote\" as required by the task specification.",
+            "testPattern": "method is moderated_remote"
+          },
+          {
+            "id": "plan-participants",
+            "weight": 0.08,
+            "description": "participant_count is a number between 5 and 8 inclusive.",
+            "testPattern": "participant_count between 5 and 8"
+          },
+          {
+            "id": "plan-duration",
+            "weight": 0.08,
+            "description": "session_duration_minutes is a number between 45 and 60 inclusive.",
+            "testPattern": "session_duration.*45.*60|session_duration between"
+          },
+          {
+            "id": "plan-tasks",
+            "weight": 0.1,
+            "description": "tasks array has exactly 3 entries with IDs T1, T2, T3.",
+            "testPattern": "exactly 3 tasks|three tasks"
+          },
+          {
+            "id": "plan-task-fields",
+            "weight": 0.1,
+            "description": "Each task object has id, scenario (>10 chars), goal, and success_criteria fields.",
+            "testPattern": "task has scenario, goal, success_criteria"
+          },
+          {
+            "id": "synthesis-exists",
+            "weight": 0.07,
+            "description": "synthesis.json exists in the working directory.",
+            "testPattern": "synthesis.json > file exists"
+          },
+          {
+            "id": "synthesis-findings",
+            "weight": 0.15,
+            "description": "synthesis.json findings array has exactly 5 entries, one per observed participant cluster.",
+            "testPattern": "five findings|5 findings"
+          },
+          {
+            "id": "synthesis-frequencies",
+            "weight": 0.15,
+            "description": "Finding frequencies correctly reflect source data: at least 3 findings have frequency=4 and at least 1 has frequency=2.",
+            "testPattern": "finding frequencies match|frequency counts"
+          },
+          {
+            "id": "synthesis-priority",
+            "weight": 0.1,
+            "description": "top_priority_theme is a non-empty string identifying the finding with the highest frequency × severity score.",
+            "testPattern": "top_priority_theme is set"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent produced a usability test plan and a research synthesis.\n\nCriterion 1: Usability Plan Quality (Weight: 50%)\n1.0: Research questions are specific and testable, tasks follow scenario/goal/success structure with realistic checkout scenarios, success metrics are reasonable (completion rate > 0.7, error rate < 0.2).\n0.5: Plan is present but questions are vague or tasks lack realistic scenarios.\n0: Plan is missing or structurally incorrect.\n\nCriterion 2: Synthesis Accuracy (Weight: 50%)\n1.0: All five observation clusters are captured as findings with correct participant frequency counts, severity ratings are plausible, recommendations are actionable and specific to checkout UX.\n0.5: Most findings are present but frequency counts have errors or recommendations are generic.\n0: Synthesis is missing or findings do not reflect the source observations.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/ux-researcher-designer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

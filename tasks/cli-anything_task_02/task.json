@@ -1,0 +1,102 @@
+{
+  "id": "cli-anything_task_02",
+  "name": "Inspect a Repository Layout and Generate a Harness Assessment",
+  "category": "cli_tooling",
+  "gradingType": "hybrid",
+  "prompt": "You need to inspect a software project and assess whether it is a good candidate for an agent-usable CLI harness, then document your findings.\n\nStep 1: Create a directory called sample_project/ with the following structure:\n  sample_project/\n    README.md          — contains the text \"# Sample Tool\\nA file processing utility.\"\n    setup.py           — a minimal Python setup.py with name=\"sample-tool\", version=\"0.1.0\"\n    src/\n      __init__.py      — empty file\n      main.py          — a Python script with a main() function that prints \"Running sample tool\"\n    tests/\n      test_main.py     — a Python test file with at least one test function\n\nStep 2: Write and run a Python script called inspect_project.py that scans the sample_project/ directory and produces a file called inspection_report.json with exactly these fields:\n- \"repo_exists\": true\n- \"has_readme\": true\n- \"has_setup_py\": true\n- \"has_tests\": true\n- \"source_files\": an array of relative paths (strings) to all .py files found in the project (at least 3)\n- \"harness_feasibility\": \"high\", \"medium\", or \"low\"\n- \"recommended_entry_point\": a string suggesting the main entry point (e.g. \"python3 src/main.py\")\n- \"assessment_notes\": a string of 20-100 words explaining the feasibility rating\n\nStep 3: Create a file called harness_plan.md with a brief plan (at least 100 words) describing how you would wrap sample_project/ into an agent-usable CLI harness, including what command groups you would define and what state management approach you would use.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "cli-anything_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "project-exists",
+            "weight": 0.08,
+            "description": "The sample_project directory exists in the working directory.",
+            "testPattern": "sample_project directory exists"
+          },
+          {
+            "id": "readme-setup",
+            "weight": 0.07,
+            "description": "Both sample_project/README.md and sample_project/setup.py exist.",
+            "testPattern": "README.md exists|setup.py exists"
+          },
+          {
+            "id": "setup-content",
+            "weight": 0.08,
+            "description": "sample_project/setup.py contains 'sample-tool' and '0.1.0'.",
+            "testPattern": "setup.py contains name and version"
+          },
+          {
+            "id": "src-tests",
+            "weight": 0.07,
+            "description": "Both sample_project/src/main.py and sample_project/tests/test_main.py exist.",
+            "testPattern": "src/main.py exists|tests directory exists"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.07,
+            "description": "inspection_report.json file is present in the working directory.",
+            "testPattern": "inspection_report.json > file exists"
+          },
+          {
+            "id": "booleans-true",
+            "weight": 0.15,
+            "description": "inspection_report.json has repo_exists, has_readme, has_setup_py, and has_tests all set to true.",
+            "testPattern": "all boolean fields are true"
+          },
+          {
+            "id": "source-files",
+            "weight": 0.13,
+            "description": "source_files is an array of at least 3 strings, each ending with '.py'.",
+            "testPattern": "source_files is an array with at least 3"
+          },
+          {
+            "id": "feasibility",
+            "weight": 0.08,
+            "description": "harness_feasibility is one of the valid values: 'high', 'medium', or 'low'.",
+            "testPattern": "harness_feasibility is a valid value"
+          },
+          {
+            "id": "entry-point",
+            "weight": 0.08,
+            "description": "recommended_entry_point is a non-empty string containing 'python3' or 'python'.",
+            "testPattern": "recommended_entry_point is a non-empty"
+          },
+          {
+            "id": "plan-content",
+            "weight": 0.1,
+            "description": "harness_plan.md is at least 100 words and mentions 'command', 'group', 'cli', or 'harness'.",
+            "testPattern": "plan is at least 100 words|plan mentions command"
+          },
+          {
+            "id": "notes-length",
+            "weight": 0.09,
+            "description": "assessment_notes is between 20 and 100 words.",
+            "testPattern": "assessment_notes is between"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a sample project, inspect it programmatically, and produce a harness assessment.\n\nCriterion 1: Inspection Accuracy (Weight: 50%)\n1.0: inspection_report.json correctly reflects the created project structure. All boolean fields are true and the source_files list matches actual .py files.\n0.5: Report exists but some fields are wrong or missing.\n0: Report is missing.\n\nCriterion 2: Harness Planning Quality (Weight: 50%)\n1.0: harness_plan.md presents a coherent, specific plan with named command groups and a clear state management approach. At least 100 words.\n0.5: Plan exists but is generic or incomplete.\n0: Plan is missing or too short.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/cli-anything",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,90 @@
+{
+  "id": "remind-me-pro_task_01",
+  "name": "Parse Reminder Requests and Generate Cron Schedule Strings",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "You are processing reminder requests from users. For each request, parse the schedule and produce the correct schedule string in the format used by reminder systems, then save all results to a JSON file.\n\nSchedule string formats:\n- One-shot in N minutes/hours: at:<N>m or at:<N>h\n- Every N minutes/hours interval: every:<N>m or every:<N>h\n- Recurring cron expression: cron:<cron_expr> where the cron uses standard 5-field format (minute hour day-of-month month day-of-week)\n\nReminder requests to process:\n1. id: R1 — \"Remind me every Monday at 9 AM to check the weekly report\"\n2. id: R2 — \"Set a reminder every 30 minutes to check the build status\"\n3. id: R3 — \"Alert me every Friday at 5 PM for the weekly team standup\"\n4. id: R4 — \"Remind me every day at 8 AM to take my vitamins\"\n5. id: R5 — \"Set up a reminder every hour during weekdays (Monday to Friday) at the top of the hour\"\n\nFor each request produce: id, raw_request (copy of input text), what (what should the reminder say — craft a clear reminder message), schedule_string (the schedule string in at:/every:/cron: format), is_recurring (true for every:/cron:, false for at:), job_name (short descriptive name, max 30 chars).\n\nSave all 5 results to reminders_parsed.json as: { \"reminders\": [ { \"id\": \"R1\", \"raw_request\": \"...\", \"what\": \"...\", \"schedule_string\": \"...\", \"is_recurring\": bool, \"job_name\": \"...\" }, ... ] }",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "remind-me-pro_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "reminders_parsed.json exists in the working directory.",
+            "testPattern": "reminders_parsed.json.*exists|file exists.*reminders_parsed"
+          },
+          {
+            "id": "five-reminders",
+            "weight": 0.1,
+            "description": "reminders_parsed.json reminders array contains exactly 5 entries.",
+            "testPattern": "has exactly 5 reminder entries"
+          },
+          {
+            "id": "r1-cron-monday",
+            "weight": 0.15,
+            "description": "R1 schedule_string starts with 'cron:' and contains both the hour value 9 and the weekday value 1 (Monday at 9 AM).",
+            "testPattern": "R1.*cron.*9.*1|cron:0 9.*R1|Monday.*9.*AM"
+          },
+          {
+            "id": "r2-every-30m",
+            "weight": 0.15,
+            "description": "R2 schedule_string equals the exact string 'every:30m'.",
+            "testPattern": "R2.*every:30m|every:30m.*R2"
+          },
+          {
+            "id": "r3-cron-friday",
+            "weight": 0.12,
+            "description": "R3 schedule_string starts with 'cron:' and contains both the hour value 17 and the weekday value 5 (Friday at 5 PM).",
+            "testPattern": "R3.*cron.*17.*5|cron:0 17.*R3|Friday.*5.*PM"
+          },
+          {
+            "id": "r4-cron-daily",
+            "weight": 0.12,
+            "description": "R4 schedule_string starts with 'cron:' and contains the hour value 8 (daily at 8 AM).",
+            "testPattern": "R4.*cron.*8|cron:0 8.*R4|daily.*8.*AM"
+          },
+          {
+            "id": "all-recurring",
+            "weight": 0.1,
+            "description": "Every reminder entry has is_recurring set to true.",
+            "testPattern": "all reminders are marked as recurring"
+          },
+          {
+            "id": "job-names",
+            "weight": 0.1,
+            "description": "Every reminder entry has a non-empty job_name string of at most 30 characters.",
+            "testPattern": "job_name.*length|job_name.*string"
+          },
+          {
+            "id": "what-fields",
+            "weight": 0.08,
+            "description": "Every reminder entry has a non-empty what string (at least 5 characters) with the reminder message text.",
+            "testPattern": "what.*field|reminder message"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent parsed natural language reminder requests into structured schedule strings.\n\nCriterion 1: Schedule String Correctness (Weight: 70%)\n1.0: R1 uses cron:0 9 * * 1 (Monday 9 AM), R2 uses every:30m, R3 uses cron:0 17 * * 5 (Friday 5 PM), R4 uses cron:0 8 * * * (daily 8 AM), R5 uses cron:0 * * * 1-5 (hourly on weekdays). All formats use the correct prefix (cron:/every:/at:) and correct time values.\n0.5: At least 3 of 5 schedule strings are correct or have minor deviations (e.g., slightly different but equivalent cron expressions).\n0: Fewer than 2 correct schedule strings or formats are wrong.\n\nCriterion 2: Message and Naming Quality (Weight: 30%)\n1.0: job_name fields are concise and descriptive (under 30 chars), what fields craft clear, actionable reminder messages appropriate for each request.\n0.5: Names and messages are mostly reasonable but some are too generic or too long.\n0: Names or messages are missing or nonsensical.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/remind-me-pro",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

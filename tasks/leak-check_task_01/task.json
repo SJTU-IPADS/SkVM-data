@@ -1,0 +1,102 @@
+{
+  "id": "leak-check_task_01",
+  "name": "Scan JSONL Session Files for Credential Leaks",
+  "category": "security",
+  "gradingType": "hybrid",
+  "prompt": "You are given a set of fake session log files that simulate an AI agent's JSONL session history. Your task is to write a Node.js script called scan.js that scans these files for leaked credential patterns and produces a JSON report.\n\nFirst, create the test fixture directory sessions/ and write these 3 fake JSONL files:\n\nsessions/session-aaa.jsonl — one line: {\"role\":\"user\",\"content\":\"please use my token MYTOKEN-abc123 to auth\",\"provider\":\"anthropic\",\"ts\":\"2026-01-10T10:00:00.000Z\"}\n\nsessions/session-bbb.jsonl — one line: {\"role\":\"assistant\",\"content\":\"I will help you with that task now.\",\"provider\":\"anthropic\",\"ts\":\"2026-01-11T11:00:00.000Z\"}\n\nsessions/session-ccc.jsonl — one line: {\"role\":\"user\",\"content\":\"also my api key is sk-SECRETKEY-xyz789 here\",\"provider\":\"openai\",\"ts\":\"2026-01-12T12:00:00.000Z\"}\n\nThen write scan.js that:\n- Reads all .jsonl files from the sessions/ directory\n- Checks each line's content field against these two credential patterns:\n  - pattern name \"MyToken\": contains the substring \"MYTOKEN-\"\n  - pattern name \"APIKey\": contains the substring \"sk-SECRETKEY-\"\n- For each match, records: credential name, session filename (basename without path), timestamp, provider\n- Writes scan_result.json with:\n  - \"leaks\": array of match objects with fields \"credential\", \"session\", \"timestamp\", \"provider\"\n  - \"summary\": object with \"files_scanned\" (integer), \"credentials_checked\" (integer = 2), \"leaks_found\" (integer)\n\nRun scan.js with node or bun and write scan_result.json to the current directory.\n\nExpected: 2 leaks found — MyToken in session-aaa.jsonl (provider anthropic) and APIKey in session-ccc.jsonl (provider openai). files_scanned = 3.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "leak-check_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "scan-exists",
+            "weight": 0.05,
+            "description": "scan.js file is present in the workspace.",
+            "testPattern": "scan.js > file exists"
+          },
+          {
+            "id": "no-network",
+            "weight": 0.1,
+            "description": "scan.js source contains no fetch, http., https., WebSocket, child_process, exec(), or spawn() calls.",
+            "testPattern": "does not use network"
+          },
+          {
+            "id": "reads-sessions",
+            "weight": 0.05,
+            "description": "scan.js source references the sessions directory to locate JSONL files.",
+            "testPattern": "reads from sessions"
+          },
+          {
+            "id": "result-exists",
+            "weight": 0.05,
+            "description": "scan_result.json file is present in the workspace.",
+            "testPattern": "scan_result.json > file exists"
+          },
+          {
+            "id": "result-structure",
+            "weight": 0.08,
+            "description": "scan_result.json contains a leaks array and a summary object.",
+            "testPattern": "leaks array and summary"
+          },
+          {
+            "id": "leaks-count",
+            "weight": 0.17,
+            "description": "The leaks array contains exactly 2 entries (one MyToken match, one APIKey match).",
+            "testPattern": "exactly 2 entries"
+          },
+          {
+            "id": "leak-fields",
+            "weight": 0.05,
+            "description": "Every leak entry has the fields credential, session, timestamp, and provider.",
+            "testPattern": "credential, session, timestamp, provider"
+          },
+          {
+            "id": "mytoken-leak",
+            "weight": 0.2,
+            "description": "A leak entry with credential=\"MyToken\" exists, referencing session-aaa.jsonl and provider=\"anthropic\".",
+            "testPattern": "MyToken leak is found"
+          },
+          {
+            "id": "apikey-leak",
+            "weight": 0.15,
+            "description": "A leak entry with credential=\"APIKey\" exists, referencing session-ccc.jsonl and provider=\"openai\".",
+            "testPattern": "APIKey leak is found"
+          },
+          {
+            "id": "summary-files",
+            "weight": 0.05,
+            "description": "summary.files_scanned is exactly 3.",
+            "testPattern": "files_scanned is 3"
+          },
+          {
+            "id": "summary-counts",
+            "weight": 0.05,
+            "description": "summary.credentials_checked is 2 and summary.leaks_found is 2.",
+            "testPattern": "credentials_checked is 2"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a Node.js credential scanner that reads JSONL files and produces a structured leak report.\n\nCriterion 1: Scanner Implementation Quality (Weight: 50%)\n1.0: scan.js correctly reads JSONL files, applies pattern matching, extracts provider and timestamp from parsed JSON, and handles the case of no matches gracefully.\n0.5: Scanner works but has issues like hardcoded paths, missing field extraction, or doesn't parse JSON lines.\n0: Script crashes, doesn't scan files, or uses network/exec calls.\n\nCriterion 2: Result Accuracy (Weight: 50%)\n1.0: scan_result.json shows exactly 2 leaks with correct credential names, session filenames, timestamps, and providers; summary shows files_scanned=3.\n0.5: Leaks found but session/provider/timestamp data partially wrong.\n0: scan_result.json missing or leaks array is empty.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/leak-check",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

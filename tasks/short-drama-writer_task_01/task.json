@@ -1,0 +1,96 @@
+{
+  "id": "short-drama-writer_task_01",
+  "name": "Write a Short Drama Episode with Character Profiles",
+  "category": "creative_writing",
+  "gradingType": "hybrid",
+  "prompt": "Write a short drama script episode and character profiles. Save results to the specified files.\n\nDrama premise: A young woman discovers her boss is her long-lost sibling.\nGenre: Modern romance/drama\nFormat: Vertical short-form drama (each episode 1-3 minutes)\nEpisode number: Episode 1 (the hook)\n\nTask 1: Save character profiles to `characters.json` as an array of exactly 3 characters. Each character object must have:\n- `name` (string): character full name\n- `role` (string): one of \"protagonist\", \"antagonist\", \"supporting\"\n- `age` (integer): character age\n- `personality_traits` (array of exactly 3 strings): personality keywords\n- `motivation` (string): what drives this character\n- `conflict` (string): the character's main conflict in this drama\n\nTask 2: Save the episode script to `episode_01.md`. The script must have:\n- A title line at the top: `# Episode 1: [episode title]`\n- A scene setting block starting with `SCENE:` describing location and time\n- At least 6 lines of dialogue in the format `CHARACTER_NAME: dialogue text`\n- A cliffhanger ending marked with `[CLIFFHANGER]` on its own line\n- Total length between 150 and 400 words\n\nTask 3: Save a hook analysis to `hook_analysis.json`:\n{\n  \"hook_type\": \"<one of: mystery, conflict, revelation, cliffhanger>\",\n  \"hook_description\": \"<string describing what makes the opening 3 seconds compelling>\",\n  \"emotional_triggers\": [\"<at least 2 emotion words>\"],\n  \"target_audience\": \"<string>\",\n  \"episode_end_type\": \"cliffhanger\"\n}\n\nSave all files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "short-drama-writer_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "characters-exists",
+            "weight": 0.07,
+            "description": "characters.json exists as a readable file in the working directory.",
+            "testPattern": "characters.json > file exists"
+          },
+          {
+            "id": "characters-count",
+            "weight": 0.1,
+            "description": "characters.json is a JSON array containing exactly 3 character objects.",
+            "testPattern": "exactly 3 characters"
+          },
+          {
+            "id": "characters-fields",
+            "weight": 0.1,
+            "description": "Every character object has all six required fields: name, role, age (integer), personality_traits (array), motivation, and conflict.",
+            "testPattern": "each character has required fields"
+          },
+          {
+            "id": "character-roles",
+            "weight": 0.08,
+            "description": "All character roles are valid (protagonist, antagonist, or supporting) and at least one character has the role 'protagonist'.",
+            "testPattern": "roles include protagonist.*supporting|character roles are valid"
+          },
+          {
+            "id": "traits-count",
+            "weight": 0.08,
+            "description": "Every character's personality_traits array has exactly 3 non-empty string entries.",
+            "testPattern": "exactly 3 personality traits"
+          },
+          {
+            "id": "episode-exists",
+            "weight": 0.07,
+            "description": "episode_01.md exists as a readable file in the working directory.",
+            "testPattern": "episode_01.md > file exists"
+          },
+          {
+            "id": "episode-title",
+            "weight": 0.08,
+            "description": "episode_01.md has an H1 heading whose text (lowercased) contains 'episode 1'.",
+            "testPattern": "H1 title.*Episode 1|episode title heading"
+          },
+          {
+            "id": "episode-dialogue",
+            "weight": 0.12,
+            "description": "episode_01.md contains at least 6 lines in 'UPPERCASE_NAME: dialogue text' format.",
+            "testPattern": "contains at least 6 lines of dialogue in 'NAME: text' format"
+          },
+          {
+            "id": "episode-cliffhanger",
+            "weight": 0.12,
+            "description": "episode_01.md contains the literal marker '[CLIFFHANGER]' on its own line.",
+            "testPattern": "CLIFFHANGER.*marker|cliffhanger tag present"
+          },
+          {
+            "id": "hook-analysis-exists",
+            "weight": 0.18,
+            "description": "hook_analysis.json exists with a valid hook_type (mystery/conflict/revelation/cliffhanger), at least 2 emotional_triggers strings, and episode_end_type set to 'cliffhanger'.",
+            "testPattern": "hook_analysis.json > file exists|hook type and emotional triggers"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a short drama episode about a woman discovering her boss is her long-lost sibling.\n\nCriterion 1: Script Dramatic Quality (Weight: 60%)\n1.0: The episode has a compelling opening that immediately establishes tension, the dialogue reveals character personality and advances the plot, and the cliffhanger ending creates genuine suspense. Character voices are distinct and the premise (boss = sibling) is set up naturally.\n0.5: Script follows the format but dialogue is generic or the cliffhanger is weak.\n0: Script does not address the premise or has no dramatic tension.\n\nCriterion 2: Character Development (Weight: 40%)\n1.0: Character profiles are specific and internally consistent. Motivations are meaningful and link to the drama's central conflict. Personality traits are distinct across the 3 characters (no two characters have the same traits).\n0.5: Characters are defined but motivations are vague or traits are generic.\n0: Characters are missing or do not connect to the drama's plot.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/short-drama-writer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

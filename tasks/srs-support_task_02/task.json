@@ -1,0 +1,90 @@
+{
+  "id": "srs-support_task_02",
+  "name": "Generate SRS Codec Support Matrix",
+  "category": "technical_writing",
+  "gradingType": "hybrid",
+  "prompt": "Create a codec support matrix for SRS media server and save it as codec_matrix.json in the current directory.\n\nThe file must be a valid JSON object with exactly these fields:\n- \"codecs\": an array of codec objects. Each object must have:\n  - \"name\": string (codec name, e.g. \"H.264\", \"AAC\", \"Opus\")\n  - \"type\": string — either \"video\" or \"audio\"\n  - \"supported\": boolean — whether SRS supports it\n  - \"notes\": string — one sentence about how SRS handles this codec (transmuxing, transcoding, or native support)\n- \"transcoding_note\": a string explaining that SRS handles audio transcoding (AAC to Opus) natively but relies on FFmpeg for video transcoding\n- \"focus\": string — must be exactly \"transmuxing\"\n\nThe codecs array must include at least these 6 codecs: H.264, H.265, VP8, AAC, Opus, MP3.\n\nFor supported values:\n- H.264: true\n- H.265: true\n- VP8: false (SRS does not support VP8 for streaming)\n- AAC: true\n- Opus: true\n- MP3: true\n\nDo not use internet access. Base the content on general knowledge of SRS codec support.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "srs-support_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "codec_matrix.json exists as a readable file in the working directory.",
+            "testPattern": "codec_matrix.json > file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.1,
+            "description": "codec_matrix.json parses as valid JSON without throwing.",
+            "testPattern": "valid JSON"
+          },
+          {
+            "id": "required-keys",
+            "weight": 0.1,
+            "description": "codec_matrix.json has all three required top-level keys: codecs, transcoding_note, and focus.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "codecs-array",
+            "weight": 0.1,
+            "description": "The codecs field is an array containing at least 6 codec objects.",
+            "testPattern": "codecs is an array of at least 6"
+          },
+          {
+            "id": "codec-fields",
+            "weight": 0.1,
+            "description": "Every codec object has all four required fields: name (string), type (string), supported (boolean), and notes (string).",
+            "testPattern": "each codec has name, type, supported, notes"
+          },
+          {
+            "id": "focus-field",
+            "weight": 0.1,
+            "description": "The focus field is exactly the string 'transmuxing'.",
+            "testPattern": "focus is transmuxing"
+          },
+          {
+            "id": "h264-supported",
+            "weight": 0.1,
+            "description": "The H.264 codec entry has supported set to true and type set to 'video'.",
+            "testPattern": "H.264 is supported"
+          },
+          {
+            "id": "vp8-unsupported",
+            "weight": 0.15,
+            "description": "The VP8 codec entry has supported set to false.",
+            "testPattern": "VP8 is not supported"
+          },
+          {
+            "id": "transcoding-note",
+            "weight": 0.15,
+            "description": "transcoding_note is a non-empty string of more than 20 characters.",
+            "testPattern": "transcoding_note is a non-empty string"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce a codec support matrix for SRS media server as a JSON file.\n\nCriterion 1: Codec Accuracy (Weight: 70%)\n1.0: All 6 required codecs are present with correct supported values (H.264/H.265/AAC/Opus/MP3 = true, VP8 = false), types are correct (video vs audio), and notes are sensible.\n0.5: At least 4 codecs present with mostly correct values but one or two errors.\n0: Fewer than 4 codecs or multiple supported values wrong.\n\nCriterion 2: Notes Quality (Weight: 30%)\n1.0: transcoding_note correctly distinguishes native audio transcoding from FFmpeg-based video transcoding; notes per codec are meaningful and accurate.\n0.5: transcoding_note is present but imprecise; some codec notes are generic.\n0: transcoding_note is missing or incorrect.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/srs-support",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "code-analysis-skills_task_01",
+  "name": "Analyze a Git Repository and Produce JSON Developer Report",
+  "category": "code_analysis",
+  "gradingType": "hybrid",
+  "prompt": "You need to set up a small Git repository, make commits as two fictional developers, and then analyze the commit patterns to produce a structured developer evaluation report.\n\nStep 1: Create a Git repository at ./analysis_repo/ with the following commits (use git config to set the author for each commit):\n\nAuthor: Alice Chen <alice@example.com>\n- Commit 1: Add initial project structure (create a README.md and src/app.py)\n- Commit 2: Add user authentication module (create src/auth.py with a login() function)\n- Commit 3: Fix bug in auth module (modify src/auth.py to add input validation)\n- Commit 4: Add unit tests for auth (create tests/test_auth.py with 2 test functions)\n- Commit 5: Refactor database connection (create src/db.py)\n\nAuthor: Bob Smith <bob@example.com>\n- Commit 1: Add config file (create config.json with {\"version\": \"1.0\", \"debug\": false})\n- Commit 2: Update README (append a line to README.md)\n- Commit 3: Fix typo in README (modify README.md again)\n\nStep 2: Write and run a Python script called analyze_repo.py that uses only the subprocess module and git commands (no gitpython/pydriller) to collect commit statistics and write developer_report.json with exactly this structure:\n- \"repo_path\": \"./analysis_repo\"\n- \"total_commits\": the total number of commits (number)\n- \"developers\": an array of 2 objects, each with:\n  - \"name\": the author name\n  - \"email\": the author email\n  - \"commit_count\": number of commits by this author\n  - \"files_changed\": total distinct files touched across all their commits\n  - \"grade\": \"A\", \"B\", \"C\", \"D\", or \"F\" based on commit_count (>=5 → A, >=3 → B, >=2 → C, else D)\n- \"top_contributor\": the name of the developer with the most commits\n- \"analysis_date\": \"2026-04-11\"",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "code-analysis-skills_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "repo-exists",
+            "weight": 0.06,
+            "description": "analysis_repo directory exists and contains a .git subdirectory, making it a valid git repository.",
+            "testPattern": "directory exists|valid git repository"
+          },
+          {
+            "id": "commit-count",
+            "weight": 0.1,
+            "description": "The git log of analysis_repo contains at least 8 commits.",
+            "testPattern": "at least 8 commits"
+          },
+          {
+            "id": "authors-present",
+            "weight": 0.08,
+            "description": "The git log contains commits from both alice@example.com and bob@example.com.",
+            "testPattern": "commits from Alice|commits from Bob"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.06,
+            "description": "developer_report.json file is present in the working directory.",
+            "testPattern": "developer_report.json > file exists"
+          },
+          {
+            "id": "report-keys",
+            "weight": 0.08,
+            "description": "developer_report.json contains all 5 required top-level keys: repo_path, total_commits, developers, top_contributor, analysis_date.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "total-commits",
+            "weight": 0.15,
+            "description": "developer_report.json has total_commits exactly equal to 8.",
+            "testPattern": "total_commits is 8"
+          },
+          {
+            "id": "dev-fields",
+            "weight": 0.08,
+            "description": "developers array has exactly 2 entries, each with name, email, commit_count, files_changed, and a valid grade (A/B/C/D/F).",
+            "testPattern": "2 entries with required fields"
+          },
+          {
+            "id": "alice-grade",
+            "weight": 0.18,
+            "description": "Alice Chen's developer entry has commit_count=5 and grade='A'.",
+            "testPattern": "Alice has 5 commits and grade A"
+          },
+          {
+            "id": "bob-grade",
+            "weight": 0.13,
+            "description": "Bob Smith's developer entry has commit_count=3 and grade='B'.",
+            "testPattern": "Bob has 3 commits and grade B"
+          },
+          {
+            "id": "top-contributor",
+            "weight": 0.08,
+            "description": "top_contributor contains 'alice' (case-insensitive), identifying the developer with the most commits.",
+            "testPattern": "top_contributor is Alice"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to create a Git repository with specific commits by two authors, then analyze it and produce a structured JSON developer report.\n\nCriterion 1: Repository and Commit Setup (Weight: 40%)\n1.0: analysis_repo is a valid Git repo with at least 8 commits from the two specified authors. Files created in each commit match the spec.\n0.5: Repo exists with some commits but missing some or wrong authors.\n0: Repo is missing or not a git repo.\n\nCriterion 2: Analysis Accuracy (Weight: 60%)\n1.0: developer_report.json has all required fields with correct values. total_commits is 8, Alice has 5 commits (grade A), Bob has 3 commits (grade B), top_contributor is Alice.\n0.5: Report exists but some counts or grades are wrong.\n0: Report is missing or severely incorrect.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/code-analysis-skills",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "senior-prompt-engineer_task_01",
+  "name": "Analyze and Document Prompt Engineering Patterns",
+  "category": "prompt_engineering",
+  "gradingType": "hybrid",
+  "prompt": "You are helping a team document their prompt engineering patterns. Complete the following tasks and save results to the specified files.\n\nTask 1: Analyze the following five prompt patterns and produce a structured comparison. Save to `prompt_patterns.json` as an array of exactly 5 objects, one per pattern. Patterns to cover: zero-shot, few-shot, chain-of-thought, role-prompting, structured-output. Each object must have:\n- `pattern` (string): the pattern name (use the exact names above)\n- `best_for` (string): primary use case in one sentence\n- `token_overhead` (string): one of \"low\", \"medium\", \"high\"\n- `requires_examples` (boolean): true if the pattern needs in-context examples\n- `output_format_controlled` (boolean): true if the pattern enforces output format\n- `example_trigger_phrase` (string): a short phrase that signals this pattern should be used (e.g., \"Think step by step\")\n\nTask 2: Design a few-shot prompt for a specific task and save to `fewshot_prompt.json`:\n{\n  \"task_description\": \"Extract product name and sentiment from customer reviews\",\n  \"output_schema\": { \"product_name\": \"string\", \"sentiment\": \"positive|negative|neutral\" },\n  \"examples\": [\n    { \"input\": \"<review text>\", \"output\": { \"product_name\": \"<name>\", \"sentiment\": \"<value>\" } },\n    ... (at least 3 examples)\n  ],\n  \"instruction\": \"<the prompt instruction text>\"\n}\nExamples must cover at least one positive, one negative, and one neutral sentiment case.\n\nSave both files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "senior-prompt-engineer_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "patterns-exists",
+            "weight": 0.06,
+            "description": "prompt_patterns.json exists as a readable file in the working directory.",
+            "testPattern": "prompt_patterns.json > file exists"
+          },
+          {
+            "id": "patterns-count",
+            "weight": 0.1,
+            "description": "prompt_patterns.json is a JSON array containing exactly 5 pattern objects.",
+            "testPattern": "exactly 5 pattern objects"
+          },
+          {
+            "id": "patterns-names",
+            "weight": 0.1,
+            "description": "All five required pattern names are present: zero-shot, few-shot, chain-of-thought, role-prompting, and structured-output.",
+            "testPattern": "all required pattern names are present"
+          },
+          {
+            "id": "patterns-fields",
+            "weight": 0.1,
+            "description": "Every pattern object has all six required fields: pattern, best_for, token_overhead, requires_examples, output_format_controlled, and example_trigger_phrase.",
+            "testPattern": "each pattern has required fields"
+          },
+          {
+            "id": "token-overhead-valid",
+            "weight": 0.1,
+            "description": "The token_overhead field for every pattern is one of the three allowed values: low, medium, or high.",
+            "testPattern": "token_overhead is low.*medium.*high|token_overhead values are valid"
+          },
+          {
+            "id": "requires-examples-type",
+            "weight": 0.08,
+            "description": "The requires_examples field is a boolean (not a string) for every pattern object.",
+            "testPattern": "requires_examples is boolean"
+          },
+          {
+            "id": "fewshot-exists",
+            "weight": 0.06,
+            "description": "fewshot_prompt.json exists as a readable file in the working directory.",
+            "testPattern": "fewshot_prompt.json > file exists"
+          },
+          {
+            "id": "fewshot-structure",
+            "weight": 0.1,
+            "description": "fewshot_prompt.json contains all four required top-level fields: task_description, output_schema, examples, and instruction.",
+            "testPattern": "has task_description.*output_schema.*examples|fewshot structure"
+          },
+          {
+            "id": "fewshot-example-count",
+            "weight": 0.12,
+            "description": "The examples array in fewshot_prompt.json has at least 3 entries, each with input and output fields.",
+            "testPattern": "examples is an array with at least 3 entries|each example has input and output fields"
+          },
+          {
+            "id": "fewshot-sentiments",
+            "weight": 0.18,
+            "description": "The examples collectively cover all three sentiment values: at least one positive, one negative, and one neutral case.",
+            "testPattern": "covers positive.*negative.*neutral|all three sentiments"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to document prompt engineering patterns and design a few-shot prompt.\n\nCriterion 1: Pattern Analysis Quality (Weight: 50%)\n1.0: All five patterns are accurately characterized. token_overhead values are appropriate (zero-shot=low, few-shot=medium, CoT=high, etc.). The example_trigger_phrases are natural and specific (e.g., 'Think step by step' for CoT, 'You are an expert' for role-prompting).\n0.5: Most patterns are correct but some token_overhead or requires_examples flags are wrong.\n0: Patterns are missing, mischaracterized, or fields are inconsistent.\n\nCriterion 2: Few-Shot Prompt Design Quality (Weight: 50%)\n1.0: Examples are diverse and realistic. The instruction text is clear and well-structured. The output schema is correctly enforced in examples. At least one positive, negative, and neutral case is present with realistic review texts.\n0.5: Examples are present but either unrealistic or missing one sentiment class.\n0: Examples are absent or the prompt instruction is missing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/senior-prompt-engineer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

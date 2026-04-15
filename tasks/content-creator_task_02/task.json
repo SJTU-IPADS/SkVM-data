@@ -1,0 +1,102 @@
+{
+  "id": "content-creator_task_02",
+  "name": "Content Plan and Topic Cluster Creation",
+  "category": "content_creation",
+  "gradingType": "hybrid",
+  "prompt": "A user has requested: \"Create a content plan and topic cluster for a SaaS company selling project management software, targeting small business owners.\"\n\nIdentify the correct type of task (writing vs planning), then complete the planning task. Save the content plan to `content_plan.json` with exactly this structure:\n\n```json\n{\n  \"task_type\": \"planning\",\n  \"pillar_topic\": \"string (main topic cluster pillar)\",\n  \"target_audience\": \"small business owners\",\n  \"cluster_topics\": [\n    {\n      \"title\": \"string\",\n      \"content_type\": \"blog\" | \"guide\" | \"case_study\" | \"comparison\" | \"tutorial\" | \"checklist\",\n      \"target_keyword\": \"string\",\n      \"estimated_word_count\": <integer>,\n      \"funnel_stage\": \"awareness\" | \"consideration\" | \"decision\",\n      \"priority\": \"high\" | \"medium\" | \"low\"\n    }\n  ],\n  \"content_calendar\": [\n    {\n      \"week\": <integer 1-12>,\n      \"topic_title\": \"string\",\n      \"content_type\": \"string\"\n    }\n  ],\n  \"success_metrics\": [\"string (at least 3 measurable KPIs)\"]\n}\n```\n\nRequirements:\n- `task_type` must be \"planning\" (not \"writing\")\n- `target_audience` must be exactly \"small business owners\"\n- `cluster_topics` must have at least 8 entries covering all 3 funnel stages\n- At least 2 topics must have `priority` = \"high\"\n- `content_calendar` must schedule at least 8 of the cluster topics across weeks 1-12\n- `success_metrics` must have at least 3 entries with specific, measurable KPIs (not vague goals)\n- Each cluster topic must include a specific `target_keyword` (not generic)\n- `estimated_word_count` for each topic must be between 300 and 5000",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "content-creator_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "content_plan.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-json",
+            "weight": 0.05,
+            "description": "content_plan.json is valid JSON containing all required top-level fields: task_type, pillar_topic, target_audience, cluster_topics, content_calendar, and success_metrics.",
+            "testPattern": "valid JSON with required"
+          },
+          {
+            "id": "task-type",
+            "weight": 0.1,
+            "description": "The task_type field equals exactly the string \"planning\" (not \"writing\" or any other value).",
+            "testPattern": "task_type is planning"
+          },
+          {
+            "id": "audience",
+            "weight": 0.1,
+            "description": "The target_audience field equals exactly the string \"small business owners\".",
+            "testPattern": "target_audience is exactly"
+          },
+          {
+            "id": "topics-count",
+            "weight": 0.1,
+            "description": "cluster_topics is an array with at least 8 entries.",
+            "testPattern": "cluster_topics has at least 8"
+          },
+          {
+            "id": "topics-fields",
+            "weight": 0.15,
+            "description": "Every cluster topic object has all six required fields: title, content_type, target_keyword, estimated_word_count, funnel_stage, and priority, each with a valid enum value.",
+            "testPattern": "each cluster topic has all required"
+          },
+          {
+            "id": "funnel-stages",
+            "weight": 0.15,
+            "description": "The cluster_topics array includes at least one topic for each of the three funnel stages: awareness, consideration, and decision.",
+            "testPattern": "all three funnel stages"
+          },
+          {
+            "id": "high-priority",
+            "weight": 0.1,
+            "description": "At least 2 cluster topics have priority set to \"high\".",
+            "testPattern": "at least 2 topics have high priority"
+          },
+          {
+            "id": "word-count-range",
+            "weight": 0.05,
+            "description": "Every cluster topic's estimated_word_count is an integer between 300 and 5000 inclusive.",
+            "testPattern": "estimated_word_count values are between"
+          },
+          {
+            "id": "calendar",
+            "weight": 0.1,
+            "description": "content_calendar contains at least 8 entries, each with week (1–12), topic_title, and content_type.",
+            "testPattern": "content_calendar has at least 8"
+          },
+          {
+            "id": "metrics",
+            "weight": 0.05,
+            "description": "success_metrics is an array of at least 3 non-empty strings representing measurable KPIs.",
+            "testPattern": "success_metrics has at least 3"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent created a content plan and topic cluster for a project management SaaS targeting small business owners.\n\nCriterion 1: Strategic Relevance (Weight: 60%)\n1.0: Pillar topic and cluster topics are clearly relevant to project management software for small businesses. Topics address real pain points (team coordination, task tracking, deadlines, resource management). Content types are varied and appropriate for each funnel stage.\n0.5: Topics exist but are generic project management topics not specifically tailored to small businesses or the SaaS angle.\n0: Topics are off-topic or irrelevant to project management software.\n\nCriterion 2: Planning Quality (Weight: 40%)\n1.0: Content calendar is realistic (reasonable distribution across 12 weeks), success metrics are specific with numbers (e.g., 'increase organic traffic by 20%'), priority assignments are logical (high priority = high funnel impact).\n0.5: Calendar exists and metrics are listed but they are vague or the distribution is unrealistic.\n0: Calendar is missing or metrics are not measurable.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/content-creator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

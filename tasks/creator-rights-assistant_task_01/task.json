@@ -1,0 +1,96 @@
+{
+  "id": "creator-rights-assistant_task_01",
+  "name": "Generate Asset Birth Certificate for a Photograph",
+  "category": "creator_tools",
+  "gradingType": "hybrid",
+  "prompt": "A creator needs to generate a standardized metadata record (Asset Birth Certificate) for a photograph they just finalized. Here are the details they provide:\n\n- Asset: A product photograph of a ceramic coffee mug on a white background\n- Creation date: 2024-11-20\n- Creator name: Jordan Lee\n- Process: Human-authored (taken with their own camera)\n- License: Commercial use permitted, worldwide territory, 2-year duration (expires 2026-11-20), no sublicensing\n- Preferred attribution: \"Photo by Jordan Lee / JordanLeePhoto\"\n- Platform notes: Instagram prefers attribution in caption; Shopify allows it in alt text\n- Content hash: sha256:a3f5c2d8e1b047690ac12345678fedcba987654321abc0\n- Internal version: v1.0-final\n\nProduce a file called asset_birth_certificate.json with exactly this structure:\n- \"asset_id\": string — a creator-defined internal ID (format: YYYY-MM-DD-{slug}, e.g. 2024-11-20-ceramic-mug-product)\n- \"origin\": object with keys \"creation_timestamp\" (string, ISO 8601 date), \"asset_identifier\" (string, same as asset_id)\n- \"identity\": object with keys \"primary_author\" (string), \"contributor_context\" (string or null)\n- \"provenance\": object with keys \"process_type\" (string: one of \"human-authored\", \"ai-assisted\", or \"ai-generated\"), \"provenance_notes\" (string)\n- \"licensing\": object with keys \"duration\" (string), \"territory\" (string), \"usage_constraints\" (string), \"source_reference\" (string or null)\n- \"attribution\": object with keys \"credit_string\" (string), \"platform_notes\" (object with keys \"instagram\" (string) and \"shopify\" (string))\n- \"integrity\": object with keys \"content_hash\" (string, must match the hash provided above), \"version_notes\" (string)\n- \"disclaimer_acknowledged\": boolean set to true\n\nAlso produce a file called abc_sidecar.md formatted as a human-readable companion document for this asset, displaying all the above fields in a clean Markdown table or structured sections.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "creator-rights-assistant_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.05,
+            "description": "asset_birth_certificate.json file is present in the working directory.",
+            "testPattern": "asset_birth_certificate.json > file exists"
+          },
+          {
+            "id": "json-valid",
+            "weight": 0.08,
+            "description": "asset_birth_certificate.json is valid JSON with all required top-level keys: asset_id, origin, identity, provenance, licensing, attribution, integrity, and disclaimer_acknowledged.",
+            "testPattern": "required top-level keys"
+          },
+          {
+            "id": "origin-fields",
+            "weight": 0.12,
+            "description": "origin.creation_timestamp is a string containing \"2024-11-20\" and origin.asset_identifier is a non-empty string.",
+            "testPattern": "creation_timestamp and asset_identifier"
+          },
+          {
+            "id": "identity-author",
+            "weight": 0.12,
+            "description": "identity.primary_author contains \"jordan lee\" (case-insensitive).",
+            "testPattern": "primary_author Jordan Lee"
+          },
+          {
+            "id": "provenance",
+            "weight": 0.1,
+            "description": "provenance.process_type equals exactly \"human-authored\" and provenance_notes is a non-empty string.",
+            "testPattern": "process_type is human-authored"
+          },
+          {
+            "id": "licensing",
+            "weight": 0.15,
+            "description": "licensing fields reflect the provided terms: duration mentions 2-year or 2026 expiry, territory matches worldwide, and usage_constraints is non-empty.",
+            "testPattern": "reflecting the provided terms"
+          },
+          {
+            "id": "attribution",
+            "weight": 0.1,
+            "description": "attribution.credit_string contains \"jordan lee\" (case-insensitive).",
+            "testPattern": "attribution credit_string"
+          },
+          {
+            "id": "platform-notes",
+            "weight": 0.1,
+            "description": "attribution.platform_notes has non-empty string values for both \"instagram\" and \"shopify\" keys.",
+            "testPattern": "platform_notes for instagram"
+          },
+          {
+            "id": "content-hash",
+            "weight": 0.13,
+            "description": "integrity.content_hash equals exactly \"sha256:a3f5c2d8e1b047690ac12345678fedcba987654321abc0\" and version_notes mentions v1 or final.",
+            "testPattern": "content_hash matches"
+          },
+          {
+            "id": "sidecar-exists",
+            "weight": 0.05,
+            "description": "abc_sidecar.md file is present in the working directory.",
+            "testPattern": "abc_sidecar.md > file exists"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated an Asset Birth Certificate (ABC) metadata record for a product photograph.\n\nCriterion 1: Metadata Accuracy and Completeness (Weight: 60%)\n1.0: All fields accurately reflect the provided creator details. The content hash matches exactly. License duration and territory are correctly captured. Platform notes for Instagram and Shopify reflect the provided guidance.\n0.5: Most fields are correct but 1-2 details are missing or inaccurate (e.g., wrong territory, missing platform note).\n0: Significant fields are missing or the hash does not match.\n\nCriterion 2: Sidecar Document Quality (Weight: 40%)\n1.0: The abc_sidecar.md is clearly formatted, readable as a standalone document, and covers all major field categories (origin, identity, provenance, licensing, attribution, integrity). Suitable as a companion file a creator would distribute with the asset.\n0.5: The sidecar exists but is incomplete or hard to read.\n0: Sidecar is missing or does not reflect the ABC data.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/creator-rights-assistant",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

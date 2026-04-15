@@ -1,0 +1,90 @@
+{
+  "id": "excel-formula_task_01",
+  "name": "Generate and Explain Excel Formulas for a Sales Dataset",
+  "category": "productivity",
+  "gradingType": "hybrid",
+  "prompt": "You are working with a sales spreadsheet where:\n- Column A contains product names (starting at A2)\n- Column B contains unit prices (starting at B2)\n- Column C contains quantity sold (starting at C2)\n- Column D contains the region ('North', 'South', 'East', 'West') (starting at D2)\n- Data runs from row 2 to row 100.\n\nGenerate formulas and explanations for the following 5 tasks. Write all results to formulas.json with this exact structure:\n{\n  \"formulas\": [\n    {\n      \"task_id\": \"F1\",\n      \"description\": \"Total revenue (price * quantity) for all rows\",\n      \"formula\": \"<Excel formula string starting with =>\",\n      \"explanation\": \"<string explaining how the formula works>\"\n    },\n    ... (F2 through F5)\n  ]\n}\n\nThe 5 tasks:\n- F1: Sum of (B2*C2) for all rows (total revenue across all products)\n- F2: Count how many rows have region = 'North'\n- F3: Average unit price (column B) only for rows where quantity (column C) is greater than 50\n- F4: Find the maximum revenue in a single row (i.e., max of B*C across rows 2-100)\n- F5: Return the product name (column A) that corresponds to the row with the highest quantity (column C)\n\nEach formula field must start with '='. Each explanation must be at least 20 characters.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "excel-formula_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "The file formulas.json exists in the working directory.",
+            "testPattern": "formulas.json.*exists|file exists"
+          },
+          {
+            "id": "json-structure",
+            "weight": 0.1,
+            "description": "formulas.json has a top-level 'formulas' key whose value is an array.",
+            "testPattern": "formulas.*array|has formulas array"
+          },
+          {
+            "id": "five-entries",
+            "weight": 0.12,
+            "description": "The formulas array contains exactly 5 entries.",
+            "testPattern": "exactly 5 formula entries"
+          },
+          {
+            "id": "task-ids",
+            "weight": 0.1,
+            "description": "The formulas array contains entries with task_id values F1, F2, F3, F4, and F5.",
+            "testPattern": "F1.*F5|task_id.*F"
+          },
+          {
+            "id": "formula-starts-eq",
+            "weight": 0.18,
+            "description": "Every formula field value starts with '='.",
+            "testPattern": "formula.*starts.*=|each formula starts with"
+          },
+          {
+            "id": "explanation-length",
+            "weight": 0.12,
+            "description": "Every explanation field is a string of at least 20 characters.",
+            "testPattern": "each explanation is at least 20 characters"
+          },
+          {
+            "id": "required-fields",
+            "weight": 0.1,
+            "description": "Each formula entry has all four required fields: task_id, description, formula, and explanation.",
+            "testPattern": "task_id.*description.*formula.*explanation|required entry fields"
+          },
+          {
+            "id": "countif-present",
+            "weight": 0.1,
+            "description": "The F2 formula (count North-region rows) contains the COUNTIF function.",
+            "testPattern": "COUNTIF|countif"
+          },
+          {
+            "id": "averageif-present",
+            "weight": 0.1,
+            "description": "The F3 formula (conditional average) contains the AVERAGEIF function.",
+            "testPattern": "AVERAGEIF|averageif"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce 5 Excel formulas with explanations for a sales dataset.\n\nCriterion 1: Formula Correctness (Weight: 70%)\n1.0: All 5 formulas are syntactically valid Excel formulas (start with =, use correct function names and syntax). F1 uses SUMPRODUCT or array multiplication, F2 uses COUNTIF, F3 uses AVERAGEIF, F4 uses MAX with MMULT or SUMPRODUCT, F5 uses INDEX/MATCH or similar. Each addresses its task correctly.\n0.5: At least 3 formulas are correct; the others have minor issues or use suboptimal approaches.\n0: Fewer than 3 formulas are valid or most are wrong for their task.\n\nCriterion 2: Explanation Quality (Weight: 30%)\n1.0: Each explanation clearly describes what the formula does, which functions are used and why, and how the cell references relate to the data.\n0.5: Explanations are present but superficial or do not explain the function logic.\n0: Explanations are missing or are just repetitions of the description.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/excel-formula",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

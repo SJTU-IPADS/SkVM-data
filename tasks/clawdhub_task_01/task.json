@@ -1,0 +1,73 @@
+{
+  "id": "clawdhub_task_01",
+  "name": "Search and catalog available agent skills",
+  "category": "agent_behavior",
+  "gradingType": "hybrid",
+  "prompt": "I want to find agent skills related to \"web scraping\" or \"data extraction\". Search for available skills on that topic, also list whatever skills are currently installed, and then produce a file called skill_report.json summarizing your findings.\n\nThe report should contain:\n1. \"search_query\": the query string you searched for\n2. \"search_results\": array of objects for each skill found, with \"name\" (string) and \"description\" (string) for each\n3. \"installed_skills\": array of objects for currently installed skills, each with \"name\" (string)\n4. \"total_found\": number of skills returned by the search\n5. \"summary\": a string (at least 80 characters) describing what kinds of skills are available for this topic",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "clawdhub_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "skill_report.json file is present in the working directory.",
+            "testPattern": "skill_report.json exists"
+          },
+          {
+            "id": "search-query",
+            "weight": 0.1,
+            "description": "skill_report.json has a non-empty string search_query field.",
+            "testPattern": "has search_query string"
+          },
+          {
+            "id": "search-results",
+            "weight": 0.3,
+            "description": "search_results is a non-empty array where every entry has a non-empty string name and description.",
+            "testPattern": "search_results is a non-empty array|each search result has name and description"
+          },
+          {
+            "id": "installed-skills",
+            "weight": 0.15,
+            "description": "installed_skills is an array where every entry has a string name field.",
+            "testPattern": "installed_skills is an array"
+          },
+          {
+            "id": "total-found",
+            "weight": 0.1,
+            "description": "total_found is a number equal to the length of search_results.",
+            "testPattern": "total_found is a number"
+          },
+          {
+            "id": "summary",
+            "weight": 0.25,
+            "description": "summary is a string of at least 80 characters describing the available skills.",
+            "testPattern": "summary is at least 80 characters"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to search for agent skills related to web scraping/data extraction using a skill registry, list installed skills, and produce a structured report.\n\nCriterion 1: Tool Usage (Weight: 50%)\n1.0: The agent successfully invoked search and list commands to find and enumerate skills. The search_results and installed_skills reflect actual data from the registry, not fabricated entries.\n0.5: The agent attempted to use the tools but results are incomplete or partially fabricated.\n0: The agent did not use the skill registry tools and made up the data.\n\nCriterion 2: Report Quality (Weight: 50%)\n1.0: The report is well-structured with accurate skill names and descriptions, the summary is insightful about available capabilities.\n0.5: Report exists but descriptions are generic or summary is shallow.\n0: Report is missing or largely fabricated.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/clawdhub",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,102 @@
+{
+  "id": "interview-simulator_task_02",
+  "name": "Generate Interview Questions for a Product Manager Role",
+  "category": "interview_simulation",
+  "gradingType": "hybrid",
+  "prompt": "Generate a complete set of mock interview questions for a mid-level Product Manager position at a B2B SaaS company. Save the output to pm_interview_questions.json.\n\nThe file must have this exact structure:\n{\n  \"role\": \"Product Manager\",\n  \"level\": \"Mid\",\n  \"context\": \"B2B SaaS\",\n  \"modules\": [\n    {\n      \"name\": \"Product Sense\",\n      \"questions\": [\n        {\n          \"id\": \"PS-01\",\n          \"question\": \"...\",\n          \"type\": \"open-ended\",\n          \"time_minutes\": <int>,\n          \"evaluation_criteria\": [\"...\", \"...\"]\n        }\n      ]\n    },\n    { \"name\": \"Analytical Thinking\", ... },\n    { \"name\": \"Behavioral\", ... },\n    { \"name\": \"Execution\", ... }\n  ],\n  \"total_questions\": <int>,\n  \"estimated_duration_minutes\": <int>\n}\n\nRequirements:\n- Include all 4 modules: Product Sense, Analytical Thinking, Behavioral, Execution.\n- Each module must have exactly 2 questions.\n- Question IDs must follow the pattern: PS-01/PS-02 for Product Sense, AT-01/AT-02 for Analytical Thinking, BH-01/BH-02 for Behavioral, EX-01/EX-02 for Execution.\n- Each question must have at least 2 evaluation_criteria.\n- time_minutes per question: Product Sense 15, Analytical Thinking 10, Behavioral 10, Execution 10.\n- total_questions must equal 8.\n- estimated_duration_minutes must equal the sum of all time_minutes values.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "interview-simulator_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file_exists",
+            "weight": 0.08,
+            "description": "pm_interview_questions.json file is present in the workspace.",
+            "testPattern": "pm_interview_questions.json exists"
+          },
+          {
+            "id": "top_level_fields",
+            "weight": 0.08,
+            "description": "pm_interview_questions.json contains the keys role, level, context, modules, total_questions, and estimated_duration_minutes.",
+            "testPattern": "required top-level fields"
+          },
+          {
+            "id": "role_level",
+            "weight": 0.08,
+            "description": "role is \"Product Manager\" and level is \"Mid\".",
+            "testPattern": "role is Product Manager"
+          },
+          {
+            "id": "modules_count",
+            "weight": 0.1,
+            "description": "The modules array contains exactly 4 entries.",
+            "testPattern": "exactly 4 entries"
+          },
+          {
+            "id": "module_names",
+            "weight": 0.1,
+            "description": "The modules include all four required names: Product Sense, Analytical Thinking, Behavioral, and Execution.",
+            "testPattern": "module names match"
+          },
+          {
+            "id": "questions_per_module",
+            "weight": 0.12,
+            "description": "Every module has exactly 2 questions in its questions array.",
+            "testPattern": "exactly 2 questions"
+          },
+          {
+            "id": "question_ids",
+            "weight": 0.12,
+            "description": "Question IDs follow the correct module prefix pattern: PS-01/PS-02, AT-01/AT-02, BH-01/BH-02, EX-01/EX-02.",
+            "testPattern": "prefix pattern"
+          },
+          {
+            "id": "time_minutes",
+            "weight": 0.12,
+            "description": "Each question's time_minutes matches the module requirement: 15 for Product Sense, 10 for Analytical Thinking, Behavioral, and Execution.",
+            "testPattern": "time_minutes per question"
+          },
+          {
+            "id": "eval_criteria",
+            "weight": 0.1,
+            "description": "Every question has an evaluation_criteria array with at least 2 entries.",
+            "testPattern": "at least 2 evaluation_criteria"
+          },
+          {
+            "id": "total_questions",
+            "weight": 0.05,
+            "description": "total_questions is exactly 8 (2 questions × 4 modules).",
+            "testPattern": "total_questions is 8"
+          },
+          {
+            "id": "estimated_duration",
+            "weight": 0.05,
+            "description": "estimated_duration_minutes equals the sum of all individual question time_minutes values.",
+            "testPattern": "estimated_duration_minutes equals sum"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a structured set of PM interview questions for a B2B SaaS context.\n\nCriterion 1: Question Relevance (Weight: 60%)\n1.0: Questions are genuinely relevant to a mid-level B2B SaaS PM role. Product Sense questions involve real product decisions, Analytical questions involve metrics/data, Behavioral questions follow STAR methodology prompts, Execution questions involve prioritization or roadmap decisions.\n0.5: Questions are generic PM questions not tailored to B2B SaaS.\n0: Questions are off-topic or do not match their module category.\n\nCriterion 2: Evaluation Criteria Quality (Weight: 40%)\n1.0: Evaluation criteria are specific, measurable, and directly assess the skill being tested by the question.\n0.5: Criteria are present but vague (e.g., just 'clear communication').\n0: Criteria are missing or do not relate to what the question is testing.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/interview-simulator",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

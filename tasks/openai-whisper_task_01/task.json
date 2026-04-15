@@ -1,0 +1,73 @@
+{
+  "id": "openai-whisper_task_01",
+  "name": "Generate test audio and transcribe it",
+  "category": "data_analysis",
+  "gradingType": "hybrid",
+  "prompt": "I want to test speech-to-text transcription. First, use the macOS text-to-speech system to generate an audio file from this text: \"Artificial intelligence is transforming how we build software. Machine learning models can now write code, analyze data, and automate complex workflows that previously required human expertise.\"\n\nThen transcribe the audio file and save the results. Produce the following output files:\n\n1. transcript.txt: The transcribed text from the audio\n2. transcription_report.json with:\n   - \"source_text\": the original text that was spoken\n   - \"audio_file\": the filename of the generated audio\n   - \"transcript\": the transcribed text\n   - \"word_count\": number of words in the transcript\n   - \"accuracy_notes\": string describing how well the transcription matches the original (at least 30 characters)",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "openai-whisper_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "transcript-exists",
+            "weight": 0.15,
+            "description": "transcript.txt file is present in the working directory.",
+            "testPattern": "transcript.txt exists"
+          },
+          {
+            "id": "transcript-content",
+            "weight": 0.2,
+            "description": "transcript.txt contains at least 5 words related to the source text (e.g., artificial, intelligence, software, machine, learning).",
+            "testPattern": "transcript has meaningful content"
+          },
+          {
+            "id": "report-exists",
+            "weight": 0.1,
+            "description": "transcription_report.json file is present in the working directory.",
+            "testPattern": "transcription_report.json exists"
+          },
+          {
+            "id": "report-fields",
+            "weight": 0.2,
+            "description": "transcription_report.json has non-empty source_text, audio_file, and transcript string fields.",
+            "testPattern": "has source_text, audio_file, transcript fields"
+          },
+          {
+            "id": "word-count",
+            "weight": 0.15,
+            "description": "word_count field is a positive number greater than 0.",
+            "testPattern": "word_count is a positive number"
+          },
+          {
+            "id": "accuracy-notes",
+            "weight": 0.2,
+            "description": "accuracy_notes string is at least 30 characters long.",
+            "testPattern": "accuracy_notes is at least 30 characters"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent generated a test audio file using text-to-speech, then transcribed it using a speech-to-text tool, and compared the result to the original.\n\nCriterion 1: Pipeline Execution (Weight: 50%)\n1.0: Audio was generated via TTS, then transcribed using a speech-to-text tool. The transcript reflects actual transcription output (may have minor errors typical of STT systems).\n0.5: Audio was generated but transcription was skipped or the transcript is just the original text copied verbatim.\n0: Neither audio generation nor transcription was performed.\n\nCriterion 2: Report Quality (Weight: 50%)\n1.0: Report accurately describes the pipeline, word count matches the transcript, accuracy notes provide genuine comparison between original and transcribed text.\n0.5: Report exists but accuracy notes are generic.\n0: Report is missing or clearly fabricated.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/openai-whisper",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "easy"
+}

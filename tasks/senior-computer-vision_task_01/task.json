@@ -1,0 +1,96 @@
+{
+  "id": "senior-computer-vision_task_01",
+  "name": "Generate Detection Architecture Comparison Report",
+  "category": "computer_vision",
+  "gradingType": "hybrid",
+  "prompt": "You are helping a team select an object detection architecture for a production system. Complete the following and save results to the specified files.\n\nTask: Produce a structured architecture comparison and selection report.\n\nRequirements:\n1. Create a file called `arch_comparison.json` with the following structure:\n   {\n     \"task\": \"real-time object detection on edge device\",\n     \"constraint_fps\": 30,\n     \"constraint_gpu_memory_gb\": 2,\n     \"architectures\": [\n       { \"name\": \"YOLOv8n\", \"inference_ms\": <number>, \"map50\": <number>, \"model_size_mb\": <number>, \"fits_constraints\": <boolean>, \"notes\": \"<string>\" },\n       { \"name\": \"YOLOv8m\", \"inference_ms\": <number>, \"map50\": <number>, \"model_size_mb\": <number>, \"fits_constraints\": <boolean>, \"notes\": \"<string>\" },\n       { \"name\": \"Faster R-CNN R50\", \"inference_ms\": <number>, \"map50\": <number>, \"model_size_mb\": <number>, \"fits_constraints\": <boolean>, \"notes\": \"<string>\" },\n       { \"name\": \"RT-DETR-L\", \"inference_ms\": <number>, \"map50\": <number>, \"model_size_mb\": <number>, \"fits_constraints\": <boolean>, \"notes\": \"<string>\" }\n     ],\n     \"recommended\": \"<architecture name>\",\n     \"recommendation_reason\": \"<string>\"\n   }\n   Use realistic benchmark values. `fits_constraints` must be true only if inference_ms < 33 AND model_size_mb < 2048.\n\n2. Create a file called `quantization_tradeoffs.json` with an array of exactly 3 objects, one per precision level (FP32, FP16, INT8). Each object must have fields: `precision` (string), `relative_size_pct` (integer), `relative_speed_multiplier` (number), `max_accuracy_drop_pct` (number).\n\nSave both files in the current working directory.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "senior-computer-vision_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "arch-comparison-exists",
+            "weight": 0.05,
+            "description": "arch_comparison.json exists in the working directory.",
+            "testPattern": "arch_comparison.json > file exists"
+          },
+          {
+            "id": "arch-comparison-structure",
+            "weight": 0.1,
+            "description": "arch_comparison.json contains all required top-level fields: task, constraint_fps, constraint_gpu_memory_gb, architectures, recommended, and recommendation_reason.",
+            "testPattern": "has required top-level fields"
+          },
+          {
+            "id": "arch-count",
+            "weight": 0.1,
+            "description": "arch_comparison.json architectures array contains exactly 4 entries (YOLOv8n, YOLOv8m, Faster R-CNN R50, RT-DETR-L).",
+            "testPattern": "exactly 4 architectures"
+          },
+          {
+            "id": "arch-fields",
+            "weight": 0.12,
+            "description": "Each architecture entry has name (string), inference_ms (number 0-500), map50 (number 0-100), model_size_mb (number), fits_constraints (boolean), and notes (string).",
+            "testPattern": "each architecture has required fields"
+          },
+          {
+            "id": "fits-constraints-logic",
+            "weight": 0.15,
+            "description": "Each architecture's fits_constraints is true if and only if inference_ms < 33 AND model_size_mb < 2048.",
+            "testPattern": "fits_constraints is correct"
+          },
+          {
+            "id": "recommended-valid",
+            "weight": 0.1,
+            "description": "arch_comparison.json recommended field matches one of the architecture names in the architectures array.",
+            "testPattern": "recommended is a known architecture name"
+          },
+          {
+            "id": "quant-exists",
+            "weight": 0.05,
+            "description": "quantization_tradeoffs.json exists in the working directory.",
+            "testPattern": "quantization_tradeoffs.json > file exists"
+          },
+          {
+            "id": "quant-count",
+            "weight": 0.08,
+            "description": "quantization_tradeoffs.json is an array with exactly 3 entries covering FP32, FP16, and INT8.",
+            "testPattern": "exactly 3 precision entries"
+          },
+          {
+            "id": "quant-fields",
+            "weight": 0.1,
+            "description": "Each quantization entry has precision (string), relative_size_pct (number), relative_speed_multiplier (number), and max_accuracy_drop_pct (number).",
+            "testPattern": "each entry has precision.*relative_size|precision and speed fields"
+          },
+          {
+            "id": "quant-fp32-baseline",
+            "weight": 0.15,
+            "description": "FP32 entry has relative_size_pct=100 (baseline), FP16 < FP32, and INT8 < FP16 in relative_size_pct.",
+            "testPattern": "FP32 has relative_size_pct of 100|INT8 is smaller than FP16 which is smaller than FP32"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to produce an architecture comparison and quantization tradeoff report for computer vision.\n\nCriterion 1: Technical Accuracy (Weight: 60%)\n1.0: Inference times, mAP scores, and model sizes are realistic and consistent with known benchmarks. The `fits_constraints` boolean is correctly computed for each architecture. The recommended architecture is a sensible choice for edge/real-time constraints.\n0.5: Values are plausible but some `fits_constraints` flags are wrong or the recommendation is marginally inconsistent.\n0: Values are fabricated or nonsensical, or the recommendation contradicts the data.\n\nCriterion 2: Reasoning Quality (Weight: 40%)\n1.0: `recommendation_reason` and architecture `notes` provide clear, specific technical reasoning (e.g., references speed, memory, mAP trade-offs explicitly).\n0.5: Reasoning is present but generic or vague.\n0: No meaningful reasoning provided.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/senior-computer-vision",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

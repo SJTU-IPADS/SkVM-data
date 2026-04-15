@@ -1,0 +1,96 @@
+{
+  "id": "shell-script_task_01",
+  "name": "Write a Log File Analyzer Shell Script",
+  "category": "shell_scripting",
+  "gradingType": "hybrid",
+  "prompt": "Write a bash script that analyzes log files and produces a summary report. Save the script to `log_analyzer.sh` and a sample run output to `sample_output.json`.\n\nThe script `log_analyzer.sh` must:\n1. Accept a log file path as its first argument (`$1`)\n2. Count the total number of lines in the file\n3. Count occurrences of the strings ERROR, WARN, and INFO (case-insensitive)\n4. Find the 3 most frequent IP addresses in the file (any line matching pattern like 192.168.x.x or 10.x.x.x)\n5. Print results to stdout as valid JSON with this exact structure:\n   {\"total_lines\": N, \"error_count\": N, \"warn_count\": N, \"info_count\": N, \"top_ips\": [\"ip1\", \"ip2\", \"ip3\"]}\n6. Use `set -euo pipefail` at the top\n7. Exit with code 1 and print 'Usage: log_analyzer.sh <logfile>' to stderr if no argument is provided\n8. Exit with code 2 and print 'Error: file not found' to stderr if the file does not exist\n\nAlso create a test log file `test.log` with at least 20 lines containing a mix of ERROR, WARN, and INFO entries and at least 3 different IP addresses.\n\nThen run: `bash log_analyzer.sh test.log` and save the JSON output to `sample_output.json`.\n\nThe sample_output.json must be valid JSON matching the script's output structure.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "shell-script_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "script-exists",
+            "weight": 0.08,
+            "description": "log_analyzer.sh exists as a readable file in the working directory.",
+            "testPattern": "log_analyzer.sh > file exists"
+          },
+          {
+            "id": "set-pipefail",
+            "weight": 0.1,
+            "description": "log_analyzer.sh contains the literal string 'set -euo pipefail'.",
+            "testPattern": "set -euo pipefail"
+          },
+          {
+            "id": "argument-check",
+            "weight": 0.1,
+            "description": "The script exits with code 1 when invoked with no arguments.",
+            "testPattern": "exits.*code 1.*no argument|no argument.*exit 1"
+          },
+          {
+            "id": "file-not-found-check",
+            "weight": 0.1,
+            "description": "The script exits with code 2 when the specified log file does not exist.",
+            "testPattern": "exits with code 2 when file does not exist"
+          },
+          {
+            "id": "test-log-exists",
+            "weight": 0.06,
+            "description": "test.log exists as a readable file in the working directory.",
+            "testPattern": "test.log > file exists"
+          },
+          {
+            "id": "test-log-lines",
+            "weight": 0.08,
+            "description": "test.log has at least 20 non-empty lines.",
+            "testPattern": "test.log.*at least 20 lines"
+          },
+          {
+            "id": "output-exists",
+            "weight": 0.06,
+            "description": "sample_output.json exists as a readable file in the working directory.",
+            "testPattern": "sample_output.json > file exists"
+          },
+          {
+            "id": "output-valid-json",
+            "weight": 0.1,
+            "description": "sample_output.json parses as valid JSON without throwing.",
+            "testPattern": "sample_output.json.*valid JSON|output is valid json"
+          },
+          {
+            "id": "output-fields",
+            "weight": 0.12,
+            "description": "sample_output.json contains total_lines, error_count, warn_count, and info_count as non-negative numeric fields.",
+            "testPattern": "has total_lines.*error_count.*warn_count"
+          },
+          {
+            "id": "top-ips-count",
+            "weight": 0.2,
+            "description": "sample_output.json has a top_ips array containing exactly 3 non-empty string entries.",
+            "testPattern": "top_ips.*3 entries|exactly 3 ip"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent was asked to write a bash log analyzer script with error handling.\n\nCriterion 1: Script Correctness and Best Practices (Weight: 60%)\n1.0: The script uses set -euo pipefail, has proper argument validation with correct exit codes, uses $() for command substitution, and properly quotes variables. The JSON output is constructed correctly without external tools (pure bash/awk/grep/wc).\n0.5: Script works but lacks error handling, uses backticks instead of $(), or has quoting issues.\n0: Script does not produce valid JSON or fails basic execution.\n\nCriterion 2: Code Clarity and Structure (Weight: 40%)\n1.0: Script is well-commented, uses meaningful variable names, and separates logic into clear steps. The IP extraction approach is sensible (grep + sort + uniq).\n0.5: Script works but has minimal comments or confusing structure.\n0: Script is not readable or has no structure.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/shell-script",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

@@ -1,0 +1,96 @@
+{
+  "id": "database-designer_task_01",
+  "name": "E-Commerce Schema Design with ERD",
+  "category": "database_design",
+  "gradingType": "hybrid",
+  "prompt": "Design a normalized relational database schema for a simple e-commerce system with the following requirements:\n- Customers can place multiple orders\n- Each order contains one or more order items\n- Each order item references a product\n- Products belong to a category\n- Use integer primary keys named `id` for all tables\n\nProduce two output files:\n\n1. `output/schema.sql` — PostgreSQL DDL with CREATE TABLE statements for exactly these tables: `categories`, `products`, `customers`, `orders`, `order_items`. Each table must have:\n   - A primary key column `id SERIAL PRIMARY KEY`\n   - Appropriate foreign key constraints with `REFERENCES` clauses\n   - At minimum: `categories(name VARCHAR(100) NOT NULL)`, `products(name VARCHAR(200) NOT NULL, price DECIMAL(10,2) NOT NULL, category_id INTEGER REFERENCES categories(id))`, `customers(email VARCHAR(255) UNIQUE NOT NULL, name VARCHAR(200) NOT NULL)`, `orders(customer_id INTEGER REFERENCES customers(id), created_at TIMESTAMP DEFAULT NOW())`, `order_items(order_id INTEGER REFERENCES orders(id), product_id INTEGER REFERENCES products(id), quantity INTEGER NOT NULL, unit_price DECIMAL(10,2) NOT NULL)`\n\n2. `output/schema_analysis.json` — JSON with:\n   - `table_count`: integer, number of tables defined\n   - `tables`: array of table name strings\n   - `foreign_keys`: array of objects each with `from_table` and `to_table` strings describing each FK relationship\n   - `normalization_form`: string, the highest normal form achieved (e.g. \"3NF\")",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "database-designer_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "sql-exists",
+            "weight": 0.05,
+            "description": "output/schema.sql file is present in the working directory.",
+            "testPattern": "SQL file exists"
+          },
+          {
+            "id": "all-tables",
+            "weight": 0.2,
+            "description": "schema.sql contains CREATE TABLE statements for all 5 required tables: categories, products, customers, orders, and order_items.",
+            "testPattern": "contains all 5 required tables"
+          },
+          {
+            "id": "primary-key",
+            "weight": 0.1,
+            "description": "schema.sql contains PRIMARY KEY definitions for table columns.",
+            "testPattern": "contains PRIMARY KEY"
+          },
+          {
+            "id": "foreign-key",
+            "weight": 0.15,
+            "description": "schema.sql contains REFERENCES constraints linking tables through foreign keys.",
+            "testPattern": "contains FOREIGN KEY or REFERENCES"
+          },
+          {
+            "id": "products-categories-fk",
+            "weight": 0.1,
+            "description": "schema.sql contains a category_id column in the products table that references the categories table.",
+            "testPattern": "products table references categories"
+          },
+          {
+            "id": "order-items-columns",
+            "weight": 0.1,
+            "description": "schema.sql contains both quantity and unit_price columns in the order_items table.",
+            "testPattern": "order_items table has quantity"
+          },
+          {
+            "id": "json-exists",
+            "weight": 0.05,
+            "description": "output/schema_analysis.json file is present in the working directory.",
+            "testPattern": "JSON file exists"
+          },
+          {
+            "id": "table-count",
+            "weight": 0.1,
+            "description": "schema_analysis.json table_count equals exactly 5.",
+            "testPattern": "table_count is 5"
+          },
+          {
+            "id": "tables-array",
+            "weight": 0.1,
+            "description": "schema_analysis.json tables array contains all 5 required table names: categories, products, customers, orders, and order_items.",
+            "testPattern": "tables array contains all required"
+          },
+          {
+            "id": "fk-array",
+            "weight": 0.05,
+            "description": "schema_analysis.json foreign_keys is an array with at least 3 entries representing FK relationships.",
+            "testPattern": "foreign_keys array is non-empty"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent designed an e-commerce database schema and produced SQL DDL and analysis.\n\nCriterion 1: Schema quality and correctness (Weight: 60%)\n1.0: All 5 tables present with correct FK constraints, appropriate data types, and constraints (NOT NULL, UNIQUE, DEFAULT).\n0.5: Most tables correct but some FK or constraint issues.\n0: Missing tables or fundamentally wrong design.\n\nCriterion 2: Analysis accuracy (Weight: 40%)\n1.0: JSON analysis accurately reflects the schema, FK list is complete and correct.\n0.5: Some FK relationships missing or normalization form is debatable but not wrong.\n0: Analysis is incorrect or does not match the SQL.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/database-designer",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

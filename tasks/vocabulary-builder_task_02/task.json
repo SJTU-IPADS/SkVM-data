@@ -1,0 +1,90 @@
+{
+  "id": "vocabulary-builder_task_02",
+  "name": "Generate a Spaced Repetition Quiz Schedule",
+  "category": "vocabulary_learning",
+  "gradingType": "hybrid",
+  "prompt": "You are managing a vocabulary learning schedule. Given the following three words with their learned dates, compute their full spaced repetition review schedule and save the result to review_schedule.json.\n\nWords and learned dates:\n- \"ephemeral\" — learned on 2026-04-01\n- \"cacophony\" — learned on 2026-04-05\n- \"sycophant\" — learned on 2026-04-08\n\nSpaced repetition intervals after learning: +1 day, +3 days, +7 days (1 week), +14 days (2 weeks), +30 days (1 month), +90 days (3 months).\n\nFor each word, calculate the exact calendar dates for all 6 review milestones. Save to review_schedule.json with this structure:\n{\n  \"words\": [\n    {\n      \"word\": \"<string>\",\n      \"learned\": \"<YYYY-MM-DD>\",\n      \"reviews\": [\n        {\"interval\": \"1d\", \"due\": \"<YYYY-MM-DD>\"},\n        {\"interval\": \"3d\", \"due\": \"<YYYY-MM-DD>\"},\n        {\"interval\": \"7d\", \"due\": \"<YYYY-MM-DD>\"},\n        {\"interval\": \"14d\", \"due\": \"<YYYY-MM-DD>\"},\n        {\"interval\": \"30d\", \"due\": \"<YYYY-MM-DD>\"},\n        {\"interval\": \"90d\", \"due\": \"<YYYY-MM-DD>\"}\n      ],\n      \"mastery_date\": \"<YYYY-MM-DD — date of 90d review>\"\n    }\n  ],\n  \"next_due\": \"<YYYY-MM-DD — earliest review date on or after 2026-04-11>\",\n  \"next_word\": \"<string — word whose next review is on next_due>\"\n}\n\nCalculate all dates precisely. For reference: April has 30 days. next_due should be the earliest review date across all words that falls on or after 2026-04-11.",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "vocabulary-builder_task_02.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.08,
+            "description": "review_schedule.json exists in the working directory.",
+            "testPattern": "review_schedule.json > file exists"
+          },
+          {
+            "id": "three-words",
+            "weight": 0.1,
+            "description": "review_schedule.json words array has 3 entries with next_due and next_word top-level fields present.",
+            "testPattern": "has words array, next_due, next_word fields|contains 3 word entries"
+          },
+          {
+            "id": "six-reviews-each",
+            "weight": 0.12,
+            "description": "Each word entry has exactly 6 review objects covering all spaced repetition intervals.",
+            "testPattern": "6 review milestones|six reviews"
+          },
+          {
+            "id": "interval-labels",
+            "weight": 0.1,
+            "description": "Review interval labels are exactly \"1d\", \"3d\", \"7d\", \"14d\", \"30d\", \"90d\" for every word.",
+            "testPattern": "interval labels.*1d.*3d|interval labels"
+          },
+          {
+            "id": "ephemeral-dates",
+            "weight": 0.15,
+            "description": "Ephemeral review dates are correct: 04-02, 04-04, 04-08, 04-15, 05-01, 06-30 (learned 2026-04-01).",
+            "testPattern": "ephemeral review dates"
+          },
+          {
+            "id": "cacophony-dates",
+            "weight": 0.15,
+            "description": "Cacophony review dates are correct: 04-06, 04-08, 04-12, 04-19, 05-05, 07-04 (learned 2026-04-05).",
+            "testPattern": "cacophony review dates"
+          },
+          {
+            "id": "sycophant-dates",
+            "weight": 0.15,
+            "description": "Sycophant review dates are correct: 04-09, 04-11, 04-15, 04-22, 05-08, 07-07 (learned 2026-04-08).",
+            "testPattern": "sycophant review dates"
+          },
+          {
+            "id": "mastery-date",
+            "weight": 0.08,
+            "description": "Each word's mastery_date equals the due date of its 90d review milestone.",
+            "testPattern": "mastery_date equals 90d review"
+          },
+          {
+            "id": "next-due",
+            "weight": 0.07,
+            "description": "next_due is \"2026-04-11\" and next_word is \"sycophant\" (earliest review on or after 2026-04-11).",
+            "testPattern": "next_due and next_word correct"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent computed a spaced repetition review schedule for three vocabulary words.\n\nCriterion 1: Date Calculation Accuracy (Weight: 70%)\n1.0: All review dates are arithmetically correct for all three words across all 6 intervals. next_due and next_word correctly identify the earliest upcoming review on or after 2026-04-11.\n0.5: Most dates are correct but 1-2 entries have off-by-one errors.\n0: Dates are systematically wrong or not calculated at all.\n\nCriterion 2: Output Structure (Weight: 30%)\n1.0: JSON is valid, all required fields present, interval labels match exactly (1d, 3d, 7d, 14d, 30d, 90d), mastery_date equals the 90d review date.\n0.5: Structure mostly correct but some field names differ from spec.\n0: Output is missing or not valid JSON.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/vocabulary-builder",
+  "origin": {
+    "source": "skvm-bench"
+  },
+  "difficulty": "easy"
+}

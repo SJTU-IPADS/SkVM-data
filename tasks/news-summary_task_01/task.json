@@ -1,0 +1,79 @@
+{
+  "id": "news-summary_task_01",
+  "name": "Fetch and summarize top news headlines",
+  "category": "writing_content",
+  "gradingType": "hybrid",
+  "prompt": "I want a quick news briefing for this morning. Fetch the latest headlines from the BBC World News RSS feed (http://feeds.bbci.co.uk/news/world/rss.xml) and produce a structured summary. Save the output to news_briefing.json with:\n\n- source: the name of the news source\n- fetched_at: ISO 8601 timestamp\n- headline_count: number of headlines retrieved (should be at least 5)\n- headlines: array of objects, each with:\n  - title: the headline text (string)\n  - link: URL to the full article (string)\n  - summary: a 1-2 sentence summary of the headline (string, at least 20 characters)\n- briefing: a 2-3 paragraph executive summary synthesizing the main themes across all the headlines (string, at least 200 characters)",
+  "timeoutMs": 300000,
+  "maxSteps": 50,
+  "eval": [
+    {
+      "method": "custom",
+      "evaluatorId": "junit-grade",
+      "payload": {
+        "testFile": "news-summary_task_01.test.ts",
+        "criteria": [
+          {
+            "id": "file-exists",
+            "weight": 0.1,
+            "description": "news_briefing.json file is present in the working directory.",
+            "testPattern": "file exists"
+          },
+          {
+            "id": "valid-structure",
+            "weight": 0.15,
+            "description": "news_briefing.json parses as a valid JSON object with source, headline_count, and headlines fields.",
+            "testPattern": "valid JSON structure"
+          },
+          {
+            "id": "headline-count",
+            "weight": 0.15,
+            "description": "headlines array contains at least 5 entries and headline_count matches or exceeds 5.",
+            "testPattern": "at least 5 headlines"
+          },
+          {
+            "id": "headline-fields",
+            "weight": 0.2,
+            "description": "Each headline object has a title longer than 5 chars, a link string, and a summary of at least 20 characters.",
+            "testPattern": "required headline fields"
+          },
+          {
+            "id": "headline-links",
+            "weight": 0.15,
+            "description": "Every headline link starts with http:// or https://.",
+            "testPattern": "headline links are URLs"
+          },
+          {
+            "id": "briefing-text",
+            "weight": 0.15,
+            "description": "briefing field is a string of at least 200 characters synthesizing the headlines.",
+            "testPattern": "briefing text"
+          },
+          {
+            "id": "timestamp",
+            "weight": 0.1,
+            "description": "fetched_at is a valid ISO 8601 timestamp within the last 24 hours.",
+            "testPattern": "valid timestamp"
+          }
+        ]
+      },
+      "id": "custom-0",
+      "name": "Automated Grade",
+      "weight": 0.7
+    },
+    {
+      "method": "llm-judge",
+      "rubric": "Context: The agent fetched live BBC World News RSS headlines and produced a structured news briefing with summaries.\n\nCriterion 1: Data Retrieval (Weight: 40%)\n1.0: Headlines were fetched from an actual RSS feed. Titles and links point to real BBC articles. The content is clearly current news, not fabricated or stale.\n0.5: Some headlines appear real but others may be fabricated, or the data seems outdated.\n0: No real RSS data was fetched; content appears entirely made up.\n\nCriterion 2: Summary Quality (Weight: 60%)\n1.0: Per-headline summaries are accurate and concise. The executive briefing synthesizes themes across headlines (e.g. regional conflicts, economic trends) rather than listing them individually. Writing is clear and professional.\n0.5: Summaries exist but are generic or just repeat the headline. Briefing lists headlines instead of synthesizing.\n0: Summaries are missing, inaccurate, or the briefing is absent.",
+      "maxScore": 1,
+      "id": "llm-judge-1",
+      "name": "Quality Judge",
+      "weight": 0.3
+    }
+  ],
+  "skill": "../../skills/news-summary",
+  "origin": {
+    "source": "skvm-bench",
+    "originalSource": "clawhub-top"
+  },
+  "difficulty": "easy"
+}
