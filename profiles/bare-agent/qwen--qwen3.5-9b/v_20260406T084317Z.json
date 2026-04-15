@@ -1,0 +1,1048 @@
+{
+  "version": "1.0",
+  "model": "qwen/qwen3.5-9b",
+  "harness": "bare-agent",
+  "profiledAt": "2026-04-06T08:43:17.405Z",
+  "capabilities": {
+    "follow.delegation": "L0",
+    "follow.format": "L3",
+    "follow.style": "L2",
+    "gen.code.html": "L3",
+    "gen.code.javascript": "L0",
+    "gen.code.python": "L0",
+    "gen.code.shell": "L0",
+    "gen.code.sql": "L3",
+    "gen.regex": "L3",
+    "gen.text.long": "L1",
+    "gen.text.prose": "L3",
+    "gen.text.structured": "L2",
+    "reason.analysis": "L1",
+    "reason.arithmetic": "L2",
+    "reason.logic": "L2",
+    "reason.planning": "L2",
+    "reason.spatial": "L2",
+    "tool.file.write": "L2",
+    "tool.call.batch": "L2",
+    "tool.call.format": "L3",
+    "tool.file.read": "L1",
+    "tool.browser": "L0",
+    "follow.procedure": "L3",
+    "follow.constraint": "L3",
+    "tool.exec": "L0"
+  },
+  "details": [
+    {
+      "primitiveId": "follow.delegation",
+      "highestLevel": "L0",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 11345.088791999999,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script to compute the product of a list of numbers instead of computing it mentally",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 2 calls, files: +1 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 2 calls, files: +1 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 2 calls, files: +1 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 15045.251332000007,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script to read CSV data, compute line totals, and aggregate them instead of computing mentally",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"compute.py not found; result.txt not found\" | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 5 steps, 4 calls, files: +1 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 5 steps, 4 calls, files: +1 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 12534.643584999998,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script using the decimal module for exact arithmetic on a floating-point expression instead of computing mentally",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 2 calls, files: +1 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 2 calls, files: +1 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.format",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 17370.758833,
+          "costUsd": 0,
+          "testDescription": "Output a JSON array of strings with an exact item count for a given category",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 10550.133042000016,
+          "costUsd": 0,
+          "testDescription": "Output a JSON object conforming to a schema with specific field types including nested objects and arrays",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 52188.141082999995,
+          "costUsd": 0,
+          "testDescription": "Output a JSON object satisfying multiple simultaneous constraints: byte-size limit, alphabetically ordered keys, string case rule, and required field types",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.style",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 8602.408751000039,
+          "costUsd": 0,
+          "testDescription": "Write 2-3 sentences in formal academic tone with no contractions and no first-person pronouns",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 7337.997582999989,
+          "costUsd": 0,
+          "testDescription": "Explain a scientific concept to a 5-year-old using simple words and enthusiastic tone, avoiding jargon",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 17176.813041000016,
+          "costUsd": 0,
+          "testDescription": "Write a multi-section document maintaining a specific stylistic register (e.g., pirate, Shakespearean, film noir) consistently throughout every section",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"section 2 lacks Shakespearean style markers\" | 1 steps, 0 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"section 1 lacks Shakespearean style markers\" | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.html",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 30096.86899899997,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document with an h1 heading and an unordered list containing specified items",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 50657.104500999994,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document with semantic structure (header, main, footer) containing a data table with thead and tbody",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 111380.018583,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document containing an inline SVG bar chart with rect elements visualizing data points",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.javascript",
+      "highestLevel": "L0",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 39961.98346000002,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script that reads a text file, counts lines containing a specific character, and writes the count to a file",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: cat: result.txt: No such file or directory\n | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 22216.168292000017,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script that reads CSV data, computes an average, and writes structured JSON output",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 22101.01558399998,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script using Promise.all to concurrently read multiple JSON files, merge and deduplicate records by key, and write the result",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 6 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.python",
+      "highestLevel": "L0",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 29148.51062399993,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using basic syntax and file I/O to read a text file, filter lines matching a numeric condition, and write the count",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: cat: result.txt: No such file or directory\n | 0 steps, 0 calls, adapter exit=1, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 29851.077876000025,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using standard library modules (csv, json) to read structured CSV data, compute an aggregation, and write JSON output",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 0 steps, 0 calls, adapter exit=1, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 17649.161251000012,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using third-party libraries (pandas/numpy/openpyxl) to process data and produce structured output",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 2, in <module>\n  File \"/Users/lecmini/Library/Python/3.9/lib/python/site-packages/openpyxl/reader/excel.py\", line 346, in load_workbook\n    re | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 2, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.json'\n | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.shell",
+      "highestLevel": "L0",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 14545.875540999928,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using grep to count lines in a file that start with a given prefix",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: cat: result.txt: No such file or directory\n | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 20368.47554100002,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using a pipeline (filter, sort, head) to extract top-scoring entries from a file",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.txt'\n | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.txt'\n | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.txt'\n | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 29938.75687500008,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using awk to parse a structured log file, extract key-value pairs by log level, and compute an aggregate",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 3, in <module>\nFileNotFoundError: [Errno 2] No such file or directory: 'result.txt'\n | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.sql",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 12592.655582999927,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query that counts rows in a single table matching a numeric condition",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 26299.74566600006,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query using JOIN and GROUP BY to find the department with the most employees",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 25157.063747999957,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query using a CTE and window functions to rank employees by salary within each department and return the top earners",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.regex",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 16045.284333000076,
+          "costUsd": 0,
+          "testDescription": "Write a regex that matches strings containing a specific word as a substring",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 13312.3024990001,
+          "costUsd": 0,
+          "testDescription": "Write a regex that validates a structured pattern such as email addresses, dates, or key=value pairs",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"failed 2/10: false negative: 01/15/2024\" | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 25571.789292,
+          "costUsd": 0,
+          "testDescription": "Write a regex using lookahead or lookbehind assertions for password validation, word boundary detection, or negative pattern exclusion",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.text.long",
+      "highestLevel": "L1",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 25931.54941700003,
+          "costUsd": 0,
+          "testDescription": "Write a numbered list of key concepts on a topic, wrapped in start/end markers, with exact item count",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 139611.32154299994,
+          "costUsd": 0,
+          "testDescription": "Write a technical document with multiple sections (## headings), each with multiple paragraphs, within a byte-size range",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 4, in <module>\nAssertionError: missing start marker\n | 11 steps, 10 calls, files: +2 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 183211.4756659998,
+          "costUsd": 0,
+          "testDescription": "Write a comprehensive reference document with table of contents, main sections with subsections, and a summary, exceeding 5KB",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 10, in <module>\nAssertionError: expected >= 5 main sections (##), got 0\n | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.text.prose",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 20072.630292000016,
+          "costUsd": 0,
+          "testDescription": "Write a single paragraph with a minimum sentence count on a topic, naturally incorporating required keywords",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 27620.906959000044,
+          "costUsd": 0,
+          "testDescription": "Write a structured essay with a title, multiple headed sections, and multiple paragraphs per section",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 92056.58558399999,
+          "costUsd": 0,
+          "testDescription": "Write a genre-specific document (e.g., technical analysis, persuasive essay) with introduction, body sections, and conclusion in a specified register",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.text.structured",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 5263.846457999898,
+          "costUsd": 0,
+          "testDescription": "Generate a valid flat JSON object under 500 bytes with specified field names, types, and exact values",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 18385.395707000047,
+          "costUsd": 0,
+          "testDescription": "Generate a valid nested JSON object under 5KB with arrays, booleans, and nested objects matching a schema",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 143422.24524999992,
+          "costUsd": 0,
+          "testDescription": "Generate a valid deeply nested JSON object over 5KB representing an organization hierarchy with departments, teams, and members",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"\", stderr: Traceback (most recent call last):\n  File \"<stdin>\", line 9, in <module>\nAssertionError: output too small: 4286 bytes\n | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.analysis",
+      "highestLevel": "L1",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 5843.708332999842,
+          "costUsd": 0,
+          "testDescription": "Describe what a short Python function does in five words or fewer",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 43811.62925000023,
+          "costUsd": 0,
+          "testDescription": "Identify the bug in a single Python function and describe it in one sentence",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"expected keyword \"len\" in response\" | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 61715.52808299987,
+          "costUsd": 0,
+          "testDescription": "Identify the root-cause file and buggy line number in a multi-file Python program given a runtime error description",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"wrong line: expected 8 +/-2, got 2\" | 1 steps, 0 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"need 2 lines, got 0\" | 0 steps, 0 calls, adapter exit=1, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"wrong line: expected 8 +/-2, got 4\" | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.arithmetic",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 34439.704250000184,
+          "costUsd": 0,
+          "testDescription": "Compute a single arithmetic operation (addition, subtraction, multiplication, or percentage)",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"no number found\" | 0 steps, 0 calls, adapter exit=1, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 35784.076917000115,
+          "costUsd": 0,
+          "testDescription": "Compute a multi-step word problem involving discount and sales tax on a purchase",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 47409.05941600003,
+          "costUsd": 0,
+          "testDescription": "Compute compound interest total value and effective annual rate given principal, rate, compounding frequency, and duration",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"need 2 numbers, found 0\" | 3 steps, 2 calls, files: +1 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"need 2 numbers, found 0\" | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.logic",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 21210.161124000093,
+          "costUsd": 0,
+          "testDescription": "Evaluate a syllogism to determine if a conclusion follows from categorical premises",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 22386.839083000086,
+          "costUsd": 0,
+          "testDescription": "Solve a seating arrangement puzzle with positional constraints to identify who sits at a given position",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 45846.49816700001,
+          "costUsd": 0,
+          "testDescription": "Solve a task-to-worker assignment problem with a cost matrix to find the minimum total cost",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"no number found\" | 0 steps, 0 calls, adapter exit=1, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.planning",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 53737.23895800001,
+          "costUsd": 0,
+          "testDescription": "Produce a valid topological ordering of tasks given a dependency DAG",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"wrong tasks: expected {'B', 'C', 'A', 'D'}, got set()\" | 0 steps, 0 calls, adapter exit=1, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"wrong tasks: expected {'D', 'A', 'E', 'B', 'F', 'C'}, got set()\" | 0 steps, 0 calls, adapter exit=1, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 14673.053374999996,
+          "costUsd": 0,
+          "testDescription": "Identify which tasks can execute in parallel at a given stage of a dependency graph",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 54574.15895899999,
+          "costUsd": 0,
+          "testDescription": "Trace execution through a deployment pipeline with a failing step to determine which steps complete and which are skipped",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"skipped: expected ['Deploy', 'Lint', 'Notify'], got ['Deploy', 'Notify']\" | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"skipped: expected ['Deploy', 'Lint', 'Notify'], got ['Deploy', 'Notify']\" | 1 steps, 0 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"skipped: expected ['Deploy', 'Notify', 'Test'], got ['Deploy', 'Notify']\" | 5 steps, 4 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.spatial",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 41662.65800000001,
+          "costUsd": 0,
+          "testDescription": "Compute the Euclidean or Manhattan distance between two 2D points",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"no number found\" | 0 steps, 0 calls, adapter exit=1, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 33192.469874,
+          "costUsd": 0,
+          "testDescription": "Compute a geometric property (area, perimeter, or diagonal) of a triangle or rectangle given vertex coordinates",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 62489.58554100004,
+          "costUsd": 0,
+          "testDescription": "Compute the great-circle distance between two cities using the haversine formula given their latitude and longitude",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"no number found\" | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"no number found\" | 3 steps, 2 calls, files: +1 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.file.write",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 19757.824583000038,
+          "costUsd": 0,
+          "testDescription": "Create a single file with exact multi-line content as specified",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 42542.91350100015,
+          "costUsd": 0,
+          "testDescription": "Create a file containing a long numbered list (15-50 items) with cycling word patterns",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 36335.86341600004,
+          "costUsd": 0,
+          "testDescription": "Create multiple files at once, each with distinct specified content",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"part1.txt: content mismatch; part2.txt: content mismatch; part3.txt: content mismatch; part4.txt: content mismatch; part5.txt: content mismatch; part6.txt: content mismatch\" | 5 steps, 14 calls, files: +6 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.call.batch",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 17471.559666999994,
+          "costUsd": 0,
+          "testDescription": "Read two files and concatenate their contents into a single output file",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 18400.182209,
+          "costUsd": 0,
+          "testDescription": "Read multiple files, extract the first word from each, and write a per-file summary",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 20768.073292,
+          "costUsd": 0,
+          "testDescription": "Read numbers from multiple files and compute a cross-file aggregate (sum, max, or min)",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 8 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.call.format",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 4568.251833000002,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with simple string arguments matching exact values",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 11118.502750999985,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with nested arguments including arrays and sub-objects",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 86501.19533299998,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with deeply nested structures, special characters requiring proper escaping, and mixed types",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.file.read",
+      "highestLevel": "L1",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 12330.21845699998,
+          "costUsd": 0,
+          "testDescription": "Read a single file and copy its content exactly to a new file",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 17273.147833999974,
+          "costUsd": 0,
+          "testDescription": "Read multiple files (some missing) and write a per-file summary indicating content or NOT_FOUND",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 6 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 19499.524999999994,
+          "costUsd": 0,
+          "testDescription": "Read a specific line range from a file (by start line and count) and write the extracted lines to a new file",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"line 1 mismatch: expected [line20: hotel_422], got [hotel_422]\" | 5 steps, 4 calls, files: +1 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"line 1 mismatch: expected [line10: hotel_769], got [hotel_769]\" | 5 steps, 4 calls, files: +1 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.browser",
+      "highestLevel": "L0",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 17029.101208999986,
+          "costUsd": 0,
+          "testDescription": "Parse an HTML file and extract the text content of an element by its id attribute",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"expected bravo_912, got\" | 5 steps, 4 calls, files: +1 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 28038.618541000033,
+          "costUsd": 0,
+          "testDescription": "Parse an HTML table, extract all data rows, and write them as a CSV file",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"result.csv not found\" | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 12889.008999999991,
+          "costUsd": 0,
+          "testDescription": "Crawl multiple linked HTML pages by following next-page links, collect list items from each page, and write the sorted result as JSON",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"result.json not found\" | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"result.json not found\" | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.procedure",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 4445.384458000015,
+          "costUsd": 0,
+          "testDescription": "Follow a 3-step procedure: write a start marker, list numbers 1 through N, write an end marker",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13158.799625000043,
+          "costUsd": 0,
+          "testDescription": "Follow a 6-step procedure with a conditional branch based on whether a number is even or odd, producing computed values at each step",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 9540.45758399996,
+          "costUsd": 0,
+          "testDescription": "Follow a loop procedure: iterate over a word pool for R rounds, output each round's word, then count words starting with a target letter",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.constraint",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 6817.3370830000495,
+          "costUsd": 0,
+          "testDescription": "Write a paragraph on a topic that includes a specific required word (case-sensitive)",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 12821.008125000051,
+          "costUsd": 0,
+          "testDescription": "Write a paragraph satisfying four simultaneous constraints: include a word exactly once, start with a specific word, stay under a word limit, and use an exact sentence count",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 10454.000292000012,
+          "costUsd": 0,
+          "testDescription": "Write a factual-sounding paragraph that states a specified false claim as fact without using any hedging language",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.exec",
+      "highestLevel": "L0",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 11947.242416999943,
+          "costUsd": 0,
+          "testDescription": "Run a single shell command (wc, sort, or head) on a data file and write the output to a result file",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"mismatch: expected [13], got [12]\" | 5 steps, 4 calls, files: +1 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 10511.25683300005,
+          "costUsd": 0,
+          "testDescription": "Write a Python script that reads input, computes an aggregate (sum, product, or median), execute it, and write the result",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"compute.py not found\" | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"compute.py not found\" | 3 steps, 2 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"result.txt not found\" | 3 steps, 2 calls, files: +1 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 15122.736292000045,
+          "costUsd": 0,
+          "testDescription": "Execute a three-step shell pipeline (sort, grep, wc) producing intermediate files at each stage",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), output mismatch: got \"processed.txt not found; result.txt not found\" | 5 steps, 4 calls, files: +1 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"processed.txt not found; result.txt not found\" | 5 steps, 4 calls, files: +1 ~0 -0",
+            "Exit code: 1 (expected 0), output mismatch: got \"intermediate.txt not found; processed.txt not found; result.txt not found\" | 3 steps, 2 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    }
+  ],
+  "cost": {
+    "totalUsd": 0,
+    "totalTokens": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+    },
+    "durationMs": 360791.02025
+  },
+  "isPartial": false
+}

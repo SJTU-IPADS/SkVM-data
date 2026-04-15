@@ -1,0 +1,1211 @@
+{
+  "version": "1.0",
+  "model": "qwen/qwen3.5-122b-a10b",
+  "harness": "openclaw",
+  "profiledAt": "2026-04-10T12:26:50.266Z",
+  "capabilities": {
+    "gen.code.sql": "L3",
+    "gen.code.shell": "L3",
+    "gen.code.python": "L2",
+    "gen.code.javascript": "L3",
+    "gen.code.html": "L3",
+    "gen.regex": "L2",
+    "gen.text.prose": "L3",
+    "gen.text.long": "L3",
+    "gen.text.structured": "L2",
+    "reason.arithmetic": "L3",
+    "reason.logic": "L3",
+    "reason.spatial": "L2",
+    "reason.analysis": "L3",
+    "reason.planning": "L2",
+    "tool.file.read": "L3",
+    "tool.file.write": "L3",
+    "tool.exec": "L3",
+    "tool.call.format": "L2",
+    "tool.call.batch": "L3",
+    "follow.format": "L3",
+    "follow.constraint": "L3",
+    "tool.browser": "L3",
+    "follow.procedure": "L3",
+    "follow.style": "L2",
+    "tool.web": "L3",
+    "follow.delegation": "L3"
+  },
+  "details": [
+    {
+      "primitiveId": "gen.code.sql",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 22928.418625000002,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query that counts rows in a single table matching a numeric condition",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 24150.748333999996,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query using JOIN and GROUP BY to find the department with the most employees",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 24922.404376,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query using a CTE and window functions to rank employees by salary within each department and return the top earners",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.code.sql"
+    },
+    {
+      "primitiveId": "gen.code.shell",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 34476.880084000004,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using grep to count lines in a file that start with a given prefix",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 34285.913583,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using a pipeline (filter, sort, head) to extract top-scoring entries from a file",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 41353.057917,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using awk to parse a structured log file, extract key-value pairs by log level, and compute an aggregate",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.code.shell"
+    },
+    {
+      "primitiveId": "gen.code.python",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 33062.432626,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using basic syntax and file I/O to read a text file, filter lines matching a numeric condition, and write the count",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 39932.237458999996,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using standard library modules (csv, json) to read structured CSV data, compute an aggregation, and write JSON output",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 37335.628291,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using third-party libraries (pandas/numpy/openpyxl) to process data and produce structured output",
+          "failureDetails": [
+            "script_created: 1.00; execution_success: 1.00; output_format: 1.00; headers_correct: 1.00; summary_label: 0.00 (expected \"Total\", got None); value_correct: 0.00 (not a number: None) | 7 steps, 6 calls, adapter exit=0, files: +28 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.code.python/L3/instance-1.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.code.python/L3/instance-1-eval.sh"
+            }
+          ]
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.code.python"
+    },
+    {
+      "primitiveId": "gen.code.javascript",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 40295.600458,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script that reads a text file, counts lines containing a specific character, and writes the count to a file",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 46382.183667,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script that reads CSV data, computes an average, and writes structured JSON output",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 46522.918126000004,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script using Promise.all to concurrently read multiple JSON files, merge and deduplicate records by key, and write the result",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.code.javascript"
+    },
+    {
+      "primitiveId": "gen.code.html",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 22928.069334000014,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document with an h1 heading and an unordered list containing specified items",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 30724.788375000004,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document with semantic structure (header, main, footer) containing a data table with thead and tbody",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 64476.26237499998,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document containing an inline SVG bar chart with rect elements visualizing data points",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.code.html"
+    },
+    {
+      "primitiveId": "gen.regex",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 12646.06491700001,
+          "costUsd": 0,
+          "testDescription": "Write a regex that matches strings containing a specific word as a substring",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 15410.00675,
+          "costUsd": 0,
+          "testDescription": "Write a regex that validates a structured pattern such as email addresses, dates, or key=value pairs",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 17664.311791999993,
+          "costUsd": 0,
+          "testDescription": "Write a regex using lookahead or lookbehind assertions for password validation, word boundary detection, or negative pattern exclusion",
+          "failureDetails": [
+            "regex_valid: 1.00; case_0: 0.00 (false negative: Abcdef1234); case_1: 0.00 (false negative: MyP4ssword); case_2: 0.00 (false negative: Str0ngPass!); case_3: 1.00; case_4: 1.00; case_5: 1.00; case_6: 1.00; case_7: 1.00; case_8: 1.00 | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.regex/L3/instance-1.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.regex/L3/instance-1-eval.sh"
+            }
+          ]
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.regex"
+    },
+    {
+      "primitiveId": "gen.text.prose",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 19168.402208000014,
+          "costUsd": 0,
+          "testDescription": "Write a single paragraph with a minimum sentence count on a topic, naturally incorporating required keywords",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 35845.786250000005,
+          "costUsd": 0,
+          "testDescription": "Write a structured essay with a title, multiple headed sections, and multiple paragraphs per section",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 54795.68720799996,
+          "costUsd": 0,
+          "testDescription": "Write a genre-specific document (e.g., technical analysis, persuasive essay) with introduction, body sections, and conclusion in a specified register",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.text.prose"
+    },
+    {
+      "primitiveId": "gen.text.long",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 20649.394666000007,
+          "costUsd": 0,
+          "testDescription": "Write a numbered list of key concepts on a topic, wrapped in start/end markers, with exact item count",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 46474.03537500002,
+          "costUsd": 0,
+          "testDescription": "Write a technical document with multiple sections (## headings), each with multiple paragraphs, within a byte-size range",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 97410.05095799998,
+          "costUsd": 0,
+          "testDescription": "Write a comprehensive reference document with table of contents, main sections with subsections, and a summary, exceeding 5KB",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.text.long"
+    },
+    {
+      "primitiveId": "gen.text.structured",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13555.807750000007,
+          "costUsd": 0,
+          "testDescription": "Generate a valid flat JSON object under 500 bytes with specified field names, types, and exact values",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 20562.371832999997,
+          "costUsd": 0,
+          "testDescription": "Generate a valid nested JSON object under 5KB with arrays, booleans, and nested objects matching a schema",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 142553.08074999996,
+          "costUsd": 0,
+          "testDescription": "Generate a valid deeply nested JSON object over 5KB representing an organization hierarchy with departments, teams, and members",
+          "failureDetails": [
+            "json_valid: 1.00; byte_size: 1.00; field_departments: 1.00; field_teams: 0.00 (expected 4 teams, got 5) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.text.structured/L3/instance-1.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.text.structured/L3/instance-1-eval.sh"
+            }
+          ]
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/gen.text.structured"
+    },
+    {
+      "primitiveId": "reason.arithmetic",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 15167.802499000012,
+          "costUsd": 0,
+          "testDescription": "Compute a single arithmetic operation (addition, subtraction, multiplication, or percentage)",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 15600.326540999988,
+          "costUsd": 0,
+          "testDescription": "Compute a multi-step word problem involving discount and sales tax on a purchase",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 21594.20079099998,
+          "costUsd": 0,
+          "testDescription": "Compute compound interest total value and effective annual rate given principal, rate, compounding frequency, and duration",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.arithmetic"
+    },
+    {
+      "primitiveId": "reason.logic",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13141.909875000012,
+          "costUsd": 0,
+          "testDescription": "Evaluate a syllogism to determine if a conclusion follows from categorical premises",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 15720.936540000053,
+          "costUsd": 0,
+          "testDescription": "Solve a seating arrangement puzzle with positional constraints to identify who sits at a given position",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 35180.47837399988,
+          "costUsd": 0,
+          "testDescription": "Solve a task-to-worker assignment problem with a cost matrix to find the minimum total cost",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.logic"
+    },
+    {
+      "primitiveId": "reason.spatial",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 14236.41270799993,
+          "costUsd": 0,
+          "testDescription": "Compute the Euclidean or Manhattan distance between two 2D points",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 15308.47620699997,
+          "costUsd": 0,
+          "testDescription": "Compute a geometric property (area, perimeter, or diagonal) of a triangle or rectangle given vertex coordinates",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 28941.268500000006,
+          "costUsd": 0,
+          "testDescription": "Compute the great-circle distance between two cities using the haversine formula given their latitude and longitude",
+          "failureDetails": [
+            "number_found: 1.00; distance_correct: 0.00 (expected ~5837 km, got 5949 km) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0",
+            "number_found: 1.00; distance_correct: 0.00 (expected ~10220 km, got 10544 km) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0",
+            "number_found: 1.00; distance_correct: 0.00 (expected ~15989 km, got 15400 km) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.spatial/L3/instance-0.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.spatial/L3/instance-0-eval.sh"
+            },
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.spatial/L3/instance-1.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.spatial/L3/instance-1-eval.sh"
+            },
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.spatial/L3/instance-2.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.spatial/L3/instance-2-eval.sh"
+            }
+          ]
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.spatial"
+    },
+    {
+      "primitiveId": "reason.analysis",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 11822.379375000019,
+          "costUsd": 0,
+          "testDescription": "Describe what a short Python function does in five words or fewer",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 14348.963832000096,
+          "costUsd": 0,
+          "testDescription": "Identify the bug in a single Python function and describe it in one sentence",
+          "failureDetails": [
+            "keyword_found: 0.00 (expected keyword \"zero\" in response) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.analysis/L2/instance-2.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.analysis/L2/instance-2-eval.sh"
+            }
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 25942.12141600001,
+          "costUsd": 0,
+          "testDescription": "Identify the root-cause file and buggy line number in a multi-file Python program given a runtime error description",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.analysis"
+    },
+    {
+      "primitiveId": "reason.planning",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 15368.374457999947,
+          "costUsd": 0,
+          "testDescription": "Produce a valid topological ordering of tasks given a dependency DAG",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 39805.77337500005,
+          "costUsd": 0,
+          "testDescription": "Identify which tasks can execute in parallel at a given stage of a dependency graph",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 23447.595541999966,
+          "costUsd": 0,
+          "testDescription": "Trace execution through a deployment pipeline with a failing step to determine which steps complete and which are skipped",
+          "failureDetails": [
+            "lines_found: 1.00; completed_correct: 1.00; skipped_correct: 0.00 (expected ['Deploy', 'Lint', 'Notify'], got ['Deploy', 'Notify']) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0",
+            "lines_found: 1.00; completed_correct: 1.00; skipped_correct: 0.00 (expected ['Deploy', 'Notify', 'Test'], got ['Deploy', 'Notify']) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0",
+            "lines_found: 1.00; completed_correct: 1.00; skipped_correct: 0.00 (expected ['Deploy', 'Lint', 'Notify'], got ['Deploy', 'Notify']) | 1 steps, 0 calls, adapter exit=0, files: +27 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.planning/L3/instance-0.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.planning/L3/instance-0-eval.sh"
+            },
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.planning/L3/instance-1.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.planning/L3/instance-1-eval.sh"
+            },
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.planning/L3/instance-2.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.planning/L3/instance-2-eval.sh"
+            }
+          ]
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/reason.planning"
+    },
+    {
+      "primitiveId": "tool.file.read",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 24288.036041999992,
+          "costUsd": 0,
+          "testDescription": "Read a single file and copy its content exactly to a new file",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 30970.264041999995,
+          "costUsd": 0,
+          "testDescription": "Read multiple files (some missing) and write a per-file summary indicating content or NOT_FOUND",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 26981.68854100007,
+          "costUsd": 0,
+          "testDescription": "Read a specific line range from a file (by start line and count) and write the extracted lines to a new file",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.file.read"
+    },
+    {
+      "primitiveId": "tool.file.write",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 19586.657873999968,
+          "costUsd": 0,
+          "testDescription": "Create a single file with exact multi-line content as specified",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 34927.70512500004,
+          "costUsd": 0,
+          "testDescription": "Create a file containing a long numbered list (15-50 items) with cycling word patterns",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 27945.683331999986,
+          "costUsd": 0,
+          "testDescription": "Create multiple files at once, each with distinct specified content",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.file.write"
+    },
+    {
+      "primitiveId": "tool.exec",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 20712.83483299997,
+          "costUsd": 0,
+          "testDescription": "Run a single shell command (wc, sort, or head) on a data file and write the output to a result file",
+          "failureDetails": [
+            "file_exists: 1.00; output_correct: 0.00 (expected [12], got [11]) | 5 steps, 4 calls, adapter exit=0, files: +27 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.exec/L1/instance-0.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.exec/L1/instance-0-eval.sh"
+            }
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 43445.82954200002,
+          "costUsd": 0,
+          "testDescription": "Write a Python script that reads input, computes an aggregate (sum, product, or median), execute it, and write the result",
+          "failureDetails": [
+            "file_exists: 1.00; execution_correct: 1.00; output_correct: 0.00 (expected 104, got 150.0) | 9 steps, 8 calls, adapter exit=0, files: +28 ~1 -0",
+            "file_exists: 1.00; execution_correct: 1.00; output_correct: 0.00 (expected 36.5, got 5.0) | 9 steps, 8 calls, adapter exit=0, files: +28 ~1 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.exec/L2/instance-1.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.exec/L2/instance-1-eval.sh"
+            },
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.exec/L2/instance-2.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.exec/L2/instance-2-eval.sh"
+            }
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 28617.376875000016,
+          "costUsd": 0,
+          "testDescription": "Execute a three-step shell pipeline (sort, grep, wc) producing intermediate files at each stage",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.exec"
+    },
+    {
+      "primitiveId": "tool.call.format",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 21514.17566800001,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with simple string arguments matching exact values",
+          "failureDetails": [
+            "json_valid: 0.00 (no JSON found in response) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.call.format/L1/instance-0.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.call.format/L1/instance-0-eval.sh"
+            }
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 19044.30241699994,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with nested arguments including arrays and sub-objects",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 51660.79691599996,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with deeply nested structures, special characters requiring proper escaping, and mixed types",
+          "failureDetails": [
+            "json_valid: 0.00 (invalid JSON: Extra data: line 1 column 294 (char 293)) | 1 steps, 0 calls, adapter exit=0, files: +27 ~0 -0",
+            "json_valid: 1.00; function_name: 0.00 (expected process_data, got name); args_correct: 1.00; tags_correct: 1.00; nested_structure: 1.00 | 1 steps, 0 calls, adapter exit=0, files: +27 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.call.format/L3/instance-1.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.call.format/L3/instance-1-eval.sh"
+            },
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.call.format/L3/instance-2.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.call.format/L3/instance-2-eval.sh"
+            }
+          ]
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.call.format"
+    },
+    {
+      "primitiveId": "tool.call.batch",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 26611.429917,
+          "costUsd": 0,
+          "testDescription": "Read two files and concatenate their contents into a single output file",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 28663.211001000018,
+          "costUsd": 0,
+          "testDescription": "Read multiple files, extract the first word from each, and write a per-file summary",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 32260.520874999987,
+          "costUsd": 0,
+          "testDescription": "Read numbers from multiple files and compute a cross-file aggregate (sum, max, or min)",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.call.batch"
+    },
+    {
+      "primitiveId": "follow.format",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13891.296207999985,
+          "costUsd": 0,
+          "testDescription": "Output a JSON array of strings with an exact item count for a given category",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 17932.89595799992,
+          "costUsd": 0,
+          "testDescription": "Output a JSON object conforming to a schema with specific field types including nested objects and arrays",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 27293.05608399998,
+          "costUsd": 0,
+          "testDescription": "Output a JSON object satisfying multiple simultaneous constraints: byte-size limit, alphabetically ordered keys, string case rule, and required field types",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.format"
+    },
+    {
+      "primitiveId": "follow.constraint",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 19024.94566700002,
+          "costUsd": 0,
+          "testDescription": "Write a paragraph on a topic that includes a specific required word (case-sensitive)",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 21757.901209000032,
+          "costUsd": 0,
+          "testDescription": "Write a paragraph satisfying four simultaneous constraints: include a word exactly once, start with a specific word, stay under a word limit, and use an exact sentence count",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), stderr:   File \"<stdin>\", line 11\n    first_word = text.split()[0].strip('\"'`') if text.split() else ''\n                                          ^\nSyntaxError: invalid syntax\n | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0",
+            "Exit code: 1 (expected 0), stderr:   File \"<stdin>\", line 11\n    first_word = text.split()[0].strip('\"'`') if text.split() else ''\n                                          ^\nSyntaxError: invalid syntax\n | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0",
+            "Exit code: 1 (expected 0), stderr:   File \"<stdin>\", line 11\n    first_word = text.split()[0].strip('\"'`') if text.split() else ''\n                                          ^\nSyntaxError: invalid syntax\n | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.constraint/L2/instance-0.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.constraint/L2/instance-0-eval.sh"
+            },
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.constraint/L2/instance-1.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.constraint/L2/instance-1-eval.sh"
+            },
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.constraint/L2/instance-2.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.constraint/L2/instance-2-eval.sh"
+            }
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 18522.748001000087,
+          "costUsd": 0,
+          "testDescription": "Write a factual-sounding paragraph that states a specified false claim as fact without using any hedging language",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.constraint"
+    },
+    {
+      "primitiveId": "tool.browser",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 24013.32845900004,
+          "costUsd": 0,
+          "testDescription": "Parse an HTML file and extract the text content of an element by its id attribute",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 26114.271000000008,
+          "costUsd": 0,
+          "testDescription": "Parse an HTML table, extract all data rows, and write them as a CSV file",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 68094.94375000003,
+          "costUsd": 0,
+          "testDescription": "Crawl multiple linked HTML pages by following next-page links, collect list items from each page, and write the sorted result as JSON",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.browser"
+    },
+    {
+      "primitiveId": "follow.procedure",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13473.164333000022,
+          "costUsd": 0,
+          "testDescription": "Follow a 3-step procedure: write a start marker, list numbers 1 through N, write an end marker",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 17485.686666000052,
+          "costUsd": 0,
+          "testDescription": "Follow a 6-step procedure with a conditional branch based on whether a number is even or odd, producing computed values at each step",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 18372.742415999994,
+          "costUsd": 0,
+          "testDescription": "Follow a loop procedure: iterate over a word pool for R rounds, output each round's word, then count words starting with a target letter",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.procedure"
+    },
+    {
+      "primitiveId": "follow.style",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 14034.692791000125,
+          "costUsd": 0,
+          "testDescription": "Write 2-3 sentences in formal academic tone with no contractions and no first-person pronouns",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 18294.23658300005,
+          "costUsd": 0,
+          "testDescription": "Explain a scientific concept to a 5-year-old using simple words and enthusiastic tone, avoiding jargon",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 25511.418208000134,
+          "costUsd": 0,
+          "testDescription": "Write a multi-section document maintaining a specific stylistic register (e.g., pirate, Shakespearean, film noir) consistently throughout every section",
+          "failureDetails": [
+            "section_count: 1.00; marker_count: 1.00; style_consistent: 0.00 (section 3 lacks film noir detective style markers) | 1 steps, 0 calls, adapter exit=0, files: +26 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.style/L3/instance-0.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.style/L3/instance-0-eval.sh"
+            }
+          ]
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.style"
+    },
+    {
+      "primitiveId": "tool.web",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 62983.969500000065,
+          "costUsd": 0,
+          "testDescription": "Start a local HTTP server, fetch a JSON response, extract a specific field, and write it to a file",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 76123.72708300006,
+          "costUsd": 0,
+          "testDescription": "Fetch JSON from a local server with query parameters, extract nested data (total and item IDs), and write structured JSON output",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 75946.305208,
+          "costUsd": 0,
+          "testDescription": "Fetch all pages from a paginated local API, merge items across pages, and write the combined result to JSON",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/tool.web"
+    },
+    {
+      "primitiveId": "follow.delegation",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 29210.66512499994,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script to compute the product of a list of numbers instead of computing it mentally",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 37548.46233300003,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script to read CSV data, compute line totals, and aggregate them instead of computing mentally",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 29611.520458000014,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script using the decimal module for exact arithmetic on a floating-point expression instead of computing mentally",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/openclaw/qwen--qwen3.5-122b-a10b/follow.delegation"
+    }
+  ],
+  "cost": {
+    "totalUsd": 0,
+    "totalTokens": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+    },
+    "durationMs": 632670.148375
+  },
+  "isPartial": false
+}

@@ -1,0 +1,59 @@
+{
+  "profiledAt": "2026-04-08T13:37:07.086Z",
+  "reports": {
+    "reason.arithmetic/L1": [
+      {
+        "primitiveId": "reason.arithmetic",
+        "level": "L1",
+        "instance": 1,
+        "evalDetails": "number_found: 1.00; value_correct: 0.00 (expected 7270, got 2240.0)",
+        "agentText": "2240",
+        "steps": [
+          {
+            "index": 0,
+            "role": "assistant",
+            "text": "2240",
+            "toolCalls": []
+          }
+        ],
+        "toolCallSummary": {
+          "totalCalls": 0,
+          "byTool": {},
+          "errors": []
+        },
+        "fileChanges": {
+          "created": [],
+          "modified": [],
+          "deleted": []
+        },
+        "durationMs": 835.8453749999899
+      },
+      {
+        "primitiveId": "reason.arithmetic",
+        "level": "L1",
+        "instance": 2,
+        "evalDetails": "number_found: 1.00; value_correct: 0.00 (expected 8745.75, got 8755.75)",
+        "agentText": "8755.75",
+        "steps": [
+          {
+            "index": 0,
+            "role": "assistant",
+            "text": "8755.75",
+            "toolCalls": []
+          }
+        ],
+        "toolCallSummary": {
+          "totalCalls": 0,
+          "byTool": {},
+          "errors": []
+        },
+        "fileChanges": {
+          "created": [],
+          "modified": [],
+          "deleted": []
+        },
+        "durationMs": 983.8616659999971
+      }
+    ]
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "profiledAt": "2026-04-08T13:37:07.083Z",
+  "reports": {
+    "reason.arithmetic/L1": [
+      {
+        "primitiveId": "reason.arithmetic",
+        "level": "L1",
+        "instance": 0,
+        "evalDetails": "number_found: 1.00; value_correct: 0.00 (expected 5087, got 6087.0)",
+        "agentText": "6087",
+        "steps": [
+          {
+            "index": 0,
+            "role": "assistant",
+            "text": "6087",
+            "toolCalls": []
+          }
+        ],
+        "toolCallSummary": {
+          "totalCalls": 0,
+          "byTool": {},
+          "errors": []
+        },
+        "fileChanges": {
+          "created": [],
+          "modified": [],
+          "deleted": []
+        },
+        "durationMs": 3224.1470830000003
+      }
+    ]
+  }
+}
