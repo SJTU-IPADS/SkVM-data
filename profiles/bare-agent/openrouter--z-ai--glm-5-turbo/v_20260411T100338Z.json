@@ -1,0 +1,1030 @@
+{
+  "version": "1.0",
+  "model": "openrouter/z-ai/glm-5-turbo",
+  "harness": "bare-agent",
+  "profiledAt": "2026-04-11T10:03:38.208Z",
+  "capabilities": {
+    "gen.code.python": "L3",
+    "gen.code.javascript": "L3",
+    "gen.code.shell": "L3",
+    "gen.code.sql": "L3",
+    "gen.code.html": "L3",
+    "gen.text.structured": "L3",
+    "gen.text.long": "L3",
+    "gen.text.prose": "L2",
+    "gen.regex": "L2",
+    "reason.arithmetic": "L1",
+    "reason.logic": "L2",
+    "reason.spatial": "L3",
+    "reason.planning": "L2",
+    "reason.analysis": "L1",
+    "tool.file.read": "L2",
+    "tool.file.write": "L3",
+    "tool.exec": "L3",
+    "tool.call.format": "L3",
+    "tool.call.batch": "L3",
+    "tool.browser": "L3",
+    "follow.format": "L3",
+    "follow.constraint": "L3",
+    "follow.procedure": "L3",
+    "follow.delegation": "L3",
+    "follow.style": "L2",
+    "tool.web": "L3"
+  },
+  "details": [
+    {
+      "primitiveId": "gen.code.python",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 18730.815416999998,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using basic syntax and file I/O to read a text file, filter lines matching a numeric condition, and write the count",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 23390.204790999996,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using standard library modules (csv, json) to read structured CSV data, compute an aggregation, and write JSON output",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 26394.703293,
+          "costUsd": 0,
+          "testDescription": "Write a Python script using third-party libraries (pandas/numpy/openpyxl) to process data and produce structured output",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.javascript",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 19015.189583999978,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script that reads a text file, counts lines containing a specific character, and writes the count to a file",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 28873.573375000007,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script that reads CSV data, computes an average, and writes structured JSON output",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 31898.534415000046,
+          "costUsd": 0,
+          "testDescription": "Write a Node.js script using Promise.all to concurrently read multiple JSON files, merge and deduplicate records by key, and write the result",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.shell",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 18681.64854199998,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using grep to count lines in a file that start with a given prefix",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 24105.73404099999,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using a pipeline (filter, sort, head) to extract top-scoring entries from a file",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 33314.08783500001,
+          "costUsd": 0,
+          "testDescription": "Write a bash script using awk to parse a structured log file, extract key-value pairs by log level, and compute an aggregate",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.sql",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 7398.400041000015,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query that counts rows in a single table matching a numeric condition",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 8771.93849999999,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query using JOIN and GROUP BY to find the department with the most employees",
+          "failureDetails": [
+            "query_created: 1.00; query_valid: 1.00; result_correct: 0.00 (expected 'Finance', got 'Engineering') | 3 steps, 2 calls, files: +2 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13715.574666999979,
+          "costUsd": 0,
+          "testDescription": "Write a SQL query using a CTE and window functions to rank employees by salary within each department and return the top earners",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.code.html",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 12436.717250000016,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document with an h1 heading and an unordered list containing specified items",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 27957.118459000078,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document with semantic structure (header, main, footer) containing a data table with thead and tbody",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 91132.06341600005,
+          "costUsd": 0,
+          "testDescription": "Write an HTML document containing an inline SVG bar chart with rect elements visualizing data points",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.text.structured",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 3943.6236250000657,
+          "costUsd": 0,
+          "testDescription": "Generate a valid flat JSON object under 500 bytes with specified field names, types, and exact values",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 6351.147748999996,
+          "costUsd": 0,
+          "testDescription": "Generate a valid nested JSON object under 5KB with arrays, booleans, and nested objects matching a schema",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 47799.78129100002,
+          "costUsd": 0,
+          "testDescription": "Generate a valid deeply nested JSON object over 5KB representing an organization hierarchy with departments, teams, and members",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.text.long",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 19404.598876000033,
+          "costUsd": 0,
+          "testDescription": "Write a numbered list of key concepts on a topic, wrapped in start/end markers, with exact item count",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 25173.34604199999,
+          "costUsd": 0,
+          "testDescription": "Write a technical document with multiple sections (## headings), each with multiple paragraphs, within a byte-size range",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 119058.00579100009,
+          "costUsd": 0,
+          "testDescription": "Write a comprehensive reference document with table of contents, main sections with subsections, and a summary, exceeding 5KB",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.text.prose",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 11790.091209,
+          "costUsd": 0,
+          "testDescription": "Write a single paragraph with a minimum sentence count on a topic, naturally incorporating required keywords",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 25658.585375,
+          "costUsd": 0,
+          "testDescription": "Write a structured essay with a title, multiple headed sections, and multiple paragraphs per section",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 422372.53166599997,
+          "costUsd": 0,
+          "testDescription": "Write a genre-specific document (e.g., technical analysis, persuasive essay) with introduction, body sections, and conclusion in a specified register",
+          "failureDetails": [
+            "section_count: 0.00 (expected >= 5 sections, got 0); has_introduction: 0.00 (missing Introduction section); has_conclusion: 0.00 (missing Conclusion section); byte_size_min: 0.00 (too short: 778 bytes); byte_size_max: 1.00 | 11 steps, 10 calls, files: +1 ~0 -0",
+            "section_count: 0.00 (expected >= 5 sections, got 0); has_introduction: 0.00 (missing Introduction section); has_conclusion: 0.00 (missing Conclusion section); byte_size_min: 0.00 (too short: 0 bytes); byte_size_max: 1.00 | 28 steps, 28 calls, files: +1 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "gen.regex",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 3162.1862919999985,
+          "costUsd": 0,
+          "testDescription": "Write a regex that matches strings containing a specific word as a substring",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 2947.8483340000384,
+          "costUsd": 0,
+          "testDescription": "Write a regex that validates a structured pattern such as email addresses, dates, or key=value pairs",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 3809.22433300002,
+          "costUsd": 0,
+          "testDescription": "Write a regex using lookahead or lookbehind assertions for password validation, word boundary detection, or negative pattern exclusion",
+          "failureDetails": [
+            "regex_valid: 0.00 (invalid regex: look-behind requires fixed-width pattern) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.arithmetic",
+      "highestLevel": "L1",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 3219.364040999906,
+          "costUsd": 0,
+          "testDescription": "Compute a single arithmetic operation (addition, subtraction, multiplication, or percentage)",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 5594.025208999985,
+          "costUsd": 0,
+          "testDescription": "Compute a multi-step word problem involving discount and sales tax on a purchase",
+          "failureDetails": [
+            "number_found: 1.00; value_correct: 0.00 (expected 1225.04, got 1229.54) | 1 steps, 0 calls, files: +0 ~0 -0",
+            "number_found: 1.00; value_correct: 0.00 (expected 492.48, got 395.52) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 30975.774207999988,
+          "costUsd": 0,
+          "testDescription": "Compute compound interest total value and effective annual rate given principal, rate, compounding frequency, and duration",
+          "failureDetails": [
+            "numbers_found: 1.00; total_correct: 0.00 (expected 53224.74, got 0.04); ear_correct: 0.00 (expected 4.06%, got 0.04%) | 1 steps, 0 calls, files: +0 ~0 -0",
+            "numbers_found: 1.00; total_correct: 0.00 (expected 27492.39, got 0.03); ear_correct: 0.00 (expected 3.03%, got 0.03%) | 1 steps, 0 calls, files: +0 ~0 -0",
+            "numbers_found: 1.00; total_correct: 0.00 (expected 70775.68, got 0.07); ear_correct: 0.00 (expected 7.19%, got 0.07%) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.logic",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 4179.435750999954,
+          "costUsd": 0,
+          "testDescription": "Evaluate a syllogism to determine if a conclusion follows from categorical premises",
+          "failureDetails": [
+            "answer_correct: 0.00 (expected No, got yes) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 4160.09600000002,
+          "costUsd": 0,
+          "testDescription": "Solve a seating arrangement puzzle with positional constraints to identify who sits at a given position",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 18589.394458000024,
+          "costUsd": 0,
+          "testDescription": "Solve a task-to-worker assignment problem with a cost matrix to find the minimum total cost",
+          "failureDetails": [
+            "number_found: 1.00; cost_correct: 0.00 (expected 22, got 32) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.spatial",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 7467.189292000025,
+          "costUsd": 0,
+          "testDescription": "Compute the Euclidean or Manhattan distance between two 2D points",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 12330.916083000135,
+          "costUsd": 0,
+          "testDescription": "Compute a geometric property (area, perimeter, or diagonal) of a triangle or rectangle given vertex coordinates",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13812.325499999919,
+          "costUsd": 0,
+          "testDescription": "Compute the great-circle distance between two cities using the haversine formula given their latitude and longitude",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.planning",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 7819.050207000226,
+          "costUsd": 0,
+          "testDescription": "Produce a valid topological ordering of tasks given a dependency DAG",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 2723.351000000024,
+          "costUsd": 0,
+          "testDescription": "Identify which tasks can execute in parallel at a given stage of a dependency graph",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 3197.9745820000535,
+          "costUsd": 0,
+          "testDescription": "Trace execution through a deployment pipeline with a failing step to determine which steps complete and which are skipped",
+          "failureDetails": [
+            "lines_found: 1.00; completed_correct: 0.00 (expected ['Build', 'Lint'], got ['Build']); skipped_correct: 0.00 (expected ['Deploy', 'Notify', 'Test'], got ['Deploy', 'Lint', 'Notify', 'Test']) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "reason.analysis",
+      "highestLevel": "L1",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 3149.5512920001056,
+          "costUsd": 0,
+          "testDescription": "Describe what a short Python function does in five words or fewer",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 4453.628208999988,
+          "costUsd": 0,
+          "testDescription": "Identify the bug in a single Python function and describe it in one sentence",
+          "failureDetails": [
+            "keyword_found: 0.00 (expected keyword \"zero\" in response) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 3158.5485839998582,
+          "costUsd": 0,
+          "testDescription": "Identify the root-cause file and buggy line number in a multi-file Python program given a runtime error description",
+          "failureDetails": [
+            "format_correct: 1.00; file_correct: 0.00 (expected data.py, got main.py); line_correct: 0.00 (expected 8 +/-2, got 3) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.file.read",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 12760.909040999832,
+          "costUsd": 0,
+          "testDescription": "Read a single file and copy its content exactly to a new file",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 15975.117958000046,
+          "costUsd": 0,
+          "testDescription": "Read multiple files (some missing) and write a per-file summary indicating content or NOT_FOUND",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 29838.727416999987,
+          "costUsd": 0,
+          "testDescription": "Read a specific line range from a file (by start line and count) and write the extracted lines to a new file",
+          "failureDetails": [
+            "file_exists: 1.00; format_correct: 1.00; content_correct: 0.00 (line 1 mismatch; line 2 mismatch; line 3 mismatch) | 5 steps, 4 calls, files: +1 ~0 -0",
+            "file_exists: 1.00; format_correct: 1.00; content_correct: 0.00 (line 1 mismatch; line 2 mismatch; line 3 mismatch) | 5 steps, 4 calls, files: +1 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.file.write",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 9701.147416000022,
+          "costUsd": 0,
+          "testDescription": "Create a single file with exact multi-line content as specified",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 15744.728541999939,
+          "costUsd": 0,
+          "testDescription": "Create a file containing a long numbered list (15-50 items) with cycling word patterns",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 19534.66412500001,
+          "costUsd": 0,
+          "testDescription": "Create multiple files at once, each with distinct specified content",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.exec",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 11208.13837499998,
+          "costUsd": 0,
+          "testDescription": "Run a single shell command (wc, sort, or head) on a data file and write the output to a result file",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 1,
+          "totalCount": 3,
+          "durationMs": 32765.42858399998,
+          "costUsd": 0,
+          "testDescription": "Write a Python script that reads input, computes an aggregate (sum, product, or median), execute it, and write the result",
+          "failureDetails": [
+            "file_exists: 1.00; execution_correct: 1.00; output_correct: 0.00 (expected 151, got 122.0) | 7 steps, 8 calls, files: +2 ~1 -0",
+            "file_exists: 1.00; execution_correct: 1.00; output_correct: 0.00 (expected 35640, got 120.0) | 7 steps, 8 calls, files: +2 ~1 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 29642.452667000005,
+          "costUsd": 0,
+          "testDescription": "Execute a three-step shell pipeline (sort, grep, wc) producing intermediate files at each stage",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.call.format",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 3217.5927510000765,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with simple string arguments matching exact values",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 4807.236125000054,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with nested arguments including arrays and sub-objects",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 5442.703666999936,
+          "costUsd": 0,
+          "testDescription": "Output a JSON function call object with deeply nested structures, special characters requiring proper escaping, and mixed types",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.call.batch",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13825.545916000032,
+          "costUsd": 0,
+          "testDescription": "Read two files and concatenate their contents into a single output file",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 14216.866666999995,
+          "costUsd": 0,
+          "testDescription": "Read multiple files, extract the first word from each, and write a per-file summary",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 14956.163542999886,
+          "costUsd": 0,
+          "testDescription": "Read numbers from multiple files and compute a cross-file aggregate (sum, max, or min)",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.browser",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 9864.059624,
+          "costUsd": 0,
+          "testDescription": "Parse an HTML file and extract the text content of an element by its id attribute",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 33991.277541999996,
+          "costUsd": 0,
+          "testDescription": "Parse an HTML table, extract all data rows, and write them as a CSV file",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 26049.47562399999,
+          "costUsd": 0,
+          "testDescription": "Crawl multiple linked HTML pages by following next-page links, collect list items from each page, and write the sorted result as JSON",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.format",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 3561.5289170000033,
+          "costUsd": 0,
+          "testDescription": "Output a JSON array of strings with an exact item count for a given category",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 4082.1054170000134,
+          "costUsd": 0,
+          "testDescription": "Output a JSON object conforming to a schema with specific field types including nested objects and arrays",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 13300.676292000004,
+          "costUsd": 0,
+          "testDescription": "Output a JSON object satisfying multiple simultaneous constraints: byte-size limit, alphabetically ordered keys, string case rule, and required field types",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.constraint",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 6407.518418000007,
+          "costUsd": 0,
+          "testDescription": "Write a paragraph on a topic that includes a specific required word (case-sensitive)",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 0,
+          "totalCount": 3,
+          "durationMs": 5212.650874999992,
+          "costUsd": 0,
+          "testDescription": "Write a paragraph satisfying four simultaneous constraints: include a word exactly once, start with a specific word, stay under a word limit, and use an exact sentence count",
+          "failureDetails": [
+            "Exit code: 1 (expected 0), stderr:   File \"<stdin>\", line 11\n    first_word = text.split()[0].strip('\"'`') if text.split() else ''\n                                          ^\nSyntaxError: invalid syntax\n | 1 steps, 0 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), stderr:   File \"<stdin>\", line 11\n    first_word = text.split()[0].strip('\"'`') if text.split() else ''\n                                          ^\nSyntaxError: invalid syntax\n | 1 steps, 0 calls, files: +0 ~0 -0",
+            "Exit code: 1 (expected 0), stderr:   File \"<stdin>\", line 11\n    first_word = text.split()[0].strip('\"'`') if text.split() else ''\n                                          ^\nSyntaxError: invalid syntax\n | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 6140.067999999999,
+          "costUsd": 0,
+          "testDescription": "Write a factual-sounding paragraph that states a specified false claim as fact without using any hedging language",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.procedure",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 3232.429999999993,
+          "costUsd": 0,
+          "testDescription": "Follow a 3-step procedure: write a start marker, list numbers 1 through N, write an end marker",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 3280.760374000005,
+          "costUsd": 0,
+          "testDescription": "Follow a 6-step procedure with a conditional branch based on whether a number is even or odd, producing computed values at each step",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 14574.512666999988,
+          "costUsd": 0,
+          "testDescription": "Follow a loop procedure: iterate over a word pool for R rounds, output each round's word, then count words starting with a target letter",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.delegation",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 14668.402916000006,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script to compute the product of a list of numbers instead of computing it mentally",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 20087.01308299997,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script to read CSV data, compute line totals, and aggregate them instead of computing mentally",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 16260.814874999982,
+          "costUsd": 0,
+          "testDescription": "Write and execute a Python script using the decimal module for exact arithmetic on a floating-point expression instead of computing mentally",
+          "failureDetails": []
+        }
+      ]
+    },
+    {
+      "primitiveId": "follow.style",
+      "highestLevel": "L2",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 4549.66079200001,
+          "costUsd": 0,
+          "testDescription": "Write 2-3 sentences in formal academic tone with no contractions and no first-person pronouns",
+          "failureDetails": []
+        },
+        {
+          "level": "L2",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 4770.18516600001,
+          "costUsd": 0,
+          "testDescription": "Explain a scientific concept to a 5-year-old using simple words and enthusiastic tone, avoiding jargon",
+          "failureDetails": []
+        },
+        {
+          "level": "L3",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 12160.449040999956,
+          "costUsd": 0,
+          "testDescription": "Write a multi-section document maintaining a specific stylistic register (e.g., pirate, Shakespearean, film noir) consistently throughout every section",
+          "failureDetails": [
+            "section_count: 1.00; marker_count: 1.00; style_consistent: 0.00 (section 2 lacks film noir detective style markers) | 1 steps, 0 calls, files: +0 ~0 -0"
+          ]
+        }
+      ]
+    },
+    {
+      "primitiveId": "tool.web",
+      "highestLevel": "L3",
+      "levelResults": [
+        {
+          "level": "L1",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 90008.93962599999,
+          "costUsd": 0,
+          "testDescription": "Start a local HTTP server, fetch a JSON response, extract a specific field, and write it to a file",
+          "failureDetails": [],
+          "failureArtifacts": []
+        },
+        {
+          "level": "L2",
+          "passed": false,
+          "passCount": 2,
+          "totalCount": 3,
+          "durationMs": 101693.885751,
+          "costUsd": 0,
+          "testDescription": "Fetch JSON from a local server with query parameters, extract nested data (total and item IDs), and write structured JSON output",
+          "failureDetails": [
+            "file_exists: 0.00 (result.json not found) | 18 steps, 18 calls, files: +0 ~0 -0"
+          ],
+          "failureArtifacts": [
+            {
+              "convLog": "/Users/lecmini/Projects/skillvm/data/logs/profile/bare-agent/z-ai--glm-5-turbo/tool.web/L2/instance-2.jsonl",
+              "evalScript": "/Users/lecmini/Projects/skillvm/data/logs/profile/bare-agent/z-ai--glm-5-turbo/tool.web/L2/instance-2-eval.sh"
+            }
+          ]
+        },
+        {
+          "level": "L3",
+          "passed": true,
+          "passCount": 3,
+          "totalCount": 3,
+          "durationMs": 83030.97029200001,
+          "costUsd": 0,
+          "testDescription": "Fetch all pages from a paginated local API, merge items across pages, and write the combined result to JSON",
+          "failureDetails": [],
+          "failureArtifacts": []
+        }
+      ],
+      "convLogDir": "/Users/lecmini/Projects/skillvm/data/logs/profile/bare-agent/z-ai--glm-5-turbo/tool.web"
+    }
+  ],
+  "cost": {
+    "totalUsd": 0,
+    "totalTokens": {
+      "input": 0,
+      "output": 0,
+      "cacheRead": 0,
+      "cacheWrite": 0
+    },
+    "durationMs": 274746.870833
+  },
+  "isPartial": false
+}
